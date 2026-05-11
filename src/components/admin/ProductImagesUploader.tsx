@@ -10,6 +10,39 @@ interface ProductImagesUploaderProps {
   images: ProductImage[];
 }
 
+/** Redimensiona e converte para WebP antes do upload. Máx 1800px, qualidade 0.82. */
+async function compressImage(file: File): Promise<{ blob: Blob; type: string }> {
+  const MAX_PX = 1800;
+  const QUALITY = 0.82;
+
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new window.Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const scale = Math.min(1, MAX_PX / Math.max(img.width, img.height));
+      const w = Math.round(img.width * scale);
+      const h = Math.round(img.height * scale);
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) { reject(new Error("Canvas não disponível")); return; }
+      ctx.drawImage(img, 0, 0, w, h);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) { reject(new Error("Falha na compressão")); return; }
+          resolve({ blob, type: "image/webp" });
+        },
+        "image/webp",
+        QUALITY
+      );
+    };
+    img.onerror = () => reject(new Error("Imagem inválida"));
+    img.src = url;
+  });
+}
+
 export function ProductImagesUploader({ productId, images: initialImages }: ProductImagesUploaderProps) {
   const [images, setImages] = useState(initialImages);
   const [uploading, setUploading] = useState(false);
@@ -23,37 +56,41 @@ export function ProductImagesUploader({ productId, images: initialImages }: Prod
 
     for (const file of Array.from(files)) {
       try {
-        // 1. Get presigned URL
+        // 1. Comprimir e converter para WebP
+        const { blob, type } = await compressImage(file);
+        const sizeMB = (blob.size / 1024 / 1024).toFixed(2);
+        console.log(`[upload] ${file.name}: ${(file.size / 1024 / 1024).toFixed(2)}MB → ${sizeMB}MB WebP`);
+
+        // 2. Obter URL pré-assinada
         const presignRes = await fetch("/api/uploads/presign", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ contentType: file.type, size: file.size }),
+          body: JSON.stringify({ contentType: type, size: blob.size }),
         });
 
         if (!presignRes.ok) {
-          const { error } = await presignRes.json();
-          throw new Error(error ?? "Erro ao gerar URL de upload");
+          const data = await presignRes.json();
+          throw new Error(data.error ?? "Erro ao gerar URL de upload");
         }
 
         const { uploadUrl, key } = await presignRes.json();
 
-        // 2. Upload direto para R2
+        // 3. Upload direto para o storage
         const uploadRes = await fetch(uploadUrl, {
           method: "PUT",
-          body: file,
-          headers: { "Content-Type": file.type },
+          body: blob,
+          headers: { "Content-Type": type },
         });
 
         if (!uploadRes.ok) throw new Error("Falha no upload");
 
-        // 3. Salvar no banco
+        // 4. Salvar no banco
         await addProductImage({
           productId,
           storageKey: key,
           alt: file.name.replace(/\.[^.]+$/, ""),
         });
 
-        // Refresh lista local (simplificado — recarregar seria o ideal)
         window.location.reload();
       } catch (err) {
         setError(err instanceof Error ? err.message : "Erro no upload");
@@ -75,11 +112,7 @@ export function ProductImagesUploader({ productId, images: initialImages }: Prod
         {images.map((img) => (
           <div key={img.id} className="relative w-20 h-24">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={img.url}
-              alt={img.alt ?? ""}
-              className="w-full h-full object-cover rounded"
-            />
+            <img src={img.url} alt={img.alt ?? ""} className="w-full h-full object-cover rounded" />
             <button
               onClick={() => handleRemove(img.id)}
               className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-600 text-white rounded-full flex items-center justify-center hover:bg-red-700"
@@ -111,7 +144,7 @@ export function ProductImagesUploader({ productId, images: initialImages }: Prod
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/jpg,image/png,image/webp,image/avif"
+        accept="image/jpeg,image/jpg,image/png,image/webp,image/avif,image/heic"
         multiple
         className="sr-only"
         onChange={(e) => handleFiles(e.target.files)}

@@ -1,0 +1,117 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "BK rebeka fragoso" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e5]: BK
+        - generic [ref=e6]: rebeka fragoso
+      - button "Fechar menu" [expanded] [active] [ref=e156]
+  - generic [ref=e11]:
+    - link "Curadoria" [ref=e158] [cursor=pointer]:
+      - /url: /curadoria
+    - link "Consultoria" [ref=e159] [cursor=pointer]:
+      - /url: /#servicos
+    - link "Início" [ref=e160] [cursor=pointer]:
+      - /url: /
+  - main [ref=e16]:
+    - generic [ref=e41]:
+      - paragraph [ref=e42]: Curadoria · Recife
+      - heading "Vestir-se com intenção." [level=1] [ref=e43]:
+        - text: Vestir-se com
+        - emphasis [ref=e44]: intenção.
+      - paragraph [ref=e45]: Peças autorais selecionadas para quem sabe o que quer — e prefere qualidade ao volume.
+    - link "Saiba mais A BK não é uma loja. É uma curadoria. Conhecer o método →" [ref=e47] [cursor=pointer]:
+      - /url: /curadoria
+      - generic [ref=e48]:
+        - generic [ref=e49]:
+          - paragraph [ref=e50]: Saiba mais
+          - paragraph [ref=e51]:
+            - text: A BK não é uma loja.
+            - emphasis [ref=e52]: É uma curadoria.
+        - paragraph [ref=e53]:
+          - text: Conhecer o método
+          - generic [ref=e54]: →
+    - generic [ref=e57]:
+      - button "Tudo" [ref=e58]
+      - button "Novidades" [ref=e59]
+      - button "Looks" [ref=e60]
+      - button "Básicos" [ref=e61]
+      - button "Últimas peças" [ref=e62]
+    - link "Novidades Vestido Linho Natural Off-white · Linho português R$ 1.890,00" [ref=e65] [cursor=pointer]:
+      - /url: /produtos/vestido-linho-natural
+      - generic [ref=e68]: Novidades
+      - generic [ref=e69]:
+        - paragraph [ref=e70]: Vestido Linho Natural
+        - paragraph [ref=e71]: Off-white · Linho português
+        - paragraph [ref=e72]: R$ 1.890,00
+    - generic [ref=e74]:
+      - generic [ref=e75]:
+        - paragraph [ref=e76]: A BK
+        - blockquote [ref=e77]:
+          - paragraph [ref=e78]: “Vestir-se com intenção é um ato de respeito consigo mesma.”
+      - paragraph [ref=e80]: A BK Curadoria nasceu da necessidade de existir um lugar onde cada peça tem uma razão de estar. Não vendo volume. Vendo intenção — em cada tecido, em cada corte, em cada escolha.
+    - generic [ref=e82]:
+      - generic [ref=e83]:
+        - img [ref=e85]
+        - heading "Curadoria rigorosa" [level=3] [ref=e88]
+        - paragraph [ref=e89]: Cada peça passa por critérios de origem, durabilidade e pertinência antes de entrar no acervo.
+      - generic [ref=e90]:
+        - img [ref=e92]
+        - heading "Qualidade acima do volume" [level=3] [ref=e94]
+        - paragraph [ref=e95]: Drops de 30 a 50 peças por estação. Quantidade intencional, nunca por acaso.
+      - generic [ref=e96]:
+        - img [ref=e98]
+        - heading "Atendimento direto" [level=3] [ref=e101]
+        - paragraph [ref=e102]: Cada venda é uma conversa. Comprar na BK é ter acesso à minha curadoria.
+      - generic [ref=e103]:
+        - img [ref=e105]
+        - heading "Renovação constante" [level=3] [ref=e108]
+        - paragraph [ref=e109]: O acervo evolui. Quando esgota, foi. Não reponho o que passou.
+    - generic [ref=e111]:
+      - paragraph [ref=e112]: Consultoria
+      - heading "Além do produto." [level=2] [ref=e113]:
+        - text: Além do
+        - emphasis [ref=e114]: produto.
+      - paragraph [ref=e115]: Quatro formas de trabalharmos juntas
+      - generic [ref=e116]:
+        - link "01 Personal Shopper" [ref=e117] [cursor=pointer]:
+          - /url: /servicos/personal
+          - generic [ref=e118]:
+            - generic [ref=e119]: "01"
+            - generic [ref=e120]: Personal Shopper
+          - img [ref=e121]
+        - link "02 Reposicionamento de Imagem" [ref=e124] [cursor=pointer]:
+          - /url: /servicos/reposicionamento
+          - generic [ref=e125]:
+            - generic [ref=e126]: "02"
+            - generic [ref=e127]: Reposicionamento de Imagem
+          - img [ref=e128]
+        - link "03 Adequação de Estilo" [ref=e131] [cursor=pointer]:
+          - /url: /servicos/estilo
+          - generic [ref=e132]:
+            - generic [ref=e133]: "03"
+            - generic [ref=e134]: Adequação de Estilo
+          - img [ref=e135]
+        - link "04 Análise Cromática" [ref=e138] [cursor=pointer]:
+          - /url: /servicos/cromatica
+          - generic [ref=e139]:
+            - generic [ref=e140]: "04"
+            - generic [ref=e141]: Análise Cromática
+          - img [ref=e142]
+    - generic [ref=e146]:
+      - generic [ref=e147]:
+        - heading "Pronta para vestir-se com intenção?" [level=2] [ref=e148]:
+          - text: Pronta para
+          - emphasis [ref=e149]: vestir-se com intenção?
+        - paragraph [ref=e150]: Fale comigo no WhatsApp. Sem formulários, sem filas.
+      - link "Iniciar conversa" [ref=e152] [cursor=pointer]:
+        - /url: https://wa.me/5581999999999?text=Ol%C3%A1%20Rebeka%2C%20vim%20pelo%20site%20da%20BK.
+        - img [ref=e153]
+        - text: Iniciar conversa
+  - contentinfo [ref=e24]:
+    - generic [ref=e25]:
+      - paragraph [ref=e26]: BK
+      - paragraph [ref=e27]: rebeka fragoso · recife · 2026
+  - button "Open Next.js Dev Tools" [ref=e33] [cursor=pointer]:
+    - img [ref=e34]
+  - alert [ref=e37]

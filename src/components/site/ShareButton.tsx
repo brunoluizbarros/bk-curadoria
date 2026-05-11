@@ -6,7 +6,7 @@ import { IconShare3, IconCheck } from "@tabler/icons-react";
 interface ShareButtonProps {
   url: string;
   title: string;
-  text?: string;
+  text: string;
 }
 
 export function ShareButton({ url, title, text }: ShareButtonProps) {
@@ -17,11 +17,10 @@ export function ShareButton({ url, title, text }: ShareButtonProps) {
       try {
         await navigator.share({ title, text, url });
       } catch {
-        // usuário cancelou ou erro — não mostrar nada
+        // usuário cancelou
       }
       return;
     }
-
     await navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
@@ -30,13 +29,9 @@ export function ShareButton({ url, title, text }: ShareButtonProps) {
   return (
     <button
       onClick={handleShare}
-      className="inline-flex items-center gap-1.5 font-body text-[10px] tracking-widest uppercase text-ink-soft hover:text-ink transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracotta/40 rounded"
+      className="inline-flex items-center gap-2 font-body text-[10px] tracking-widest uppercase text-ink-soft hover:text-ink transition-colors"
     >
-      {copied ? (
-        <IconCheck size={13} className="text-sage-deep" />
-      ) : (
-        <IconShare3 size={13} />
-      )}
+      {copied ? <IconCheck size={13} /> : <IconShare3 size={13} />}
       {copied ? "Link copiado" : "Compartilhar"}
     </button>
   );

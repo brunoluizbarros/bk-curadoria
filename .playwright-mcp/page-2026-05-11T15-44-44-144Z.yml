@@ -1,0 +1,81 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "BK rebeka fragoso" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e5]: BK
+        - generic [ref=e6]: rebeka fragoso
+      - button "Abrir menu" [ref=e7]
+  - main [ref=e11]:
+    - generic [ref=e13]:
+      - paragraph [ref=e14]: Consultoria
+      - heading "Além do produto." [level=1] [ref=e15]:
+        - text: Além do
+        - emphasis [ref=e16]: produto.
+      - paragraph [ref=e17]: Quatro formas de trabalharmos juntas para construir uma imagem que comunica quem você realmente é.
+    - generic [ref=e19]:
+      - link "01 Personal Shopper Compras estratégicas, escolhas conscientes. Comprar com intenção é uma habilidade. Eu vou contigo — física ou virtualmente — para transformar o processo de compra numa experiência de autoconhecimento e estratégia de imagem. 4 a 6 horas · investimento sob consulta Ver detalhes" [ref=e20] [cursor=pointer]:
+        - /url: /servicos/personal
+        - generic [ref=e22]:
+          - generic [ref=e23]:
+            - generic [ref=e24]: "01"
+            - heading "Personal Shopper" [level=2] [ref=e25]
+          - paragraph [ref=e26]: Compras estratégicas, escolhas conscientes.
+          - paragraph [ref=e27]: Comprar com intenção é uma habilidade. Eu vou contigo — física ou virtualmente — para transformar o processo de compra numa experiência de autoconhecimento e estratégia de imagem.
+          - paragraph [ref=e28]: 4 a 6 horas · investimento sob consulta
+          - generic [ref=e29]:
+            - text: Ver detalhes
+            - img [ref=e30]
+      - link "02 Reposicionamento de Imagem Quando a vida muda, o guarda-roupa acompanha. Transições de carreira, novos ciclos de vida, mudanças de cidade. Cada fase exige uma nova linguagem visual. Eu ajudo você a construir essa linguagem com consciência e autenticidade. 6 a 8 semanas · investimento sob consulta Ver detalhes" [ref=e33] [cursor=pointer]:
+        - /url: /servicos/reposicionamento
+        - generic [ref=e35]:
+          - generic [ref=e36]:
+            - generic [ref=e37]: "02"
+            - heading "Reposicionamento de Imagem" [level=2] [ref=e38]
+          - paragraph [ref=e39]: Quando a vida muda, o guarda-roupa acompanha.
+          - paragraph [ref=e40]: Transições de carreira, novos ciclos de vida, mudanças de cidade. Cada fase exige uma nova linguagem visual. Eu ajudo você a construir essa linguagem com consciência e autenticidade.
+          - paragraph [ref=e41]: 6 a 8 semanas · investimento sob consulta
+          - generic [ref=e42]:
+            - text: Ver detalhes
+            - img [ref=e43]
+      - link "03 Adequação de Estilo Seu estilo, refinado. Você já tem um estilo próprio, mas sente que algo não está funcionando. Esta consultoria afina o que já existe — sem impor tendências, sem apagar sua identidade. 4 a 6 semanas · investimento sob consulta Ver detalhes" [ref=e46] [cursor=pointer]:
+        - /url: /servicos/estilo
+        - generic [ref=e48]:
+          - generic [ref=e49]:
+            - generic [ref=e50]: "03"
+            - heading "Adequação de Estilo" [level=2] [ref=e51]
+          - paragraph [ref=e52]: Seu estilo, refinado.
+          - paragraph [ref=e53]: Você já tem um estilo próprio, mas sente que algo não está funcionando. Esta consultoria afina o que já existe — sem impor tendências, sem apagar sua identidade.
+          - paragraph [ref=e54]: 4 a 6 semanas · investimento sob consulta
+          - generic [ref=e55]:
+            - text: Ver detalhes
+            - img [ref=e56]
+      - link "04 Análise Cromática As cores que amplificam quem você é. A cor certa não é uma questão de gosto — é uma questão de harmonia. Através de uma análise personalizada, identificamos a paleta que potencializa sua aparência natural. 2 a 3 horas · investimento sob consulta Ver detalhes" [ref=e59] [cursor=pointer]:
+        - /url: /servicos/cromatica
+        - generic [ref=e61]:
+          - generic [ref=e62]:
+            - generic [ref=e63]: "04"
+            - heading "Análise Cromática" [level=2] [ref=e64]
+          - paragraph [ref=e65]: As cores que amplificam quem você é.
+          - paragraph [ref=e66]: A cor certa não é uma questão de gosto — é uma questão de harmonia. Através de uma análise personalizada, identificamos a paleta que potencializa sua aparência natural.
+          - paragraph [ref=e67]: 2 a 3 horas · investimento sob consulta
+          - generic [ref=e68]:
+            - text: Ver detalhes
+            - img [ref=e69]
+    - generic [ref=e73]:
+      - generic [ref=e74]:
+        - heading "Não sabe por onde começar?" [level=2] [ref=e75]:
+          - text: Não sabe por onde
+          - emphasis [ref=e76]: começar?
+        - paragraph [ref=e77]: Me conta no WhatsApp o que você está buscando e eu indico o melhor caminho.
+      - link "Falar com a Rebeka" [ref=e79] [cursor=pointer]:
+        - /url: https://wa.me/5581999999999?text=Ol%C3%A1%20Rebeka%2C%20vim%20pelo%20site%20da%20BK.
+        - img [ref=e80]
+        - text: Falar com a Rebeka
+  - contentinfo [ref=e83]:
+    - generic [ref=e84]:
+      - paragraph [ref=e85]: BK
+      - paragraph [ref=e86]: rebeka fragoso · recife · 2026
+  - button "Open Next.js Dev Tools" [ref=e92] [cursor=pointer]:
+    - img [ref=e93]
+  - alert [ref=e96]

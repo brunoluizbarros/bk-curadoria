@@ -1,0 +1,16 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "BK rebeka fragoso" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e5]: BK
+        - generic [ref=e6]: rebeka fragoso
+      - button "Menu" [ref=e7]
+  - main [ref=e10]
+  - contentinfo [ref=e18]:
+    - generic [ref=e19]:
+      - paragraph [ref=e20]: BK
+      - paragraph [ref=e21]: rebeka fragoso · recife · 2026
+  - button "Open Next.js Dev Tools" [ref=e27] [cursor=pointer]:
+    - img [ref=e28]
+  - alert [ref=e31]

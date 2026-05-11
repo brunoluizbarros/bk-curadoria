@@ -10,9 +10,10 @@ interface ProductCarouselProps {
   images: ProductImage[];
   fallbackGradient?: string | null;
   productName: string;
+  className?: string;
 }
 
-export function ProductCarousel({ images, fallbackGradient, productName }: ProductCarouselProps) {
+export function ProductCarousel({ images, fallbackGradient, productName, className }: ProductCarouselProps) {
   const [current, setCurrent] = useState(0);
   const touchStartX = useRef<number | null>(null);
 
@@ -39,7 +40,7 @@ export function ProductCarousel({ images, fallbackGradient, productName }: Produ
   }
 
   return (
-    <div className="relative select-none" style={{ aspectRatio: "3/4" }}>
+    <div className={cn("relative select-none", className)} style={className ? undefined : { aspectRatio: "3/4" }}>
       {/* Slides */}
       <div
         className="relative w-full h-full overflow-hidden rounded-t-card"
@@ -56,15 +57,15 @@ export function ProductCarousel({ images, fallbackGradient, productName }: Produ
             className="flex h-full transition-transform duration-400 ease-in-out"
             style={{ transform: `translateX(-${current * 100}%)`, width: `${total * 100}%` }}
           >
-            {images.map((img) => (
+            {images.map((img, idx) => (
               <div key={img.id} className="relative h-full" style={{ width: `${100 / total}%` }}>
                 <Image
                   src={img.url}
                   alt={img.alt ?? productName}
                   fill
-                  className="object-cover"
-                  sizes="(min-width: 768px) 50vw, 100vw"
-                  priority
+                  className="object-contain bg-cream-soft"
+                  sizes="(min-width: 1024px) 40vw, (min-width: 768px) 50vw, 100vw"
+                  priority={idx === 0}
                 />
               </div>
             ))}

@@ -1,0 +1,85 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "BK rebeka fragoso" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e5]: BK
+        - generic [ref=e6]: rebeka fragoso
+      - button "Abrir menu" [active] [ref=e7]
+  - generic [ref=e11]:
+    - link [ref=e12] [cursor=pointer]:
+      - /url: /curadoria
+      - text: Curadoria
+    - link [ref=e13] [cursor=pointer]:
+      - /url: /#servicos
+      - text: Consultoria
+    - link [ref=e15] [cursor=pointer]:
+      - /url: /
+      - text: Início
+  - main [ref=e16]:
+    - generic [ref=e41]:
+      - paragraph [ref=e42]: O método
+      - heading "A curadoria não é uma loja. É uma relação." [level=1] [ref=e43]:
+        - text: A curadoria não é uma loja.
+        - emphasis [ref=e44]: É uma relação.
+    - generic [ref=e46]:
+      - paragraph [ref=e47]: Cada peça que entra na BK passou por um processo rigoroso de seleção — não apenas estético, mas ético e intencional. Trabalho com volumes pequenos, marcas que respeito e materiais que duram.
+      - paragraph [ref=e48]: Não vendo tendência. Vendo permanência.
+      - blockquote [ref=e49]:
+        - generic [ref=e50]: R
+        - paragraph [ref=e51]: “Curar é rejeitar. É dizer não para noventa por cento para que o que chega até você seja exatamente o que precisa ser.”
+        - paragraph [ref=e52]: — Rebeka Fragoso
+      - generic [ref=e53]:
+        - paragraph [ref=e54]: Os critérios
+        - generic [ref=e55]:
+          - generic [ref=e56]:
+            - generic [ref=e57]: "01"
+            - generic [ref=e58]:
+              - heading "Origem rastreável" [level=3] [ref=e59]
+              - paragraph [ref=e60]: Só trabalho com peças cuja procedência consigo verificar. Fabricantes conhecidos, processos transparentes, materiais certificados quando possível.
+          - generic [ref=e61]:
+            - generic [ref=e62]: "02"
+            - generic [ref=e63]:
+              - heading "Longevidade comprovada" [level=3] [ref=e64]
+              - paragraph [ref=e65]: Cada peça precisa passar no teste do tempo — não apenas em termos de durabilidade física, mas de permanência estética. Nada que envelhece em uma estação.
+          - generic [ref=e66]:
+            - generic [ref=e67]: "03"
+            - generic [ref=e68]:
+              - heading "Pertinência ao acervo" [level=3] [ref=e69]
+              - paragraph [ref=e70]: A peça precisa conversar com o que já existe. A curadoria é um organismo vivo — cada nova entrada precisa fazer sentido no conjunto.
+      - generic [ref=e71]:
+        - paragraph [ref=e72]: Como funciona
+        - list [ref=e73]:
+          - listitem [ref=e74]:
+            - generic [ref=e76]:
+              - paragraph [ref=e77]: Drops trimestrais
+              - paragraph [ref=e78]: 30 a 50 peças por estação. Quantidade intencional, nunca por acaso.
+          - listitem [ref=e79]:
+            - generic [ref=e81]:
+              - paragraph [ref=e82]: Pré-venda com aviso
+              - paragraph [ref=e83]: Clientes da lista recebem acesso antecipado a cada drop.
+          - listitem [ref=e84]:
+            - generic [ref=e86]:
+              - paragraph [ref=e87]: Sem estoque parado
+              - paragraph [ref=e88]: Quando a peça vai, foi. Não reponho o que esgotou.
+          - listitem [ref=e89]:
+            - generic [ref=e91]:
+              - paragraph [ref=e92]: Comunicação direta
+              - paragraph [ref=e93]: Cada venda é uma conversa. Sem carrinho, sem checkout frio.
+          - listitem [ref=e94]:
+            - generic [ref=e96]:
+              - paragraph [ref=e97]: Curadoria como serviço
+              - paragraph [ref=e98]: Comprar na BK é ter acesso à minha curadoria. Não é só uma peça — é um critério.
+      - generic [ref=e99]:
+        - paragraph [ref=e100]: Atendimento via WhatsApp · Recife
+        - link "Quero conhecer a curadoria" [ref=e101] [cursor=pointer]:
+          - /url: https://wa.me/5581999999999?text=Ol%C3%A1%20Rebeka%2C%20quero%20conhecer%20melhor%20a%20curadoria%20BK.
+          - img [ref=e102]
+          - text: Quero conhecer a curadoria
+  - contentinfo [ref=e24]:
+    - generic [ref=e25]:
+      - paragraph [ref=e26]: BK
+      - paragraph [ref=e27]: rebeka fragoso · recife · 2026
+  - button "Open Next.js Dev Tools" [ref=e33] [cursor=pointer]:
+    - img [ref=e34]
+  - alert [ref=e37]

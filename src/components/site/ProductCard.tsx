@@ -22,7 +22,8 @@ export function ProductCard({ product, firstImage }: ProductCardProps) {
             alt={firstImage.alt ?? product.name}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-103"
-            sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+            sizes="(min-width: 1280px) 22vw, (min-width: 1024px) 25vw, (min-width: 768px) 33vw, 48vw"
+            quality={85}
           />
         ) : (
           <div

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Jost } from "next/font/google";
 import "./globals.css";
 
@@ -45,6 +45,12 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 // Admin pages use absolute titles to bypass the template above
 
 export default function RootLayout({
@@ -54,7 +60,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" className={`${cormorant.variable} ${jost.variable}`}>
-      <body className="min-h-screen bg-cream text-ink antialiased">
+      <body className="min-h-screen bg-cream text-ink antialiased" suppressHydrationWarning>
         {children}
       </body>
     </html>

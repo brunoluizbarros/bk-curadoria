@@ -1,0 +1,26 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "BK rebeka fragoso" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e5]: BK
+        - generic [ref=e6]: rebeka fragoso
+      - button "Abrir menu" [ref=e7]
+  - generic [ref=e11]:
+    - link [ref=e12] [cursor=pointer]:
+      - /url: /curadoria
+      - text: Curadoria
+    - link [ref=e13] [cursor=pointer]:
+      - /url: /#servicos
+      - text: Consultoria
+    - link [ref=e15] [cursor=pointer]:
+      - /url: /
+      - text: Início
+  - main [ref=e16]
+  - contentinfo [ref=e24]:
+    - generic [ref=e25]:
+      - paragraph [ref=e26]: BK
+      - paragraph [ref=e27]: rebeka fragoso · recife · 2026
+  - button "Open Next.js Dev Tools" [ref=e33] [cursor=pointer]:
+    - img [ref=e34]
+  - alert [ref=e37]
