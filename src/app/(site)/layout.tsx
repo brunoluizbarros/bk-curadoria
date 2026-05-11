@@ -1,3 +1,7 @@
+// Todas as páginas do site lêem o banco (config, produtos, serviços).
+// postgres.railway.internal só existe em runtime — nunca em build.
+export const dynamic = "force-dynamic";
+
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import { getSiteConfig } from "@/server/queries/site-config";
