@@ -1,0 +1,185 @@
+"use client";
+
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { productSchema, type ProductInput } from "@/lib/validations";
+import { Input } from "@/components/ui/Input";
+import { Textarea } from "@/components/ui/Textarea";
+import { Button } from "@/components/ui/Button";
+import { Category } from "@/db/schema";
+import { slugify } from "@/lib/slug";
+
+interface ProductFormProps {
+  defaultValues?: Partial<ProductInput>;
+  categories: Category[];
+  onSubmit: (data: ProductInput) => Promise<{ error?: unknown } | undefined>;
+}
+
+export function ProductForm({ defaultValues, categories, onSubmit }: ProductFormProps) {
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<ProductInput>({
+    resolver: zodResolver(productSchema),
+    defaultValues: {
+      featured: false,
+      active: true,
+      sortOrder: 0,
+      categoryIds: [],
+      ...defaultValues,
+    },
+  });
+
+  const name = watch("name");
+
+  function autoSlug() {
+    if (!watch("slug")) {
+      setValue("slug", slugify(name ?? ""));
+    }
+  }
+
+  async function onValid(data: ProductInput) {
+    const result = await onSubmit(data);
+    if (result?.error) {
+      console.error(result.error);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onValid)} className="space-y-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Input
+          id="name"
+          label="Nome"
+          {...register("name")}
+          onBlur={autoSlug}
+          error={errors.name?.message}
+        />
+        <Input
+          id="slug"
+          label="Slug"
+          {...register("slug")}
+          error={errors.slug?.message}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Input
+          id="color"
+          label="Cor / Material"
+          placeholder="Terracota · Tricô italiano"
+          {...register("color")}
+          error={errors.color?.message}
+        />
+        <Input
+          id="priceCents"
+          label="Preço (em centavos)"
+          type="number"
+          placeholder="189000"
+          {...register("priceCents", { valueAsNumber: true })}
+          error={errors.priceCents?.message}
+        />
+      </div>
+
+      <Input
+        id="tag"
+        label="Tag (ex: Novidades)"
+        {...register("tag")}
+      />
+
+      <Textarea
+        id="description"
+        label="Descrição"
+        rows={4}
+        {...register("description")}
+        error={errors.description?.message}
+      />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Input
+          id="composition"
+          label="Composição"
+          placeholder="70% lã merino · 30% caxemira"
+          {...register("composition")}
+        />
+        <Input
+          id="origin"
+          label="Origem"
+          placeholder="Florença, IT"
+          {...register("origin")}
+        />
+      </div>
+
+      <Textarea
+        id="fallbackGradient"
+        label="Gradiente fallback (CSS)"
+        rows={2}
+        placeholder="linear-gradient(140deg,#b8634a 0%,#8e4a35 100%)"
+        {...register("fallbackGradient")}
+      />
+
+      {/* Categorias */}
+      {categories.length > 0 && (
+        <div>
+          <p className="text-xs uppercase tracking-widest text-ink-soft mb-2 font-body">Categorias</p>
+          <div className="flex flex-wrap gap-2">
+            {categories.map((cat) => {
+              const ids = watch("categoryIds") ?? [];
+              const checked = ids.includes(cat.id);
+              return (
+                <label
+                  key={cat.id}
+                  className={`cursor-pointer px-3 py-1.5 rounded-full border text-xs font-body transition-colors ${
+                    checked
+                      ? "bg-ink text-cream border-ink"
+                      : "bg-transparent text-ink border-ink/30 hover:border-ink"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    className="sr-only"
+                    checked={checked}
+                    onChange={(e) => {
+                      const curr = watch("categoryIds") ?? [];
+                      if (e.target.checked) {
+                        setValue("categoryIds", [...curr, cat.id]);
+                      } else {
+                        setValue("categoryIds", curr.filter((id) => id !== cat.id));
+                      }
+                    }}
+                  />
+                  {cat.label}
+                </label>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <div className="flex gap-4">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" {...register("active")} className="rounded" />
+          <span className="font-body text-sm text-ink">Ativo</span>
+        </label>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" {...register("featured")} className="rounded" />
+          <span className="font-body text-sm text-ink">Destaque</span>
+        </label>
+      </div>
+
+      <Input
+        id="sortOrder"
+        label="Ordem"
+        type="number"
+        {...register("sortOrder", { valueAsNumber: true })}
+      />
+
+      <Button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? "Salvando..." : "Salvar produto"}
+      </Button>
+    </form>
+  );
+}

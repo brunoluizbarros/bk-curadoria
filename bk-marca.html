@@ -1,0 +1,2027 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BK · Sistema Visual · Manual de Marca</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+:root{
+  --cream:#EFE8DC; --cream-soft:#F5F0E6; --cream-deep:#E5DCC8;
+  --terracotta:#B8634A; --terracotta-soft:#D88068;
+  --gold:#C9A063; --gold-soft:#D9B47A;
+  --sage:#6A7256; --sage-deep:#4F5841; --sage-light:#8A9476;
+  --ink:#2A2722; --ink-soft:#5C564E; --white:#FAFAF7;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--cream);font-family:'Jost',system-ui,sans-serif;color:var(--ink);overflow-x:hidden}
+body{min-height:100vh}
+::-webkit-scrollbar{display:none}
+.app{max-width:480px;margin:0 auto;background:var(--cream);min-height:100vh;position:relative}
+
+.header{padding:36px 32px 28px;border-bottom:0.5px solid rgba(92,86,78,0.15)}
+.header-eyebrow{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:5px;color:var(--gold);text-transform:uppercase;margin-bottom:14px}
+.header-h1{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;line-height:1;letter-spacing:-0.5px}
+.header-h1 em{font-style:italic;color:var(--terracotta)}
+
+.nav{padding:18px 24px;border-bottom:0.5px solid rgba(92,86,78,0.15);position:sticky;top:0;background:var(--cream);z-index:50}
+.nav-scroll{display:flex;gap:8px;overflow-x:auto}
+.nav-pill{background:transparent;border:1px solid rgba(92,86,78,0.35);color:var(--ink);padding:9px 16px;border-radius:40px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;cursor:pointer;flex-shrink:0;font-family:'Jost',sans-serif;font-weight:400;transition:all 0.2s}
+.nav-pill.on{background:var(--ink);color:var(--cream);border-color:var(--ink);font-weight:500}
+
+.section{display:none;animation:fade 0.4s ease-out}
+.section.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.sec-head{padding:40px 24px 30px}
+.sec-num{display:flex;align-items:baseline;gap:14px;margin-bottom:10px}
+.sec-num-tag{font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--gold);font-style:italic}
+.sec-cap{font-size:10px;letter-spacing:4px;color:var(--terracotta);text-transform:uppercase}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;line-height:1.05;margin-bottom:8px;letter-spacing:-0.5px}
+.sec-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;color:var(--ink-soft)}
+
+.logo-bk{display:flex;flex-direction:column;align-items:center}
+.logo-bk .bk{font-family:'Cormorant Garamond',serif;font-weight:300;line-height:1;letter-spacing:0.12em;padding-left:0.12em}
+.logo-bk .line{height:1px}
+.logo-bk .sig{font-family:'Jost',sans-serif;font-weight:300;text-transform:lowercase}
+
+.logo-stage{background:var(--cream-soft);margin:0 24px 18px;padding:80px 32px;border-radius:4px;border:1px solid rgba(201,160,99,0.2);display:flex;align-items:center;justify-content:center}
+.stage-label{padding:0 24px;font-size:11px;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;margin-bottom:36px}
+
+.concept{padding:0 24px 40px}
+.concept-quote{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:21px;line-height:1.4;color:var(--ink);margin-bottom:24px}
+.concept-p{font-size:15px;line-height:1.7;color:var(--ink-soft);margin-bottom:18px}
+.concept-p strong{color:var(--ink);font-weight:500}
+.concept-p em{color:var(--gold);font-style:italic}
+
+.var-stage{margin:0 24px 8px;padding:60px 32px;border-radius:4px;display:flex;align-items:center;justify-content:center}
+.var-label{padding:0 24px;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:22px}
+
+.mono-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 24px 40px}
+.mono-card{padding:36px 20px;border-radius:4px;display:flex;align-items:center;justify-content:center;aspect-ratio:1}
+.mono-circle{border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;border-width:1px;border-style:solid}
+.mono-circle .bk{font-family:'Cormorant Garamond',serif;font-weight:300;line-height:1}
+.mono-circle .est{position:absolute;font-family:'Jost',sans-serif;font-weight:300;text-transform:lowercase;opacity:0.7}
+
+.color-block{padding:30px 22px;border-radius:4px;margin-bottom:12px;margin-left:24px;margin-right:24px}
+.color-name{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;margin-bottom:4px;line-height:1}
+.color-paper{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;opacity:0.8;margin-bottom:24px}
+.color-foot{display:flex;justify-content:space-between;align-items:flex-end;gap:16px}
+.color-uso-l{font-size:10px;letter-spacing:2px;opacity:0.7;text-transform:uppercase;margin-bottom:4px}
+.color-uso-v{font-size:12px}
+.color-hex{font-family:monospace;font-size:12px;letter-spacing:1px;text-align:right;margin-bottom:2px}
+.color-pant{font-size:10px;letter-spacing:1.5px;opacity:0.7;text-transform:uppercase;text-align:right}
+.colors-pad{padding-bottom:50px}
+
+.tipo-block{padding:0 24px 40px}
+.tipo-id{display:flex;align-items:baseline;gap:14px;margin-bottom:18px}
+.tipo-num{font-family:'Cormorant Garamond',serif;font-size:12px;color:var(--gold);font-style:italic}
+.tipo-cap{font-size:10px;letter-spacing:3px;color:var(--terracotta);text-transform:uppercase}
+.tipo-name{font-family:'Cormorant Garamond',serif;font-size:50px;font-weight:300;line-height:0.95;letter-spacing:-1px;margin-bottom:6px}
+.tipo-name em{font-style:italic;color:var(--terracotta)}
+.tipo-pesos{font-size:13px;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;margin-bottom:24px}
+.tipo-desc{font-size:14.5px;line-height:1.7;color:var(--ink-soft);margin-bottom:20px}
+.tipo-amostra{background:var(--cream-soft);padding:24px;border-radius:4px;border-left:2px solid var(--terracotta)}
+.tipo-amostra-q{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:23px;line-height:1.35;color:var(--ink)}
+.tipo-secundaria{background:var(--ink);color:var(--cream);padding:50px 24px}
+.tipo-secundaria .tipo-cap{color:var(--gold)}
+.tipo-name-jost{font-family:'Jost',sans-serif;font-weight:200;font-size:58px;line-height:0.95;margin-bottom:8px;letter-spacing:-1px;color:var(--cream)}
+.tipo-secundaria .tipo-pesos{color:var(--gold)}
+.tipo-secundaria .tipo-desc{color:var(--cream);opacity:0.85}
+
+/* ====== INSTAGRAM ====== */
+.apl-section-head{padding:40px 24px 22px;border-top:1px solid rgba(92,86,78,0.15)}
+.apl-section-head:first-of-type{border-top:none}
+.apl-section-num{font-family:'Cormorant Garamond',serif;font-size:12px;color:var(--gold);font-style:italic;margin-bottom:6px}
+.apl-section-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;line-height:1.1;margin-bottom:8px}
+.apl-section-title em{font-style:italic;color:var(--terracotta)}
+.apl-section-sub{font-size:13.5px;line-height:1.65;color:var(--ink-soft)}
+.apl-tag{padding:0 24px;font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:var(--terracotta);text-transform:uppercase;margin-bottom:14px;margin-top:30px}
+
+.ig-profile{margin:0 24px 30px;background:#fff;border-radius:8px;overflow:hidden;border:0.5px solid rgba(92,86,78,0.15);box-shadow:0 4px 20px rgba(0,0,0,0.04)}
+.ig-prof-head{padding:18px 16px 16px;display:flex;gap:18px;align-items:center}
+.ig-prof-avatar{width:74px;height:74px;border-radius:50%;background:var(--cream-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0;border:2px solid var(--terracotta);padding:3px}
+.ig-prof-avatar-inner{width:100%;height:100%;border-radius:50%;background:var(--cream);display:flex;align-items:center;justify-content:center}
+.ig-prof-avatar-inner .bk{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:300;letter-spacing:3px;color:var(--ink);padding-left:3px;line-height:1}
+.ig-prof-stats{display:flex;flex:1;justify-content:space-around;font-size:12px;color:var(--ink)}
+.ig-prof-stats .num{font-weight:500;font-size:15px;color:var(--ink);display:block;text-align:center}
+.ig-prof-stats .lbl{font-size:11px;color:var(--ink-soft);text-align:center;display:block}
+.ig-prof-info{padding:0 16px 14px;font-size:13px;line-height:1.5}
+.ig-prof-name{font-weight:500;color:var(--ink);margin-bottom:2px;font-size:13.5px}
+.ig-prof-cat{color:var(--ink-soft);font-size:12px;margin-bottom:6px}
+.ig-prof-bio{color:var(--ink);font-size:12.5px}
+.ig-prof-bio em{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--gold)}
+.ig-prof-link{color:var(--terracotta);font-size:12px;margin-top:4px;display:block}
+.ig-prof-btns{display:flex;gap:6px;padding:0 16px 16px}
+.ig-prof-btn{flex:1;padding:8px 12px;border-radius:6px;font-size:13px;text-align:center;font-weight:500}
+.ig-prof-btn.primary{background:var(--ink);color:var(--cream)}
+.ig-prof-btn.secondary{background:var(--cream-soft);color:var(--ink);border:0.5px solid rgba(92,86,78,0.2)}
+
+.ig-highlights{display:flex;gap:14px;padding:0 16px 16px;overflow-x:auto}
+.ig-hl{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0}
+.ig-hl-circle{width:60px;height:60px;border-radius:50%;border:1px solid rgba(92,86,78,0.3);padding:2px;display:flex;align-items:center;justify-content:center}
+.ig-hl-inner{width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.ig-hl-label{font-family:'Cormorant Garamond',serif;font-size:11px;color:var(--ink);font-style:italic}
+
+.ig-tabs{display:flex;border-top:0.5px solid rgba(92,86,78,0.15);padding:8px 0}
+.ig-tab{flex:1;text-align:center;font-size:14px;color:var(--ink-soft);padding:4px 0}
+.ig-tab.on{color:var(--ink);border-bottom:1.5px solid var(--ink)}
+
+.ig-grid-9{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;background:#fff}
+.ig-post-sq{aspect-ratio:1;display:flex;align-items:center;justify-content:center;padding:10px;text-align:center;position:relative;overflow:hidden}
+.ig-post-sq.has-icon::after{content:'⊟';position:absolute;top:4px;right:6px;color:#fff;font-size:10px;opacity:0.7}
+
+.tmpl-section{padding:0 24px 36px}
+.tmpl-card{aspect-ratio:1;border-radius:4px;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:32px 26px;text-align:center;position:relative;overflow:hidden}
+.tmpl-card.left{align-items:flex-start;text-align:left}
+.tmpl-card.between{justify-content:space-between;align-items:flex-start;text-align:left}
+.tmpl-meta{margin-top:8px;font-size:11px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;padding:0 8px;font-family:'Cormorant Garamond',serif;font-style:italic}
+
+.story-list{padding:0 24px 36px;display:flex;gap:12px;overflow-x:auto}
+.story-frame{width:180px;aspect-ratio:9/16;border-radius:14px;padding:22px 18px;display:flex;flex-direction:column;flex-shrink:0;position:relative;overflow:hidden}
+.story-bars{position:absolute;top:8px;left:14px;right:14px;display:flex;gap:3px;z-index:5}
+.story-bars span{flex:1;height:2px;background:rgba(255,255,255,0.4);border-radius:1px}
+.story-bars span.on{background:rgba(255,255,255,0.95)}
+.story-bars.dark span{background:rgba(42,39,34,0.3)}
+.story-bars.dark span.on{background:rgba(42,39,34,0.85)}
+
+/* ============== STORY OVERLAY EXAMPLE ============== */
+.overlay-section{padding:0 24px 36px}
+.overlay-stage{display:flex;gap:18px;align-items:flex-start;padding:8px 0 24px}
+.story-overlay-frame{width:240px;aspect-ratio:9/16;border-radius:18px;flex-shrink:0;position:relative;overflow:hidden;box-shadow:0 12px 32px rgba(0,0,0,0.25)}
+
+/* Camada 1: foto simulada — modelo em peça terracota num cenário arquitetônico claro */
+.story-bg-photo{position:absolute;inset:0;background:
+  radial-gradient(ellipse 60% 35% at 50% 28%, #E8C9A8 0%, #D4A57F 35%, #B8835C 70%, transparent 100%),
+  radial-gradient(ellipse 50% 45% at 50% 60%, #C97A56 0%, #B8634A 40%, #8E4A35 80%, transparent 100%),
+  linear-gradient(180deg, #E8DCC8 0%, #D6C3A8 25%, #C9A788 45%, #B89070 65%, #8F6A4E 85%, #5C4530 100%);
+}
+.story-bg-photo::before{content:'';position:absolute;inset:0;background:
+  radial-gradient(circle at 50% 35%, transparent 0%, transparent 18%, rgba(184,131,92,0.4) 35%, transparent 60%);
+  mix-blend-mode:multiply;
+}
+.story-bg-photo::after{content:'';position:absolute;inset:0;background:
+  radial-gradient(ellipse 35% 8% at 50% 33%, rgba(60,42,28,0.6) 0%, transparent 100%);
+}
+
+/* Camada 2: overlay degradê escuro inferior */
+.story-overlay-gradient{position:absolute;inset:0;background:linear-gradient(180deg, rgba(42,39,34,0) 0%, rgba(42,39,34,0) 35%, rgba(42,39,34,0.15) 55%, rgba(42,39,34,0.55) 78%, rgba(42,39,34,0.85) 100%);pointer-events:none}
+
+/* Camada 3: véu colorido sutil (warm wash) */
+.story-overlay-wash{position:absolute;inset:0;background:rgba(184,99,74,0.08);mix-blend-mode:multiply;pointer-events:none}
+
+/* Camada 4: vinheta */
+.story-overlay-vignette{position:absolute;inset:0;background:radial-gradient(ellipse 110% 90% at 50% 45%, transparent 50%, rgba(42,39,34,0.25) 85%, rgba(42,39,34,0.55) 100%);pointer-events:none}
+
+/* Camada 5: conteúdo (texto) */
+.story-content-layer{position:absolute;inset:0;padding:22px 18px;display:flex;flex-direction:column;z-index:5}
+.story-content-bars{display:flex;gap:3px;margin-bottom:auto}
+.story-content-bars span{flex:1;height:2px;background:rgba(255,255,255,0.4);border-radius:1px}
+.story-content-bars span.on{background:rgba(255,255,255,0.95)}
+.story-content-text{margin-bottom:18px}
+
+/* Stack visual das camadas (lado direito) */
+.layers-stack{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0}
+.layer-card{background:var(--cream-soft);border-left:2px solid var(--gold);padding:11px 13px;border-radius:0 4px 4px 0;font-size:11.5px;line-height:1.45;color:var(--ink-soft)}
+.layer-card strong{display:block;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:var(--ink);margin-bottom:3px;font-weight:400}
+.layer-card .layer-num{display:inline-block;width:18px;height:18px;background:var(--gold);color:var(--ink);border-radius:50%;font-size:9px;text-align:center;line-height:18px;margin-right:6px;font-weight:600;font-family:'Jost',sans-serif;vertical-align:middle}
+
+/* Tabela técnica do overlay */
+.overlay-config{background:var(--ink);color:var(--cream);padding:30px 22px;border-radius:4px;margin-bottom:20px}
+.overlay-config-tag{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:18px}
+.overlay-config-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;line-height:1.2;margin-bottom:22px;color:var(--cream)}
+.overlay-config-title em{font-style:italic;color:var(--gold)}
+.overlay-layer-block{padding:14px 0;border-bottom:0.5px solid rgba(239,232,220,0.13)}
+.overlay-layer-block:last-child{border-bottom:none}
+.overlay-layer-head{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.overlay-layer-n{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:12px;color:var(--gold)}
+.overlay-layer-name{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--cream);font-weight:400}
+.overlay-spec-row{display:flex;justify-content:space-between;padding:4px 0;font-size:11.5px;align-items:baseline;gap:14px}
+.overlay-spec-l{color:var(--gold);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;flex-shrink:0}
+.overlay-spec-v{color:var(--cream);font-family:monospace;font-size:11px;text-align:right;word-break:break-all}
+
+/* Receita por software */
+.overlay-recipes{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:20px}
+.overlay-recipe{background:var(--cream-soft);padding:16px 18px;border-radius:4px;border-left:2px solid var(--terracotta)}
+.overlay-recipe-app{font-size:10px;letter-spacing:3px;color:var(--terracotta);text-transform:uppercase;margin-bottom:8px;font-weight:500}
+.overlay-recipe-name{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--ink);font-weight:400;margin-bottom:10px}
+.overlay-recipe-steps{font-size:12.5px;line-height:1.65;color:var(--ink-soft)}
+.overlay-recipe-steps strong{color:var(--ink);font-weight:500}
+
+/* Variações de overlay */
+.overlay-variants{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px}
+.overlay-variant{aspect-ratio:9/16;border-radius:6px;position:relative;overflow:hidden;cursor:pointer}
+.overlay-variant-label{position:absolute;bottom:6px;left:6px;right:6px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:9px;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.6);text-align:center}
+.overlay-variants-note{font-size:12px;line-height:1.55;color:var(--ink-soft);font-style:italic;font-family:'Cormorant Garamond',serif;margin-top:10px}
+
+.reels-row{padding:0 24px 36px;display:flex;gap:10px;overflow-x:auto}
+.reel-frame{width:150px;aspect-ratio:9/16;border-radius:8px;padding:14px;display:flex;flex-direction:column;justify-content:space-between;flex-shrink:0;position:relative;overflow:hidden}
+.reel-top{display:flex;justify-content:space-between;align-items:center;font-size:9px;color:rgba(255,255,255,0.85);letter-spacing:1.5px;text-transform:uppercase}
+.reel-content{flex:1;display:flex;align-items:center;justify-content:center}
+.reel-bot{position:absolute;bottom:14px;left:14px;right:46px}
+.reel-side{position:absolute;right:8px;bottom:50px;display:flex;flex-direction:column;gap:12px;align-items:center}
+.reel-side i{font-size:14px;color:rgba(255,255,255,0.95)}
+.reel-side span{font-size:8px;color:rgba(255,255,255,0.85)}
+
+.filter-before-after{margin:0 24px 16px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.filter-cell{aspect-ratio:1;border-radius:4px;position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:14px}
+.filter-lbl{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;background:rgba(0,0,0,0.45);color:#fff;padding:5px 10px;border-radius:20px;position:relative;z-index:2}
+
+.filter-recipe{margin:0 24px 30px;background:var(--ink);color:var(--cream);padding:30px 22px;border-radius:4px}
+.filter-recipe-tag{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:18px}
+.filter-recipe-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:0.5px solid rgba(239,232,220,0.13);font-size:13px}
+.filter-recipe-row:last-child{border-bottom:none}
+.filter-recipe-l{color:var(--gold);font-size:11px;letter-spacing:2px;text-transform:uppercase}
+.filter-recipe-v{color:var(--cream);font-family:monospace;font-size:12px}
+
+.fonts-ig-block{padding:0 24px 30px}
+.fonts-ig-item{background:var(--cream-soft);padding:24px 20px;border-radius:4px;margin-bottom:12px;border-left:2px solid var(--gold)}
+.fonts-ig-item-tag{font-size:10px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:8px}
+.fonts-ig-item-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;margin-bottom:4px;color:var(--ink)}
+.fonts-ig-item-desc{font-size:13.5px;line-height:1.6;color:var(--ink-soft);margin-bottom:14px}
+.fonts-ig-item-use{font-size:11px;letter-spacing:1.5px;color:var(--terracotta);text-transform:uppercase}
+
+.fonts-canva{background:var(--sage-deep);color:var(--cream);padding:32px 24px}
+.fonts-canva-tag{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:18px}
+.fonts-canva-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;margin-bottom:18px;line-height:1.2}
+.fonts-canva-list{font-size:13.5px;line-height:1.95}
+.fonts-canva-list strong{color:var(--gold);font-weight:500}
+
+.cor-rules{padding:0 24px 36px}
+.cor-rule{display:flex;gap:14px;align-items:flex-start;padding:18px 0;border-bottom:0.5px solid rgba(92,86,78,0.12)}
+.cor-rule:last-child{border-bottom:none}
+.cor-rule-swatch{width:42px;height:42px;border-radius:4px;flex-shrink:0;border:0.5px solid rgba(92,86,78,0.1)}
+.cor-rule-t{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;margin-bottom:4px}
+.cor-rule-d{font-size:12.5px;line-height:1.55;color:var(--ink-soft)}
+
+.ritmo{background:var(--cream-soft);padding:36px 24px}
+.ritmo-tag{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:var(--terracotta);text-transform:uppercase;margin-bottom:18px}
+.ritmo-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;line-height:1.2;margin-bottom:22px}
+.ritmo-title em{font-style:italic;color:var(--sage-deep)}
+.ritmo-item{display:flex;gap:16px;padding:16px 0;border-bottom:0.5px solid rgba(92,86,78,0.12);align-items:flex-start}
+.ritmo-item:last-child{border-bottom:none}
+.ritmo-icon{width:36px;height:36px;background:var(--cream);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--terracotta);font-size:16px;flex-shrink:0;border:0.5px solid rgba(184,99,74,0.2)}
+.ritmo-t{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;margin-bottom:3px;color:var(--ink)}
+.ritmo-d{font-size:12.5px;line-height:1.55;color:var(--ink-soft)}
+.ritmo-freq{font-size:10px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-top:6px}
+
+.hashtags{padding:36px 24px;background:var(--ink);color:var(--cream)}
+.hashtags-tag{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:18px}
+.hashtags-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;margin-bottom:22px;line-height:1.2}
+.hashtags-row{margin-bottom:24px}
+.hashtags-row:last-child{margin-bottom:0}
+.hashtags-row-l{font-size:10px;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;margin-bottom:10px}
+.hashtags-chips{display:flex;flex-wrap:wrap;gap:6px}
+.hashtags-chip{padding:6px 12px;border:0.5px solid rgba(201,160,99,0.4);border-radius:20px;font-size:12px;color:var(--cream);font-family:'Jost',sans-serif;font-weight:300}
+
+/* OUTRAS */
+.tag-row{padding:0 24px 40px;display:flex;gap:14px;justify-content:center}
+.hangtag{width:140px;height:210px;border-radius:3px;padding:14px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;position:relative;box-shadow:0 4px 16px rgba(0,0,0,0.12)}
+.hangtag-furo{position:absolute;top:12px;left:50%;transform:translateX(-50%);width:10px;height:10px;border-radius:50%}
+.hangtag-frente{background:var(--cream-soft);color:var(--ink)}
+.hangtag-frente .hangtag-furo{background:var(--cream);border:0.5px solid rgba(92,86,78,0.3)}
+.hangtag-verso{background:var(--sage-deep);color:var(--cream)}
+.hangtag-verso .hangtag-furo{background:var(--cream);border:0.5px solid rgba(239,232,220,0.3)}
+.hangtag-logo{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;letter-spacing:5px;line-height:1;padding-left:5px}
+.hangtag-line{width:22px;height:1px;background:currentColor;margin:8px auto 6px}
+.hangtag-sig{font-family:'Jost',sans-serif;font-weight:300;font-size:7px;letter-spacing:2px;text-transform:lowercase}
+.hangtag-est{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--gold)}
+
+.cartao{width:100%;max-width:360px;aspect-ratio:1.75/1;padding:22px;border-radius:3px;box-shadow:0 6px 20px rgba(0,0,0,0.1);display:flex;flex-direction:column;justify-content:space-between;margin:0 auto}
+.cartao-frente{background:var(--cream);color:var(--ink);border:0.5px solid rgba(92,86,78,0.15)}
+.cartao-verso{background:var(--ink);color:var(--cream)}
+.cartao-logo{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:300;letter-spacing:6px;line-height:1;padding-left:6px}
+.cartao-line{width:28px;height:1px;background:currentColor;margin-top:8px;margin-bottom:6px}
+.cartao-sig{font-family:'Jost',sans-serif;font-weight:300;font-size:8px;letter-spacing:3px;text-transform:lowercase}
+.cartao-tagline{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:var(--gold);margin-bottom:4px}
+.cartao-foot{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-soft)}
+.cartao-verso-tag{font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:16px}
+.cartao-nome{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:400;margin-bottom:4px}
+.cartao-role{font-size:9px;letter-spacing:1.5px;color:var(--gold);text-transform:uppercase;margin-bottom:10px}
+.cartao-contato{font-size:11px;color:var(--cream);opacity:0.85;line-height:1.85}
+.cartao-pad{padding:0 24px 50px}
+
+/* TOM DE VOZ */
+.voz-intro{padding:0 24px 30px}
+.voz-intro-q{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;line-height:1.4;color:var(--ink)}
+.faz{padding:20px 24px 30px}
+.faz-tag{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:22px}
+.faz-item{margin-bottom:24px;padding-bottom:24px;border-bottom:0.5px solid rgba(92,86,78,0.1)}
+.faz-item:last-child{border-bottom:none}
+.faz-row{display:flex;gap:12px;margin-bottom:12px}
+.faz-sim{font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--sage-deep);flex-shrink:0}
+.faz-nao{font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--terracotta);flex-shrink:0}
+.faz-sim-t{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;line-height:1.45;color:var(--ink)}
+.faz-nao-t{font-size:13.5px;line-height:1.5;color:var(--ink-soft);text-decoration:line-through;text-decoration-color:rgba(184,99,74,0.55)}
+.vocab{background:var(--sage-deep);color:var(--cream);padding:50px 24px 60px}
+.vocab-tag{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;text-transform:uppercase;margin-bottom:24px;color:var(--gold)}
+.vocab-tag.evita{color:var(--terracotta-soft);margin-top:30px;margin-bottom:16px}
+.vocab-list{display:flex;flex-wrap:wrap;gap:8px}
+.vocab-word{padding:7px 14px;border:1px solid rgba(201,160,99,0.35);border-radius:40px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--cream)}
+.vocab-evita{padding:7px 14px;border-radius:40px;font-size:13px;color:var(--cream);opacity:0.4;text-decoration:line-through}
+
+/* ===== TOM DE VOZ EXPANDIDO ===== */
+.voz-context-group{padding:0 24px 28px}
+.voz-context-tag{display:inline-block;background:var(--cream-soft);color:var(--terracotta);padding:6px 14px;border-radius:20px;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:18px;font-weight:500;border:0.5px solid rgba(184,99,74,0.2)}
+.voz-context-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;line-height:1.4;color:var(--ink-soft);margin-bottom:18px}
+.faz-item-mini{margin-bottom:18px;padding-bottom:18px;border-bottom:0.5px solid rgba(92,86,78,0.1)}
+.faz-item-mini:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+
+.voz-divider{height:1px;background:linear-gradient(90deg,transparent 0%,rgba(184,99,74,0.3) 50%,transparent 100%);margin:0 60px 30px}
+
+/* ===== VOCAB CATEGORIZADO ===== */
+.vocab-section{padding:28px 0 0}
+.vocab-section:first-child{padding-top:0}
+.vocab-cat-tag{font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:3.5px;text-transform:uppercase;color:var(--gold);margin-bottom:6px;font-style:italic}
+.vocab-cat-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:300;line-height:1.2;color:var(--cream);margin-bottom:14px}
+.vocab-cat-title em{font-style:italic;color:var(--gold)}
+.vocab-cat-desc{font-size:12.5px;line-height:1.55;color:var(--cream);opacity:0.65;margin-bottom:14px;font-style:italic}
+
+/* ===== EXEMPLOS DE FRASES PRONTAS ===== */
+.frases-prontas{background:var(--cream-soft);padding:36px 24px 50px}
+.frases-prontas-tag{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:var(--terracotta);text-transform:uppercase;margin-bottom:14px}
+.frases-prontas-title{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;line-height:1.2;margin-bottom:8px;color:var(--ink)}
+.frases-prontas-title em{font-style:italic;color:var(--terracotta)}
+.frases-prontas-sub{font-size:13px;line-height:1.6;color:var(--ink-soft);margin-bottom:28px}
+.frase-grupo{margin-bottom:24px}
+.frase-grupo-l{font-size:10px;letter-spacing:2.5px;color:var(--terracotta);text-transform:uppercase;margin-bottom:12px}
+.frase-item{background:var(--cream);border-left:2px solid var(--gold);padding:14px 16px;margin-bottom:8px;border-radius:0 4px 4px 0}
+.frase-item p{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14.5px;line-height:1.5;color:var(--ink)}
+
+/* ===== ARQUITETURA DE DUAS VOZES ===== */
+.duas-vozes{padding:0 24px 0}
+.duas-vozes-header{margin-bottom:24px}
+.duas-vozes-tag{display:inline-block;background:var(--ink);color:var(--gold);padding:6px 14px;border-radius:20px;font-size:10px;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:14px;font-weight:500}
+.duas-vozes-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;line-height:1.1;margin-bottom:10px;color:var(--ink);letter-spacing:-0.5px}
+.duas-vozes-title em{font-style:italic;color:var(--terracotta)}
+.duas-vozes-sub{font-size:14px;line-height:1.65;color:var(--ink-soft)}
+
+.voz-cards{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:36px}
+.voz-card{padding:28px 22px;border-radius:6px;position:relative}
+.voz-card.livia{background:var(--cream-soft);border:0.5px solid rgba(201,160,99,0.25)}
+.voz-card.rebeka{background:var(--ink);color:var(--cream)}
+.voz-card-role{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:8px}
+.voz-card.livia .voz-card-role{color:var(--gold)}
+.voz-card.rebeka .voz-card-role{color:var(--gold)}
+.voz-card-name{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;line-height:1;margin-bottom:14px;letter-spacing:-0.5px}
+.voz-card.livia .voz-card-name{color:var(--ink)}
+.voz-card.livia .voz-card-name em{font-style:italic;color:var(--terracotta)}
+.voz-card.rebeka .voz-card-name{color:var(--cream)}
+.voz-card.rebeka .voz-card-name em{font-style:italic;color:var(--gold)}
+.voz-card-line{width:30px;height:1px;margin-bottom:14px}
+.voz-card.livia .voz-card-line{background:var(--gold)}
+.voz-card.rebeka .voz-card-line{background:var(--gold)}
+.voz-card-attrs{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+.voz-card-attr{display:flex;gap:10px;font-size:12.5px;line-height:1.55;align-items:baseline}
+.voz-card-attr-l{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;flex-shrink:0;width:78px}
+.voz-card.livia .voz-card-attr-l{color:var(--terracotta)}
+.voz-card.rebeka .voz-card-attr-l{color:var(--gold)}
+.voz-card.livia .voz-card-attr-v{color:var(--ink-soft)}
+.voz-card.rebeka .voz-card-attr-v{color:var(--cream);opacity:0.88}
+.voz-card-amostra{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;line-height:1.45;padding-top:14px;border-top:0.5px solid;margin-top:4px}
+.voz-card.livia .voz-card-amostra{color:var(--ink);border-top-color:rgba(184,99,74,0.2)}
+.voz-card.rebeka .voz-card-amostra{color:var(--cream);border-top-color:rgba(201,160,99,0.25)}
+
+/* QUANDO REBEKA ENTRA */
+.transicao{background:var(--terracotta);color:var(--cream);padding:30px 22px;border-radius:6px;margin-bottom:28px}
+.transicao-tag{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:var(--cream);opacity:0.85;text-transform:uppercase;margin-bottom:12px}
+.transicao-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;line-height:1.2;margin-bottom:18px;color:var(--cream)}
+.transicao-title em{font-style:italic}
+.transicao-trigger{padding:14px 0;border-bottom:0.5px solid rgba(239,232,220,0.2);display:flex;gap:14px;align-items:flex-start}
+.transicao-trigger:last-child{border-bottom:none;padding-bottom:0}
+.transicao-trigger:first-of-type{padding-top:0}
+.transicao-trigger-n{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--cream);opacity:0.7;flex-shrink:0;line-height:1.5}
+.transicao-trigger-t{font-family:'Cormorant Garamond',serif;font-size:15px;line-height:1.45;color:var(--cream);font-weight:400}
+.transicao-trigger-d{font-size:12px;line-height:1.5;color:var(--cream);opacity:0.85;margin-top:3px}
+
+/* DIÁLOGOS DE EXEMPLO */
+.dialogo{background:#E5DDC7;padding:30px 22px;border-radius:6px;margin-bottom:14px}
+.dialogo-tag{font-size:10px;letter-spacing:3px;color:var(--terracotta);text-transform:uppercase;margin-bottom:18px;font-weight:500}
+.dialogo-msgs{display:flex;flex-direction:column;gap:8px}
+.dialogo-msg{padding:12px 14px;border-radius:14px;max-width:80%;font-size:13.5px;line-height:1.5;position:relative}
+.dialogo-msg.cliente{background:#fff;color:var(--ink);align-self:flex-end;border-bottom-right-radius:4px}
+.dialogo-msg.livia{background:#D7E8C9;color:var(--ink);align-self:flex-start;border-bottom-left-radius:4px}
+.dialogo-msg.rebeka{background:var(--ink);color:var(--cream);align-self:flex-start;border-bottom-left-radius:4px}
+.dialogo-msg-quem{display:block;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;font-family:'Jost',sans-serif;font-weight:500;margin-bottom:4px;opacity:0.7}
+.dialogo-msg.cliente .dialogo-msg-quem{color:var(--ink-soft)}
+.dialogo-msg.livia .dialogo-msg-quem{color:var(--sage-deep)}
+.dialogo-msg.rebeka .dialogo-msg-quem{color:var(--gold)}
+.dialogo-msg-hora{font-size:9px;color:var(--ink-soft);opacity:0.5;display:block;margin-top:4px;text-align:right}
+.dialogo-msg.rebeka .dialogo-msg-hora{color:var(--cream);opacity:0.5}
+.dialogo-msg.livia .dialogo-msg-hora{color:var(--ink);opacity:0.5}
+
+/* SCRIPTS LÍVIA */
+.scripts{margin-bottom:30px}
+.scripts-tag{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:var(--terracotta);text-transform:uppercase;margin-bottom:14px}
+.script-bloco{background:var(--cream-soft);padding:18px 18px;margin-bottom:10px;border-radius:4px;border-left:2px solid var(--sage)}
+.script-bloco-situacao{font-size:10px;letter-spacing:2px;color:var(--sage-deep);text-transform:uppercase;margin-bottom:8px;font-weight:600}
+.script-bloco-msg{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14.5px;line-height:1.55;color:var(--ink)}
+
+/* REGRAS */
+.regras-vozes{background:var(--sage-deep);color:var(--cream);padding:30px 22px;border-radius:6px;margin-bottom:36px}
+.regras-vozes-tag{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:14px}
+.regras-vozes-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:300;line-height:1.25;margin-bottom:18px}
+.regras-vozes-title em{font-style:italic;color:var(--gold)}
+.regras-vozes-lista{font-size:13px;line-height:1.95;color:var(--cream);opacity:0.92}
+.regras-vozes-lista strong{color:var(--gold);font-weight:500}
+
+.divisor-grande{height:1px;background:linear-gradient(90deg,transparent 0%,rgba(184,99,74,0.4) 50%,transparent 100%);margin:0 40px 40px}
+
+.footer{padding:36px 24px;border-top:0.5px solid rgba(92,86,78,0.15);background:var(--cream)}
+.footer-logo{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;letter-spacing:4px;margin-bottom:6px}
+.footer-sig{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:10px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:24px}
+.footer-meta{font-size:10px;letter-spacing:2px;color:var(--ink-soft);text-transform:uppercase;opacity:0.6}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <header class="header">
+    <p class="header-eyebrow">Manual de marca · 2026</p>
+    <h1 class="header-h1">BK <em>— sistema visual.</em></h1>
+  </header>
+
+  <nav class="nav">
+    <div class="nav-scroll" id="nav-scroll">
+      <button class="nav-pill" data-sec="logo">Logo</button>
+      <button class="nav-pill" data-sec="variacoes">Variações</button>
+      <button class="nav-pill" data-sec="monograma">Monograma</button>
+      <button class="nav-pill" data-sec="paleta">Paleta</button>
+      <button class="nav-pill" data-sec="tipografia">Tipografia</button>
+      <button class="nav-pill" data-sec="instagram">Instagram</button>
+      <button class="nav-pill" data-sec="aplicacoes">Outras</button>
+      <button class="nav-pill on" data-sec="voz">Tom de voz</button>
+    </div>
+  </nav>
+
+  <section class="section" id="sec-logo">
+    <div class="sec-head">
+      <div class="sec-num"><span class="sec-num-tag">01</span><span class="sec-cap">Capítulo</span></div>
+      <h2 class="sec-title">Logo principal</h2>
+      <p class="sec-sub">A assinatura</p>
+    </div>
+    <div class="logo-stage">
+      <div class="logo-bk">
+        <div class="bk" style="font-size:96px;color:var(--ink)">BK</div>
+        <div class="line" style="width:38.4px;background:var(--ink);margin-top:5px;margin-bottom:8px"></div>
+        <div class="sig" style="font-size:12.5px;letter-spacing:3.8px;color:var(--ink)">rebeka fragoso</div>
+      </div>
+    </div>
+    <p class="stage-label">Versão primária · creme</p>
+    <div class="concept">
+      <p class="concept-quote">"Duas letras. Uma assinatura. O espaço entre elas é onde a marca respira."</p>
+      <p class="concept-p">O logotipo é construído em <strong>Cormorant Garamond Light</strong> com tracking expandido a 12% — o que cria a sensação de ar entre o B e o K. O fino traço sob a tipografia ancora a estrutura sem competir com ela.</p>
+      <p class="concept-p">A assinatura <em>Rebeka Fragoso</em> aparece em Jost ExtraLight, microtipográfica e em letras minúsculas — sugere intimidade, não submissão.</p>
+    </div>
+  </section>
+
+  <section class="section" id="sec-variacoes">
+    <div class="sec-head">
+      <div class="sec-num"><span class="sec-num-tag">02</span><span class="sec-cap">Capítulo</span></div>
+      <h2 class="sec-title">Variações</h2>
+      <p class="sec-sub">Para cada contexto, uma forma</p>
+    </div>
+    <div class="var-stage" style="background:var(--cream-soft)"><div class="logo-bk"><div class="bk" style="font-size:76px;color:var(--ink)">BK</div><div class="line" style="width:30.4px;background:var(--ink);margin-top:4px;margin-bottom:6px"></div><div class="sig" style="font-size:9.9px;letter-spacing:3px;color:var(--ink)">rebeka fragoso</div></div></div>
+    <p class="var-label" style="color:var(--gold)">01 · Primária — creme</p>
+    <div class="var-stage" style="background:var(--sage-deep)"><div class="logo-bk"><div class="bk" style="font-size:76px;color:var(--cream)">BK</div><div class="line" style="width:30.4px;background:var(--cream);margin-top:4px;margin-bottom:6px"></div><div class="sig" style="font-size:9.9px;letter-spacing:3px;color:var(--gold)">rebeka fragoso</div></div></div>
+    <p class="var-label" style="color:var(--gold)">02 · Wellness — sage profundo</p>
+    <div class="var-stage" style="background:var(--terracotta)"><div class="logo-bk"><div class="bk" style="font-size:76px;color:var(--cream)">BK</div><div class="line" style="width:30.4px;background:var(--cream);margin-top:4px;margin-bottom:6px"></div><div class="sig" style="font-size:9.9px;letter-spacing:3px;color:var(--cream-deep)">rebeka fragoso</div></div></div>
+    <p class="var-label" style="color:var(--cream)">03 · Editorial — terracota</p>
+    <div class="var-stage" style="background:var(--ink)"><div class="logo-bk"><div class="bk" style="font-size:76px;color:var(--gold)">BK</div><div class="line" style="width:30.4px;background:var(--gold);margin-top:4px;margin-bottom:6px"></div><div class="sig" style="font-size:9.9px;letter-spacing:3px;color:var(--cream-soft)">rebeka fragoso</div></div></div>
+    <p class="var-label" style="color:var(--gold)">04 · Premium — grafite + ouro</p>
+  </section>
+
+  <section class="section" id="sec-monograma">
+    <div class="sec-head">
+      <div class="sec-num"><span class="sec-num-tag">03</span><span class="sec-cap">Capítulo</span></div>
+      <h2 class="sec-title">Monograma</h2>
+      <p class="sec-sub">O selo da curadoria</p>
+    </div>
+    <div class="mono-grid">
+      <div class="mono-card" style="background:var(--cream-soft)"><div class="mono-circle" style="width:108px;height:108px;border-color:var(--ink)"><span class="bk" style="font-size:39px;letter-spacing:6.5px;color:var(--ink);padding-left:6.5px">BK</span><span class="est" style="bottom:14px;font-size:8px;letter-spacing:2.7px;color:var(--ink)">est. recife</span></div></div>
+      <div class="mono-card" style="background:var(--sage-deep)"><div class="mono-circle" style="width:108px;height:108px;border-color:var(--gold)"><span class="bk" style="font-size:39px;letter-spacing:6.5px;color:var(--gold);padding-left:6.5px">BK</span><span class="est" style="bottom:14px;font-size:8px;letter-spacing:2.7px;color:var(--gold)">est. recife</span></div></div>
+      <div class="mono-card" style="background:var(--terracotta)"><div class="mono-circle" style="width:108px;height:108px;border-color:var(--cream)"><span class="bk" style="font-size:39px;letter-spacing:6.5px;color:var(--cream);padding-left:6.5px">BK</span><span class="est" style="bottom:14px;font-size:8px;letter-spacing:2.7px;color:var(--cream)">est. recife</span></div></div>
+      <div class="mono-card" style="background:var(--gold)"><div class="mono-circle" style="width:108px;height:108px;border-color:var(--ink)"><span class="bk" style="font-size:39px;letter-spacing:6.5px;color:var(--ink);padding-left:6.5px">BK</span><span class="est" style="bottom:14px;font-size:8px;letter-spacing:2.7px;color:var(--ink)">est. recife</span></div></div>
+    </div>
+  </section>
+
+  <section class="section" id="sec-paleta">
+    <div class="sec-head">
+      <div class="sec-num"><span class="sec-num-tag">04</span><span class="sec-cap">Capítulo</span></div>
+      <h2 class="sec-title">Paleta cromática</h2>
+      <p class="sec-sub">Cinco essências</p>
+    </div>
+    <div class="colors-pad">
+      <div class="color-block" style="background:var(--cream);color:var(--ink)"><p class="color-name">Creme</p><p class="color-paper">Off-white natural</p><div class="color-foot"><div><p class="color-uso-l">Uso</p><p class="color-uso-v">Background principal</p></div><div><p class="color-hex">#EFE8DC</p><p class="color-pant">Pantone 2310 C</p></div></div></div>
+      <div class="color-block" style="background:var(--sage-deep);color:var(--cream)"><p class="color-name">Sage profundo</p><p class="color-paper">Verde botânico maduro</p><div class="color-foot"><div><p class="color-uso-l">Uso</p><p class="color-uso-v">Wellness · autoridade</p></div><div><p class="color-hex">#4F5841</p><p class="color-pant">Pantone 5615 C</p></div></div></div>
+      <div class="color-block" style="background:var(--terracotta);color:var(--cream)"><p class="color-name">Terracota</p><p class="color-paper">Argila de Recife</p><div class="color-foot"><div><p class="color-uso-l">Uso</p><p class="color-uso-v">CTAs · acentos editoriais</p></div><div><p class="color-hex">#B8634A</p><p class="color-pant">Pantone 7586 C</p></div></div></div>
+      <div class="color-block" style="background:var(--gold);color:var(--ink)"><p class="color-name">Dourado</p><p class="color-paper">Latão acetinado</p><div class="color-foot"><div><p class="color-uso-l">Uso</p><p class="color-uso-v">Detalhes premium</p></div><div><p class="color-hex">#C9A063</p><p class="color-pant">Pantone 7503 C</p></div></div></div>
+      <div class="color-block" style="background:var(--ink);color:var(--cream)"><p class="color-name">Grafite</p><p class="color-paper">Tinta nanquim</p><div class="color-foot"><div><p class="color-uso-l">Uso</p><p class="color-uso-v">Texto · estrutura</p></div><div><p class="color-hex">#2A2722</p><p class="color-pant">Pantone Black 6 C</p></div></div></div>
+    </div>
+  </section>
+
+  <section class="section" id="sec-tipografia">
+    <div class="sec-head">
+      <div class="sec-num"><span class="sec-num-tag">05</span><span class="sec-cap">Capítulo</span></div>
+      <h2 class="sec-title">Tipografia</h2>
+      <p class="sec-sub">Duas vozes, uma fala</p>
+    </div>
+    <div class="tipo-block">
+      <div class="tipo-id"><span class="tipo-num">01</span><span class="tipo-cap">Display · Editorial</span></div>
+      <h2 class="tipo-name">Cormorant<br><em>Garamond</em></h2>
+      <p class="tipo-pesos">Light · Regular · Italic Light</p>
+      <p class="tipo-desc">Usada em todos os títulos, citações, numerais decorativos e na assinatura da marca.</p>
+      <div class="tipo-amostra"><p class="tipo-amostra-q">"Vestir-se com intenção é o primeiro ato político do dia."</p></div>
+    </div>
+    <div class="tipo-secundaria">
+      <div class="tipo-id"><span class="tipo-num">02</span><span class="tipo-cap">Body · Funcional</span></div>
+      <h2 class="tipo-name-jost">Jost</h2>
+      <p class="tipo-pesos">ExtraLight 200 · Light 300 · Medium 500</p>
+      <p class="tipo-desc">Geométrica, neutra e respirada. Aplicada em corpo de texto, navegação, botões e tudo que precisa de leitura limpa.</p>
+    </div>
+  </section>
+
+  <!-- ============== INSTAGRAM ============== -->
+  <section class="section" id="sec-instagram">
+    <div class="sec-head">
+      <div class="sec-num"><span class="sec-num-tag">06</span><span class="sec-cap">Capítulo</span></div>
+      <h2 class="sec-title">Instagram</h2>
+      <p class="sec-sub">A vitrine digital da curadoria</p>
+    </div>
+
+    <!-- 6.1 PERFIL -->
+    <div class="apl-section-head">
+      <p class="apl-section-num">6.1</p>
+      <h3 class="apl-section-title">O perfil</h3>
+      <p class="apl-section-sub">Foto de perfil em monograma BK. Bio em duas linhas — a primeira é manifesto, a segunda é call-to-action. Destaques fixos em ícones tipográficos sobre cores da paleta.</p>
+    </div>
+
+    <div class="ig-profile">
+      <div class="ig-prof-head">
+        <div class="ig-prof-avatar"><div class="ig-prof-avatar-inner"><span class="bk">BK</span></div></div>
+        <div class="ig-prof-stats">
+          <div><span class="num">128</span><span class="lbl">posts</span></div>
+          <div><span class="num">8.4k</span><span class="lbl">seguidores</span></div>
+          <div><span class="num">312</span><span class="lbl">seguindo</span></div>
+        </div>
+      </div>
+      <div class="ig-prof-info">
+        <p class="ig-prof-name">BK · Rebeka Fragoso</p>
+        <p class="ig-prof-cat">Curadoria de moda · Recife</p>
+        <p class="ig-prof-bio"><em>Vestir-se com intenção.</em><br>Seleção autoral de peças para mulheres que reconhecem valor.<br>Reservas no WhatsApp ↓</p>
+        <a class="ig-prof-link">bkcuradoria.com.br</a>
+      </div>
+      <div class="ig-prof-btns">
+        <div class="ig-prof-btn primary">Seguir</div>
+        <div class="ig-prof-btn secondary">Mensagem</div>
+        <div class="ig-prof-btn secondary">✉</div>
+      </div>
+      <div class="ig-highlights">
+        <div class="ig-hl"><div class="ig-hl-circle"><div class="ig-hl-inner" style="background:var(--cream-soft)"><span style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--ink);font-weight:300;letter-spacing:2px;padding-left:2px">BK</span></div></div><span class="ig-hl-label">sobre</span></div>
+        <div class="ig-hl"><div class="ig-hl-circle"><div class="ig-hl-inner" style="background:var(--sage-deep)"><span style="font-family:'Cormorant Garamond',serif;font-size:11px;color:var(--gold);font-style:italic">drop 02</span></div></div><span class="ig-hl-label">drop atual</span></div>
+        <div class="ig-hl"><div class="ig-hl-circle"><div class="ig-hl-inner" style="background:var(--terracotta)"><span style="font-family:'Cormorant Garamond',serif;font-size:11px;color:var(--cream);font-style:italic">looks</span></div></div><span class="ig-hl-label">looks</span></div>
+        <div class="ig-hl"><div class="ig-hl-circle"><div class="ig-hl-inner" style="background:var(--gold)"><span style="font-family:'Cormorant Garamond',serif;font-size:11px;color:var(--ink);font-style:italic">prova</span></div></div><span class="ig-hl-label">provador</span></div>
+        <div class="ig-hl"><div class="ig-hl-circle"><div class="ig-hl-inner" style="background:var(--cream)"><span style="font-family:'Cormorant Garamond',serif;font-size:11px;color:var(--terracotta);font-style:italic">events</span></div></div><span class="ig-hl-label">encontros</span></div>
+        <div class="ig-hl"><div class="ig-hl-circle"><div class="ig-hl-inner" style="background:var(--ink)"><span style="font-family:'Cormorant Garamond',serif;font-size:11px;color:var(--gold);font-style:italic">imagem</span></div></div><span class="ig-hl-label">consultoria</span></div>
+      </div>
+      <div class="ig-tabs">
+        <div class="ig-tab on">▦</div>
+        <div class="ig-tab">▷</div>
+        <div class="ig-tab">♡</div>
+        <div class="ig-tab">○</div>
+      </div>
+      <div class="ig-grid-9">
+        <div class="ig-post-sq" style="background:linear-gradient(140deg,#B8634A 0%,#8E4A35 100%)"><p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:var(--cream);line-height:1.3">"Vestir-se com<br>intenção."</p></div>
+        <div class="ig-post-sq has-icon" style="background:linear-gradient(160deg,#4F5841 0%,#3D4231 100%)"><p style="font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--gold);font-weight:300;line-height:1;letter-spacing:1px">drop<br><em style="font-style:italic">02</em></p></div>
+        <div class="ig-post-sq" style="background:var(--cream-soft)"><div style="font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--ink);font-weight:300;letter-spacing:3px;padding-left:3px">BK</div></div>
+        <div class="ig-post-sq" style="background:linear-gradient(180deg,#D88068 0%,#B8634A 100%)"><p style="font-family:'Cormorant Garamond',serif;font-size:11px;color:var(--cream);letter-spacing:2px;text-transform:uppercase;line-height:1.3">cardigan<br><em style="font-style:italic;font-size:14px;text-transform:none;letter-spacing:0">tessuto</em></p></div>
+        <div class="ig-post-sq" style="background:var(--gold)"><p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:var(--ink);line-height:1.4">uma seleção<br>autoral</p></div>
+        <div class="ig-post-sq has-icon" style="background:linear-gradient(140deg,#6A7256 0%,#4F5841 100%)"><div class="mono-circle" style="width:56px;height:56px;border-color:var(--gold)"><span class="bk" style="font-size:18px;letter-spacing:3px;color:var(--gold);padding-left:3px">BK</span><span class="est" style="bottom:7px;font-size:4.5px;letter-spacing:1.4px;color:var(--gold)">est. recife</span></div></div>
+        <div class="ig-post-sq" style="background:var(--cream)"><p style="font-family:'Cormorant Garamond',serif;font-size:11px;color:var(--terracotta);letter-spacing:3px;text-transform:uppercase;line-height:1.4">novidades<br><em style="font-style:italic;font-size:14px;text-transform:none;letter-spacing:0;color:var(--ink)">outono '26</em></p></div>
+        <div class="ig-post-sq" style="background:linear-gradient(140deg,#2A2722 0%,#0F0E0C 100%)"><p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:var(--gold);line-height:1.4">"curo para<br>mulheres que<br>já sabem."</p></div>
+        <div class="ig-post-sq has-icon" style="background:linear-gradient(160deg,#EFE8DC 0%,#C9B891 100%)"><p style="font-family:'Cormorant Garamond',serif;font-size:10px;color:var(--gold);letter-spacing:2.5px;text-transform:uppercase">peça única</p></div>
+      </div>
+    </div>
+
+    <p class="apl-tag">A regra do ritmo · grade 3×3</p>
+    <div style="padding:0 24px 36px">
+      <p style="font-size:13.5px;line-height:1.65;color:var(--ink-soft)">A cada 9 posts: <strong style="color:var(--ink);font-weight:500">3 fotos de peça</strong>, <strong style="color:var(--ink);font-weight:500">2 frases/citações</strong>, <strong style="color:var(--ink);font-weight:500">2 cards de anúncio</strong> (drop, evento, novidade), <strong style="color:var(--ink);font-weight:500">1 carrossel de look</strong> e <strong style="color:var(--ink);font-weight:500">1 reel/vídeo curto</strong>. Nunca dois posts iguais lado a lado.</p>
+    </div>
+
+    <!-- 6.2 TEMPLATES DE FEED -->
+    <div class="apl-section-head">
+      <p class="apl-section-num">6.2</p>
+      <h3 class="apl-section-title">Templates de feed</h3>
+      <p class="apl-section-sub">Seis layouts-mãe que cobrem 90% das publicações. Todos em 1080×1080 (quadrado) ou 1080×1350 (retrato editorial).</p>
+    </div>
+
+    <div class="tmpl-section">
+      <div class="tmpl-card" style="background:linear-gradient(140deg,#B8634A 0%,#8E4A35 100%);color:var(--cream)">
+        <p style="font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:18px">Manifesto</p>
+        <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:30px;line-height:1.25;margin-bottom:20px">"Curo para<br>mulheres que<br>já sabem<br>quem são."</p>
+        <div style="height:1px;width:36px;background:var(--gold);margin-bottom:10px"></div>
+        <p style="font-size:10px;letter-spacing:3px;text-transform:uppercase;opacity:0.85">— Rebeka Fragoso</p>
+      </div>
+      <p class="tmpl-meta">T1 · Citação editorial · 1080×1080</p>
+    </div>
+
+    <div class="tmpl-section">
+      <div class="tmpl-card between" style="background:var(--cream-soft)">
+        <div>
+          <p style="font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:var(--terracotta);text-transform:uppercase;margin-bottom:12px">Nova chegada</p>
+          <p style="font-family:'Cormorant Garamond',serif;font-size:32px;color:var(--ink);font-weight:300;line-height:1;margin-bottom:8px">Cardigan<br><em style="font-style:italic;color:var(--terracotta)">Tessuto</em></p>
+          <p style="font-size:12px;color:var(--ink-soft);letter-spacing:0.5px">Tricô merino · Florença, IT</p>
+        </div>
+        <div style="width:100%">
+          <div style="height:1px;background:rgba(42,39,34,0.2);margin-bottom:12px"></div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--ink-soft);letter-spacing:1.5px;text-transform:uppercase">
+            <span>R$ 1.890</span><span style="color:var(--terracotta)">Reservas no WhatsApp</span>
+          </div>
+        </div>
+      </div>
+      <p class="tmpl-meta">T2 · Lançamento de peça · 1080×1080</p>
+    </div>
+
+    <div class="tmpl-section">
+      <div class="tmpl-card" style="background:var(--sage-deep);color:var(--cream)">
+        <p style="font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:5px;color:var(--gold);text-transform:uppercase;margin-bottom:18px">Drop</p>
+        <p style="font-family:'Cormorant Garamond',serif;font-size:62px;color:var(--cream);font-weight:300;line-height:0.95;margin-bottom:6px;letter-spacing:-1px">outono<br><em style="font-style:italic;color:var(--gold)">'26</em></p>
+        <div style="height:1px;width:30px;background:var(--gold);margin:14px 0"></div>
+        <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--cream);opacity:0.85">29 peças · 10 de maio</p>
+      </div>
+      <p class="tmpl-meta">T3 · Anúncio de drop · 1080×1080</p>
+    </div>
+
+    <div class="tmpl-section">
+      <div class="tmpl-card left" style="background:linear-gradient(180deg,#EFE8DC 0%,#D9CFB8 100%);color:var(--ink);justify-content:flex-end;aspect-ratio:4/5">
+        <p style="font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:10px">Curadoria · 03/29</p>
+        <p style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;line-height:1.15;margin-bottom:8px;color:var(--ink)">O verde sage que<br><em style="font-style:italic;color:var(--sage-deep)">esculpe o corpo.</em></p>
+        <p style="font-size:12px;color:var(--ink-soft);letter-spacing:0.5px;line-height:1.6">Blazer estruturado em lã fria com forro acetinado. Última peça em P.</p>
+      </div>
+      <p class="tmpl-meta">T4 · Detalhe editorial · 1080×1350</p>
+    </div>
+
+    <div class="tmpl-section">
+      <div class="tmpl-card left" style="background:var(--ink);color:var(--cream)">
+        <p style="font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:18px">Consultoria de imagem</p>
+        <p style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;line-height:1.1;margin-bottom:18px;color:var(--cream)">Análise<br><em style="font-style:italic;color:var(--gold)">cromática.</em></p>
+        <p style="font-size:12.5px;color:var(--cream);opacity:0.8;line-height:1.65;margin-bottom:18px">As cores que iluminam você não são as que você acha — são as que a luz revela.</p>
+        <div style="display:flex;gap:6px">
+          <span style="width:18px;height:18px;background:var(--terracotta);border-radius:50%"></span>
+          <span style="width:18px;height:18px;background:var(--gold);border-radius:50%"></span>
+          <span style="width:18px;height:18px;background:var(--sage);border-radius:50%"></span>
+          <span style="width:18px;height:18px;background:var(--cream-deep);border-radius:50%"></span>
+          <span style="width:18px;height:18px;background:var(--sage-deep);border-radius:50%"></span>
+        </div>
+      </div>
+      <p class="tmpl-meta">T5 · Serviço de consultoria · 1080×1080</p>
+    </div>
+
+    <div class="tmpl-section">
+      <div class="tmpl-card between" style="background:var(--terracotta);color:var(--cream)">
+        <div>
+          <p style="font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:var(--cream-deep);text-transform:uppercase;margin-bottom:12px">Encontro privado</p>
+          <p style="font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:300;line-height:1.1;margin-bottom:14px;color:var(--cream)">Provador <em style="font-style:italic">aberto</em></p>
+          <p style="font-size:13px;color:var(--cream);opacity:0.9;line-height:1.65">Encontro com champagne para apresentar o drop antes da abertura pública.</p>
+        </div>
+        <div style="display:flex;justify-content:space-between;width:100%;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--cream);opacity:0.85">
+          <span>21 · maio</span><span>Recife</span>
+        </div>
+      </div>
+      <p class="tmpl-meta">T6 · Evento / encontro · 1080×1080</p>
+    </div>
+
+    <!-- 6.3 FONTES IG -->
+    <div class="apl-section-head">
+      <p class="apl-section-num">6.3</p>
+      <h3 class="apl-section-title">Fontes para Instagram</h3>
+      <p class="apl-section-sub">No app você não tem Cormorant nem Jost. Estas são as substitutas oficiais que mais se aproximam — use sempre estas, em qualquer ferramenta (Canva, CapCut, InShot, editor nativo do IG).</p>
+    </div>
+
+    <div class="fonts-ig-block">
+      <div class="fonts-ig-item">
+        <p class="fonts-ig-item-tag">Display · preferencial</p>
+        <p class="fonts-ig-item-name" style="font-family:'Cormorant Garamond',serif;font-style:italic">Cormorant Garamond</p>
+        <p class="fonts-ig-item-desc">Sempre a primeira escolha. Disponível no Canva, Figma e CapCut. Use Light ou Regular Italic.</p>
+        <p class="fonts-ig-item-use">Títulos · citações · nomes de peça</p>
+      </div>
+      <div class="fonts-ig-item">
+        <p class="fonts-ig-item-tag">Display · alternativa</p>
+        <p class="fonts-ig-item-name" style="font-family:Georgia,serif;font-style:italic">Playfair Display</p>
+        <p class="fonts-ig-item-desc">Segunda opção quando Cormorant não estiver disponível. Use sempre Light ou Regular Italic.</p>
+        <p class="fonts-ig-item-use">Quando Cormorant não existir</p>
+      </div>
+      <div class="fonts-ig-item">
+        <p class="fonts-ig-item-tag">Display · só no editor nativo do IG</p>
+        <p class="fonts-ig-item-name" style="font-family:Georgia,serif">Typewriter (modo itálico)</p>
+        <p class="fonts-ig-item-desc">A fonte "Máquina de escrever" do editor de stories do IG é a mais próxima de Cormorant em itálico. Evitar a fonte "Moderna" — é muito comercial.</p>
+        <p class="fonts-ig-item-use">Stories diretos do app IG</p>
+      </div>
+      <div class="fonts-ig-item">
+        <p class="fonts-ig-item-tag">Body · preferencial</p>
+        <p class="fonts-ig-item-name" style="font-family:'Jost',sans-serif;font-weight:300">Jost</p>
+        <p class="fonts-ig-item-desc">Disponível no Canva. Use sempre Light 300 ou ExtraLight 200 para manter a leveza.</p>
+        <p class="fonts-ig-item-use">Corpo de texto · legendas em arte</p>
+      </div>
+      <div class="fonts-ig-item">
+        <p class="fonts-ig-item-tag">Body · alternativa</p>
+        <p class="fonts-ig-item-name" style="font-family:system-ui,sans-serif;font-weight:300">Poppins Light</p>
+        <p class="fonts-ig-item-desc">Geométrica e neutra como Jost. Use sempre peso 300 (Light), nunca Bold.</p>
+        <p class="fonts-ig-item-use">Quando Jost não existir</p>
+      </div>
+      <div class="fonts-ig-item">
+        <p class="fonts-ig-item-tag">Body · só no editor nativo do IG</p>
+        <p class="fonts-ig-item-name" style="font-family:system-ui,sans-serif">Clássica</p>
+        <p class="fonts-ig-item-desc">A "Clássica" do editor do IG é o que mais lembra Jost. Tudo em minúsculas sempre que possível.</p>
+        <p class="fonts-ig-item-use">Stories diretos do app IG</p>
+      </div>
+    </div>
+
+    <div class="fonts-canva">
+      <p class="fonts-canva-tag">Cinco regras tipográficas</p>
+      <p class="fonts-canva-title">Cinco coisas que nunca mudam.</p>
+      <p class="fonts-canva-list">
+        <strong>01 ·</strong> Títulos sempre em serifa (Cormorant ou Playfair).<br>
+        <strong>02 ·</strong> Corpo sempre em sans light (Jost 300 ou Poppins Light).<br>
+        <strong>03 ·</strong> Tracking expandido em palavras curtas, nunca em frases longas.<br>
+        <strong>04 ·</strong> A assinatura "rebeka fragoso" sempre em minúsculas.<br>
+        <strong>05 ·</strong> Nunca mais de duas fontes na mesma arte.
+      </p>
+    </div>
+
+    <!-- 6.4 CORES IG -->
+    <div class="apl-section-head">
+      <p class="apl-section-num">6.4</p>
+      <h3 class="apl-section-title">Cores no Instagram</h3>
+      <p class="apl-section-sub">A grade do feed precisa criar atmosfera coesa. Estas são as regras de aplicação da paleta nas publicações.</p>
+    </div>
+
+    <div class="cor-rules">
+      <div class="cor-rule">
+        <div class="cor-rule-swatch" style="background:var(--cream)"></div>
+        <div><p class="cor-rule-t">Creme — o respiro da grade</p><p class="cor-rule-d">Use creme como fundo em pelo menos 30% dos posts. Ele é o que dá ar entre os posts saturados e impede que o feed pareça "carregado".</p></div>
+      </div>
+      <div class="cor-rule">
+        <div class="cor-rule-swatch" style="background:var(--terracotta)"></div>
+        <div><p class="cor-rule-t">Terracota — momentos editoriais</p><p class="cor-rule-d">Para posts de manifesto, citações da Rebeka e lançamentos quentes. Forte presença, mas no máximo 1 em cada linha de 3 posts.</p></div>
+      </div>
+      <div class="cor-rule">
+        <div class="cor-rule-swatch" style="background:var(--sage-deep)"></div>
+        <div><p class="cor-rule-t">Sage profundo — institucional</p><p class="cor-rule-d">Anúncios de drop, consultoria de imagem e comunicados oficiais. É a cor que carrega autoridade tranquila.</p></div>
+      </div>
+      <div class="cor-rule">
+        <div class="cor-rule-swatch" style="background:var(--gold)"></div>
+        <div><p class="cor-rule-t">Dourado — escasso e cirúrgico</p><p class="cor-rule-d">Apenas para destacar peças premium, encontros exclusivos ou tipografia decorativa. Não deve aparecer em mais de 1 post a cada 9.</p></div>
+      </div>
+      <div class="cor-rule">
+        <div class="cor-rule-swatch" style="background:var(--ink)"></div>
+        <div><p class="cor-rule-t">Grafite — momentos íntimos</p><p class="cor-rule-d">Frases de impacto, momentos de reflexão, conteúdos noturnos. Sempre acompanhado de dourado ou creme para suavizar.</p></div>
+      </div>
+    </div>
+
+    <!-- 6.5 FILTRO -->
+    <div class="apl-section-head">
+      <p class="apl-section-num">6.5</p>
+      <h3 class="apl-section-title">Filtro fotográfico BK</h3>
+      <p class="apl-section-sub">Toda foto do feed passa pelo mesmo tratamento. Saturação reduzida, contraste suave, tons quentes levemente puxados para a paleta. Resultado: imagens que dialogam com o palette mesmo quando o assunto é variado.</p>
+    </div>
+
+    <div class="filter-before-after">
+      <div class="filter-cell" style="background:linear-gradient(135deg,#FF6F40 0%,#C8472A 50%,#7A2810 100%)">
+        <span class="filter-lbl">Antes</span>
+      </div>
+      <div class="filter-cell" style="background:linear-gradient(135deg,#E08560 0%,#B8634A 50%,#7A4530 100%);filter:saturate(0.85) contrast(1.05) brightness(1.04)">
+        <span class="filter-lbl">Filtro BK</span>
+      </div>
+    </div>
+
+    <div class="filter-recipe">
+      <p class="filter-recipe-tag">Receita Lightroom · CapCut · VSCO</p>
+      <div class="filter-recipe-row"><span class="filter-recipe-l">Exposição</span><span class="filter-recipe-v">+0.15</span></div>
+      <div class="filter-recipe-row"><span class="filter-recipe-l">Contraste</span><span class="filter-recipe-v">+8</span></div>
+      <div class="filter-recipe-row"><span class="filter-recipe-l">Altas-luzes</span><span class="filter-recipe-v">−18</span></div>
+      <div class="filter-recipe-row"><span class="filter-recipe-l">Sombras</span><span class="filter-recipe-v">+22</span></div>
+      <div class="filter-recipe-row"><span class="filter-recipe-l">Saturação</span><span class="filter-recipe-v">−14</span></div>
+      <div class="filter-recipe-row"><span class="filter-recipe-l">Vibrância</span><span class="filter-recipe-v">+6</span></div>
+      <div class="filter-recipe-row"><span class="filter-recipe-l">Temperatura</span><span class="filter-recipe-v">+8 (warm)</span></div>
+      <div class="filter-recipe-row"><span class="filter-recipe-l">Matiz</span><span class="filter-recipe-v">+4 (magenta)</span></div>
+      <div class="filter-recipe-row"><span class="filter-recipe-l">Clareza</span><span class="filter-recipe-v">−10</span></div>
+      <div class="filter-recipe-row"><span class="filter-recipe-l">Textura</span><span class="filter-recipe-v">+5</span></div>
+      <div class="filter-recipe-row"><span class="filter-recipe-l">Grão</span><span class="filter-recipe-v">8 · médio · 25</span></div>
+      <div class="filter-recipe-row"><span class="filter-recipe-l">Vinheta</span><span class="filter-recipe-v">−8</span></div>
+    </div>
+
+    <div style="padding:0 24px 36px">
+      <p style="font-size:13.5px;line-height:1.65;color:var(--ink-soft);margin-bottom:12px">No <strong style="color:var(--ink);font-weight:500">VSCO</strong>: filtro base <strong style="color:var(--terracotta)">A4 +6</strong> ou <strong style="color:var(--terracotta)">HB1 +5</strong>, depois aplicar os ajustes acima.</p>
+      <p style="font-size:13.5px;line-height:1.65;color:var(--ink-soft);margin-bottom:12px">No <strong style="color:var(--ink);font-weight:500">Lightroom Mobile</strong>: salvar como preset "BK · Curadoria" e aplicar em todas as fotos antes de publicar.</p>
+      <p style="font-size:13.5px;line-height:1.65;color:var(--ink-soft)">Em fotos de peças sobre cabide: <strong style="color:var(--ink);font-weight:500">aumentar exposição em +0.3</strong> para clarear o fundo e destacar o tecido.</p>
+    </div>
+
+    <!-- 6.6 STORIES -->
+    <div class="apl-section-head">
+      <p class="apl-section-num">6.6</p>
+      <h3 class="apl-section-title">Stories</h3>
+      <p class="apl-section-sub">O canal mais íntimo da marca. Tom direto, mas sempre refinado. Sempre 1080×1920, com margem segura de 220px no topo e 280px no rodapé (área dos botões nativos do app).</p>
+    </div>
+
+    <p class="apl-tag">Quatro templates principais</p>
+    <div class="story-list">
+      <div class="story-frame" style="background:linear-gradient(180deg,#4F5841 0%,#2F3528 100%);color:var(--cream)">
+        <div class="story-bars"><span class="on"></span><span></span><span></span></div>
+        <div style="margin-top:32px">
+          <p style="font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:12px">Drop 02</p>
+          <p style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;line-height:1;margin-bottom:14px">outono<br><em style="font-style:italic;color:var(--gold)">'26</em></p>
+          <div style="height:1px;width:24px;background:var(--gold);margin-bottom:10px"></div>
+          <p style="font-size:10px;letter-spacing:2px;text-transform:uppercase;opacity:0.7">29 peças · 10 maio</p>
+        </div>
+      </div>
+      <div class="story-frame" style="background:var(--cream);color:var(--ink)">
+        <div class="story-bars dark"><span></span><span class="on"></span><span></span></div>
+        <div style="width:100%;height:55%;background:linear-gradient(140deg,#B8634A 0%,#8E4A35 100%);margin-top:36px;margin-bottom:18px;border-radius:3px"></div>
+        <p style="font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:3px;color:var(--terracotta);text-transform:uppercase;margin-bottom:6px">Bastidores</p>
+        <p style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;line-height:1.2">A escolha do<br>tecido começa<br><em style="font-style:italic">aqui</em>.</p>
+      </div>
+      <div class="story-frame" style="background:linear-gradient(180deg,#B8634A 0%,#7A3F2A 100%);color:var(--cream)">
+        <div class="story-bars"><span></span><span></span><span class="on"></span></div>
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column">
+          <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;text-align:center;line-height:1.35;margin-bottom:18px">"Vestir-se<br>com intenção<br>é o primeiro<br>ato político<br>do dia."</p>
+          <div style="height:1px;width:24px;background:var(--gold);margin-bottom:10px"></div>
+          <p style="font-size:9px;letter-spacing:3px;text-transform:uppercase;opacity:0.7">— Rebeka</p>
+        </div>
+      </div>
+      <div class="story-frame" style="background:var(--ink);color:var(--cream)">
+        <div class="story-bars"><span class="on"></span><span></span><span></span></div>
+        <div style="margin-top:38px;flex:1;display:flex;flex-direction:column;justify-content:center">
+          <p style="font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:14px">Vocês escolhem</p>
+          <p style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;line-height:1.2;margin-bottom:22px">Qual entra<br>no drop?</p>
+          <div style="background:rgba(239,232,220,0.1);border:0.5px solid rgba(201,160,99,0.4);border-radius:6px;padding:12px;text-align:center;margin-bottom:8px"><p style="font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--cream)">Linho cru</p></div>
+          <div style="background:rgba(239,232,220,0.1);border:0.5px solid rgba(201,160,99,0.4);border-radius:6px;padding:12px;text-align:center"><p style="font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--cream)">Seda lavada</p></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="apl-tag">Quatro templates secundários</p>
+    <div class="story-list">
+      <div class="story-frame" style="background:linear-gradient(160deg,#EFE8DC 0%,#D9CFB8 100%);color:var(--ink)">
+        <div class="story-bars dark"><span></span><span class="on"></span><span></span></div>
+        <div style="margin-top:38px">
+          <p style="font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:3px;color:var(--terracotta);text-transform:uppercase;margin-bottom:8px">Última peça em M</p>
+          <p style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;line-height:1.1;margin-bottom:6px">Vestido<br><em style="font-style:italic;color:var(--terracotta)">linho</em></p>
+          <p style="font-size:11px;color:var(--ink-soft);letter-spacing:1px;margin-bottom:18px">R$ 1.690</p>
+          <div style="background:rgba(184,99,74,0.1);padding:10px 14px;border-radius:6px;text-align:center;border:0.5px solid rgba(184,99,74,0.3)"><p style="font-size:10px;letter-spacing:2px;color:var(--terracotta);text-transform:uppercase">Toque para reservar</p></div>
+        </div>
+      </div>
+      <div class="story-frame" style="background:var(--gold);color:var(--ink)">
+        <div class="story-bars dark"><span class="on"></span><span></span></div>
+        <div style="margin-top:38px;flex:1;display:flex;flex-direction:column;justify-content:center">
+          <p style="font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:4px;color:var(--ink);text-transform:uppercase;margin-bottom:16px;opacity:0.75">Convite privado</p>
+          <p style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;line-height:1.1;margin-bottom:24px">Provador<br><em style="font-style:italic">aberto</em></p>
+          <div style="font-size:11px;line-height:1.9;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink);opacity:0.8">
+            <div>21 maio · 19h</div><div>Boa Viagem</div><div>Champagne</div>
+          </div>
+        </div>
+      </div>
+      <div class="story-frame" style="background:var(--sage-deep);color:var(--cream)">
+        <div class="story-bars"><span></span><span></span><span class="on"></span></div>
+        <div style="margin-top:38px;flex:1;display:flex;flex-direction:column;justify-content:center">
+          <p style="font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:14px">Quem veste BK</p>
+          <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;line-height:1.4;margin-bottom:18px">"Encontrei aqui<br>peças que vou<br>usar pelos<br>próximos 10 anos."</p>
+          <div style="height:1px;width:24px;background:var(--gold);margin-bottom:8px"></div>
+          <p style="font-size:9px;letter-spacing:2px;text-transform:uppercase;opacity:0.7">Mariana · Recife</p>
+        </div>
+      </div>
+      <div class="story-frame" style="background:var(--cream-soft);color:var(--ink)">
+        <div class="story-bars dark"><span class="on"></span></div>
+        <div style="margin-top:auto;margin-bottom:auto">
+          <p style="font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:16px">Drop ao vivo</p>
+          <p style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;line-height:1.15;margin-bottom:22px">Já está<br><em style="font-style:italic;color:var(--terracotta)">no site.</em></p>
+          <div style="background:var(--ink);color:var(--cream);padding:12px;border-radius:6px;text-align:center"><p style="font-size:10px;letter-spacing:2.5px;text-transform:uppercase;font-weight:500">→ Ver agora</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6.6.1 STORY COM FOTO DE FUNDO + OVERLAY -->
+    <div class="apl-section-head" style="border-top:1px solid rgba(92,86,78,0.15);margin-top:10px">
+      <p class="apl-section-num">6.6.1</p>
+      <h3 class="apl-section-title">Story com foto + <em>overlay</em></h3>
+      <p class="apl-section-sub">Modelo principal para stories que usam fotografia editorial. O segredo está em construir o overlay em camadas — cada uma cumpre uma função: legibilidade, atmosfera, profundidade.</p>
+    </div>
+
+    <div class="overlay-section">
+      <div class="overlay-stage">
+        <!-- STORY MONTADO COM TODAS AS CAMADAS -->
+        <div class="story-overlay-frame">
+          <div class="story-bg-photo"></div>
+          <div class="story-overlay-wash"></div>
+          <div class="story-overlay-gradient"></div>
+          <div class="story-overlay-vignette"></div>
+          <div class="story-content-layer">
+            <div class="story-content-bars"><span class="on"></span><span></span><span></span></div>
+            <div class="story-content-text">
+              <p style="font-family:'Cormorant Garamond',serif;font-size:9px;letter-spacing:4px;color:#D9B47A;text-transform:uppercase;margin-bottom:10px">Drop 02 · peça 03</p>
+              <p style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;line-height:1.1;color:#F5F0E6;margin-bottom:10px">Vestido<br><em style="font-style:italic;color:#D9B47A">terracota.</em></p>
+              <div style="height:1px;width:24px;background:#C9A063;margin-bottom:10px"></div>
+              <p style="font-size:9.5px;letter-spacing:2px;text-transform:uppercase;color:#F5F0E6;opacity:0.85;line-height:1.5">Linho lavado · Recife<br>Reservas no WhatsApp</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- STACK DAS CAMADAS -->
+        <div class="layers-stack">
+          <div class="layer-card"><strong><span class="layer-num">5</span>Texto + barras</strong>Camada superior: tipografia, barras de progresso e CTA.</div>
+          <div class="layer-card"><strong><span class="layer-num">4</span>Vinheta radial</strong>Escurece bordas e foca o centro.</div>
+          <div class="layer-card"><strong><span class="layer-num">3</span>Degradê inferior</strong>Garante legibilidade do texto sobre a foto.</div>
+          <div class="layer-card"><strong><span class="layer-num">2</span>Véu warm</strong>Une a foto à paleta da marca.</div>
+          <div class="layer-card"><strong><span class="layer-num">1</span>Foto editorial</strong>A base — modelo, peça, cenário.</div>
+        </div>
+      </div>
+
+      <!-- CONFIGURAÇÃO TÉCNICA -->
+      <div class="overlay-config">
+        <p class="overlay-config-tag">Configuração técnica</p>
+        <p class="overlay-config-title">As <em>5 camadas</em> do overlay BK, de baixo para cima.</p>
+
+        <div class="overlay-layer-block">
+          <div class="overlay-layer-head">
+            <span class="overlay-layer-n">01</span>
+            <span class="overlay-layer-name">Foto editorial</span>
+          </div>
+          <div class="overlay-spec-row"><span class="overlay-spec-l">Função</span><span class="overlay-spec-v">Base — peça em contexto</span></div>
+          <div class="overlay-spec-row"><span class="overlay-spec-l">Filtro</span><span class="overlay-spec-v">Preset "BK · Curadoria" aplicado</span></div>
+          <div class="overlay-spec-row"><span class="overlay-spec-l">Composição</span><span class="overlay-spec-v">Modelo no terço superior</span></div>
+          <div class="overlay-spec-row"><span class="overlay-spec-l">Espaço negativo</span><span class="overlay-spec-v">40% inferior para texto</span></div>
+        </div>
+
+        <div class="overlay-layer-block">
+          <div class="overlay-layer-head">
+            <span class="overlay-layer-n">02</span>
+            <span class="overlay-layer-name">Véu warm (color wash)</span>
+          </div>
+          <div class="overlay-spec-row"><span class="overlay-spec-l">Cor</span><span class="overlay-spec-v">#B8634A · terracota</span></div>
+          <div class="overlay-spec-row"><span class="overlay-spec-l">Opacidade</span><span class="overlay-spec-v">8%</span></div>
+          <div class="overlay-spec-row"><span class="overlay-spec-l">Blend mode</span><span class="overlay-spec-v">Multiply / Multiplicar</span></div>
+          <div class="overlay-spec-row"><span class="overlay-spec-l">Cobertura</span><span class="overlay-spec-v">100% da arte</span></div>
+        </div>
+
+        <div class="overlay-layer-block">
+          <div class="overlay-layer-head">
+            <span class="overlay-layer-n">03</span>
+            <span class="overlay-layer-name">Degradê inferior</span>
+          </div>
+          <div class="overlay-spec-row"><span class="overlay-spec-l">Tipo</span><span class="overlay-spec-v">Linear · 180° (baixo)</span></div>
+          <div class="overlay-spec-row"><span class="overlay-spec-l">Cor</span><span class="overlay-spec-v">#2A2722 · grafite</span></div>
+          <div class="overlay-spec-row"><span class="overlay-spec-l">Stops</span><span class="overlay-spec-v">0% em 35% · 85% em 100%</span></div>
+          <div class="overlay-spec-row"><span class="overlay-spec-l">Altura</span><span class="overlay-spec-v">65% da arte (de baixo)</span></div>
+          <div class="overlay-spec-row"><span class="overlay-spec-l">Blend mode</span><span class="overlay-spec-v">Normal</span></div>
+        </div>
+
+        <div class="overlay-layer-block">
+          <div class="overlay-layer-head">
+            <span class="overlay-layer-n">04</span>
+            <span class="overlay-layer-name">Vinheta radial</span>
+          </div>
+          <div class="overlay-spec-row"><span class="overlay-spec-l">Tipo</span><span class="overlay-spec-v">Radial · centro 50% 45%</span></div>
+          <div class="overlay-spec-row"><span class="overlay-spec-l">Cor</span><span class="overlay-spec-v">#2A2722 · grafite</span></div>
+          <div class="overlay-spec-row"><span class="overlay-spec-l">Stops</span><span class="overlay-spec-v">0% em 50% · 55% em 100%</span></div>
+          <div class="overlay-spec-row"><span class="overlay-spec-l">Opacidade</span><span class="overlay-spec-v">25% no pico</span></div>
+        </div>
+
+        <div class="overlay-layer-block">
+          <div class="overlay-layer-head">
+            <span class="overlay-layer-n">05</span>
+            <span class="overlay-layer-name">Texto e elementos gráficos</span>
+          </div>
+          <div class="overlay-spec-row"><span class="overlay-spec-l">Cor texto</span><span class="overlay-spec-v">#F5F0E6 · creme suave</span></div>
+          <div class="overlay-spec-row"><span class="overlay-spec-l">Cor destaque</span><span class="overlay-spec-v">#D9B47A · dourado claro</span></div>
+          <div class="overlay-spec-row"><span class="overlay-spec-l">Posição</span><span class="overlay-spec-v">Inferior · margem 60px</span></div>
+          <div class="overlay-spec-row"><span class="overlay-spec-l">Hierarquia</span><span class="overlay-spec-v">Eyebrow · Título · Filete · Legenda</span></div>
+        </div>
+      </div>
+
+      <!-- RECEITAS POR SOFTWARE -->
+      <p class="apl-tag" style="margin-top:30px;margin-bottom:14px">Como reproduzir em cada ferramenta</p>
+
+      <div class="overlay-recipes">
+        <div class="overlay-recipe">
+          <p class="overlay-recipe-app">Canva</p>
+          <p class="overlay-recipe-name">5 passos no editor</p>
+          <p class="overlay-recipe-steps">
+            <strong>1.</strong> Suba a foto como background, ocupando toda a arte.<br>
+            <strong>2.</strong> Adicione um <strong>retângulo terracota (#B8634A)</strong> cobrindo a foto inteira, transparência <strong>8%</strong>.<br>
+            <strong>3.</strong> Adicione um <strong>retângulo grafite (#2A2722)</strong> na metade inferior. No menu superior, escolha <strong>"Transparente para sólido"</strong> com transparência variando de 0% a 85%.<br>
+            <strong>4.</strong> Aplique uma <strong>moldura circular vinheta</strong> com transparência 25%.<br>
+            <strong>5.</strong> Coloque o texto em <strong>Cormorant Garamond Light</strong> sobre o degradê inferior.
+          </p>
+        </div>
+
+        <div class="overlay-recipe">
+          <p class="overlay-recipe-app">Photoshop · Figma</p>
+          <p class="overlay-recipe-name">Camadas e blend modes</p>
+          <p class="overlay-recipe-steps">
+            <strong>L1 ·</strong> Foto editorial (background, 100%).<br>
+            <strong>L2 ·</strong> Solid fill <strong>#B8634A</strong> · blend mode <strong>Multiply</strong> · opacity <strong>8%</strong>.<br>
+            <strong>L3 ·</strong> Gradient fill <strong>linear 180°</strong> · <strong>#2A2722 0→85%</strong> · stop em 35%.<br>
+            <strong>L4 ·</strong> Gradient fill <strong>radial</strong> · <strong>transparent 50% → #2A2722 25% a 100%</strong>.<br>
+            <strong>L5 ·</strong> Text layers · Cormorant Light + Jost Light.
+          </p>
+        </div>
+
+        <div class="overlay-recipe">
+          <p class="overlay-recipe-app">InShot · CapCut · App nativo IG</p>
+          <p class="overlay-recipe-name">Versão simplificada</p>
+          <p class="overlay-recipe-steps">
+            <strong>1.</strong> Foto como background no fundo.<br>
+            <strong>2.</strong> Adicione um <strong>sticker preto retangular</strong> na metade inferior com opacidade <strong>50-60%</strong>.<br>
+            <strong>3.</strong> Use a ferramenta de <strong>brush/borracha</strong> para suavizar a borda superior do retângulo (cria o degradê).<br>
+            <strong>4.</strong> Para a vinheta: aplique o filtro <strong>"Fade"</strong> ou <strong>"Vintage"</strong> a 20%.<br>
+            <strong>5.</strong> Texto em <strong>Typewriter itálico</strong> (cor creme) sobre a parte escura.
+          </p>
+        </div>
+      </div>
+
+      <!-- VARIAÇÕES DO OVERLAY -->
+      <p class="apl-tag" style="margin-top:30px;margin-bottom:14px">Variações para diferentes contextos</p>
+
+      <div class="overlay-variants">
+        <!-- Variação 1: overlay padrão (terracota) -->
+        <div class="overlay-variant">
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,#E8C9A8 0%,#D4A57F 30%,#B8835C 55%,#8F6A4E 80%,#5C4530 100%)"></div>
+          <div style="position:absolute;inset:0;background:rgba(184,99,74,0.08);mix-blend-mode:multiply"></div>
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,transparent 40%,rgba(42,39,34,0.7) 90%,rgba(42,39,34,0.9) 100%)"></div>
+          <span class="overlay-variant-label">Editorial · terracota</span>
+        </div>
+
+        <!-- Variação 2: overlay sage (institucional) -->
+        <div class="overlay-variant">
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,#C5B89E 0%,#A89878 30%,#8A7C5E 55%,#6B5E45 80%,#4A3F2E 100%)"></div>
+          <div style="position:absolute;inset:0;background:rgba(79,88,65,0.18);mix-blend-mode:multiply"></div>
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,transparent 40%,rgba(79,88,65,0.85) 100%)"></div>
+          <span class="overlay-variant-label">Institucional · sage</span>
+        </div>
+
+        <!-- Variação 3: overlay grafite (noturno/premium) -->
+        <div class="overlay-variant">
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,#9A8770 0%,#7A6850 35%,#52442E 65%,#2D2418 100%)"></div>
+          <div style="position:absolute;inset:0;background:rgba(42,39,34,0.15);mix-blend-mode:multiply"></div>
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,transparent 30%,rgba(42,39,34,0.9) 100%)"></div>
+          <span class="overlay-variant-label">Noturno · grafite</span>
+        </div>
+      </div>
+      <p class="overlay-variants-note">Mude apenas a cor do véu (camada 02) e do degradê inferior (camada 03) para adaptar o overlay ao contexto. A estrutura das 5 camadas permanece sempre a mesma.</p>
+
+      <!-- REGRAS DE OURO -->
+      <div style="background:var(--sage-deep);color:var(--cream);padding:28px 22px;border-radius:4px;margin-top:24px">
+        <p style="font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:14px">Regras do overlay BK</p>
+        <p style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;line-height:1.3;margin-bottom:18px">Cinco coisas que nunca <em style="font-style:italic;color:var(--gold)">mudam.</em></p>
+        <p style="font-size:13px;line-height:1.95;color:var(--cream);opacity:0.92">
+          <strong style="color:var(--gold);font-weight:500">01 ·</strong> O degradê sempre vem de baixo, nunca de cima.<br>
+          <strong style="color:var(--gold);font-weight:500">02 ·</strong> O texto fica nos 40% inferiores, nunca cobrindo o rosto ou a peça.<br>
+          <strong style="color:var(--gold);font-weight:500">03 ·</strong> Cor do texto sempre <strong style="color:var(--cream)">creme</strong> ou <strong style="color:var(--cream)">dourado claro</strong> — nunca branco puro.<br>
+          <strong style="color:var(--gold);font-weight:500">04 ·</strong> Vinheta máxima de <strong style="color:var(--cream)">25% de opacidade</strong>. Acima disso, a foto perde a vida.<br>
+          <strong style="color:var(--gold);font-weight:500">05 ·</strong> Véu warm sempre em <strong style="color:var(--cream)">multiply 6-10%</strong>. Mais que isso, vira filtro pesado.
+        </p>
+      </div>
+    </div>
+
+    <!-- 6.7 REELS -->
+    <div class="apl-section-head">
+      <p class="apl-section-num">6.7</p>
+      <h3 class="apl-section-title">Reels</h3>
+      <p class="apl-section-sub">Reels são o conteúdo de descoberta — onde a marca encontra novas clientes. Sempre 1080×1920, com capa estilizada que combine com o feed quando vista no perfil.</p>
+    </div>
+
+    <p class="apl-tag">Quatro formatos editoriais</p>
+    <div class="reels-row">
+      <div class="reel-frame" style="background:linear-gradient(180deg,#4F5841 0%,#2A2722 100%);color:var(--cream)">
+        <div class="reel-top"><span>reels</span><span>⊕</span></div>
+        <div class="reel-content"><div style="text-align:center"><p style="font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:10px">Bastidores</p><p style="font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:300;line-height:1.1">Como nasce<br><em style="font-style:italic;color:var(--gold)">um drop.</em></p></div></div>
+        <div class="reel-side"><span>♡</span><span>234</span><span>💬</span><span>18</span><span>↗</span><span>⌑</span></div>
+        <div class="reel-bot"><p style="font-size:10px;color:var(--cream);opacity:0.85;margin-bottom:4px"><strong style="font-weight:500">@bk.curadoria</strong></p><p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:10px;color:var(--cream);opacity:0.7">A escolha do tecido começa antes...</p></div>
+      </div>
+      <div class="reel-frame" style="background:linear-gradient(180deg,#D88068,#8E4A35);color:var(--cream)">
+        <div class="reel-top"><span>reels</span><span>⊕</span></div>
+        <div class="reel-content"><div style="text-align:center"><p style="font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:3px;color:var(--cream);text-transform:uppercase;margin-bottom:10px;opacity:0.9">3 modos</p><p style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;line-height:1.05">de usar o<br><em style="font-style:italic">cardigan.</em></p></div></div>
+        <div class="reel-side"><span>♡</span><span>512</span><span>💬</span><span>42</span><span>↗</span><span>⌑</span></div>
+        <div class="reel-bot"><p style="font-size:10px;color:var(--cream);opacity:0.85;margin-bottom:4px"><strong style="font-weight:500">@bk.curadoria</strong></p><p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:10px;color:var(--cream);opacity:0.7">Uma peça, três identidades.</p></div>
+      </div>
+      <div class="reel-frame" style="background:var(--cream-soft);color:var(--ink)">
+        <div class="reel-top" style="color:var(--ink);opacity:0.7"><span>reels</span><span>⊕</span></div>
+        <div class="reel-content"><div style="text-align:center"><p style="font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:3px;color:var(--terracotta);text-transform:uppercase;margin-bottom:10px">Episódio 04</p><p style="font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;line-height:1.1">Análise<br><em style="font-style:italic;color:var(--terracotta)">cromática</em></p><p style="font-size:11px;color:var(--ink-soft);margin-top:10px;letter-spacing:0.5px">por Rebeka Fragoso</p></div></div>
+        <div class="reel-side" style="color:var(--ink)"><span>♡</span><span style="color:var(--ink);opacity:0.85">189</span><span>💬</span><span style="color:var(--ink);opacity:0.85">12</span><span>↗</span><span>⌑</span></div>
+        <div class="reel-bot" style="color:var(--ink)"><p style="font-size:10px;opacity:0.85;margin-bottom:4px"><strong style="font-weight:500">@bk.curadoria</strong></p><p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:10px;opacity:0.7">As cores que iluminam você...</p></div>
+      </div>
+      <div class="reel-frame" style="background:var(--ink);color:var(--cream)">
+        <div class="reel-top"><span>reels</span><span>⊕</span></div>
+        <div class="reel-content"><div style="text-align:center"><p style="font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:14px">Drop 02</p><p style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;line-height:1">First<br>look<br><em style="font-style:italic;color:var(--gold)">outono.</em></p></div></div>
+        <div class="reel-side"><span>♡</span><span>1.2k</span><span>💬</span><span>87</span><span>↗</span><span>⌑</span></div>
+        <div class="reel-bot"><p style="font-size:10px;color:var(--cream);opacity:0.85;margin-bottom:4px"><strong style="font-weight:500">@bk.curadoria</strong></p><p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:10px;color:var(--cream);opacity:0.7">As 5 peças que entram amanhã.</p></div>
+      </div>
+    </div>
+
+    <div style="padding:0 24px 36px">
+      <p style="font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:18px">Boas práticas em reels</p>
+      <p style="font-size:13.5px;line-height:1.65;color:var(--ink-soft);margin-bottom:10px"><strong style="color:var(--ink);font-weight:500">Ritmo lento:</strong> a marca não compete por atenção com cortes rápidos. Cortes longos, movimentos de câmera suaves, fades.</p>
+      <p style="font-size:13.5px;line-height:1.65;color:var(--ink-soft);margin-bottom:10px"><strong style="color:var(--ink);font-weight:500">Áudio:</strong> piano minimalista, ambient, bossa contemporânea ou voz da Rebeka. Nunca trending sounds genéricos.</p>
+      <p style="font-size:13.5px;line-height:1.65;color:var(--ink-soft);margin-bottom:10px"><strong style="color:var(--ink);font-weight:500">Capa do reel:</strong> sempre desenhada com tipografia da marca. Deve fazer sentido quando vista no grid do perfil.</p>
+      <p style="font-size:13.5px;line-height:1.65;color:var(--ink-soft)"><strong style="color:var(--ink);font-weight:500">Duração ideal:</strong> 15 a 30 segundos. Reels longos só para tutoriais (até 60s).</p>
+    </div>
+
+    <!-- 6.8 RITMO -->
+    <div class="ritmo">
+      <p class="ritmo-tag">6.8 · Ritmo de publicação</p>
+      <p class="ritmo-title">A frequência que <em>sustenta</em> a marca.</p>
+      <div class="ritmo-item"><div class="ritmo-icon">▦</div><div><p class="ritmo-t">Feed</p><p class="ritmo-d">Posts editoriais consistentes. Misturar templates para criar ritmo na grade.</p><p class="ritmo-freq">3 a 4 por semana · ter, qui, sáb</p></div></div>
+      <div class="ritmo-item"><div class="ritmo-icon">◌</div><div><p class="ritmo-t">Stories</p><p class="ritmo-d">Bastidores, atualizações de drop, depoimentos, enquetes. Frequência alta sustenta proximidade.</p><p class="ritmo-freq">3 a 6 stories por dia · dias úteis</p></div></div>
+      <div class="ritmo-item"><div class="ritmo-icon">▷</div><div><p class="ritmo-t">Reels</p><p class="ritmo-d">Conteúdo de descoberta. Mais raros, mais elaborados, com qualidade editorial.</p><p class="ritmo-freq">1 a 2 por semana · qua, dom</p></div></div>
+      <div class="ritmo-item"><div class="ritmo-icon">⌑</div><div><p class="ritmo-t">Destaques</p><p class="ritmo-d">6 fixos: Sobre, Drop atual, Looks, Provador, Encontros, Consultoria. Capa atualizada a cada drop.</p><p class="ritmo-freq">Atualização a cada 60 dias</p></div></div>
+      <div class="ritmo-item"><div class="ritmo-icon">●</div><div><p class="ritmo-t">Lives</p><p class="ritmo-d">Lançamento de drop em formato live, mostrando peça a peça. Recurso de exclusividade para seguidoras.</p><p class="ritmo-freq">1 live por drop · noite anterior ao lançamento</p></div></div>
+    </div>
+
+    <!-- 6.9 HASHTAGS -->
+    <div class="hashtags">
+      <p class="hashtags-tag">6.9 · Hashtags</p>
+      <p class="hashtags-title">As palavras que <span style="color:var(--gold)">a marca habita.</span></p>
+      <div class="hashtags-row">
+        <p class="hashtags-row-l">Marca · sempre</p>
+        <div class="hashtags-chips">
+          <span class="hashtags-chip">#bkcuradoria</span>
+          <span class="hashtags-chip">#rebekafragoso</span>
+          <span class="hashtags-chip">#vestircomintencao</span>
+        </div>
+      </div>
+      <div class="hashtags-row">
+        <p class="hashtags-row-l">Universo da marca</p>
+        <div class="hashtags-chips">
+          <span class="hashtags-chip">#curadoriademoda</span>
+          <span class="hashtags-chip">#modaautoral</span>
+          <span class="hashtags-chip">#consultoriadeimagem</span>
+          <span class="hashtags-chip">#analisecromatica</span>
+          <span class="hashtags-chip">#estilopessoal</span>
+          <span class="hashtags-chip">#guardaroupacuradora</span>
+        </div>
+      </div>
+      <div class="hashtags-row">
+        <p class="hashtags-row-l">Geo · território</p>
+        <div class="hashtags-chips">
+          <span class="hashtags-chip">#moderecife</span>
+          <span class="hashtags-chip">#recifestyle</span>
+          <span class="hashtags-chip">#pernambuco</span>
+          <span class="hashtags-chip">#nordeste</span>
+        </div>
+      </div>
+      <div class="hashtags-row">
+        <p class="hashtags-row-l">Nunca usar</p>
+        <div class="hashtags-chips">
+          <span class="hashtags-chip" style="opacity:0.4;text-decoration:line-through">#promoção</span>
+          <span class="hashtags-chip" style="opacity:0.4;text-decoration:line-through">#desconto</span>
+          <span class="hashtags-chip" style="opacity:0.4;text-decoration:line-through">#look</span>
+          <span class="hashtags-chip" style="opacity:0.4;text-decoration:line-through">#ootd</span>
+          <span class="hashtags-chip" style="opacity:0.4;text-decoration:line-through">#fashion</span>
+        </div>
+        <p style="font-size:11.5px;line-height:1.55;color:rgba(239,232,220,0.5);margin-top:14px;font-style:italic;font-family:'Cormorant Garamond',serif">Hashtags genéricas em inglês ou com apelo comercial diluem o posicionamento da marca.</p>
+      </div>
+      <div class="hashtags-row">
+        <p class="hashtags-row-l">Receita por post</p>
+        <p style="font-size:13px;line-height:1.65;color:var(--cream);opacity:0.85;margin-top:4px">3 da marca + 4 a 6 do universo + 2 geográficas. Total entre 8 e 11 — nunca mais. Sempre no fim da legenda, separadas por uma linha em branco.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== OUTRAS APLICAÇÕES ============== -->
+  <section class="section" id="sec-aplicacoes">
+    <div class="sec-head">
+      <div class="sec-num"><span class="sec-num-tag">07</span><span class="sec-cap">Capítulo</span></div>
+      <h2 class="sec-title">Outras aplicações</h2>
+      <p class="sec-sub">Papelaria e embalagem</p>
+    </div>
+
+    <p class="apl-tag">Tag de peça · hangtag</p>
+    <div class="tag-row">
+      <div class="hangtag hangtag-frente">
+        <div class="hangtag-furo"></div>
+        <div style="margin-top:36px;text-align:center">
+          <p class="hangtag-logo">BK</p>
+          <div class="hangtag-line"></div>
+          <p class="hangtag-sig">rebeka fragoso</p>
+        </div>
+        <p class="hangtag-est">est. recife</p>
+      </div>
+      <div class="hangtag hangtag-verso">
+        <div class="hangtag-furo"></div>
+        <div style="margin-top:30px;width:100%">
+          <p style="font-family:'Cormorant Garamond',serif;font-size:7px;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;margin-bottom:10px;text-align:center">curadoria</p>
+          <div style="font-size:8px;line-height:1.6">
+            <div style="display:flex;justify-content:space-between;border-bottom:0.5px solid rgba(201,160,99,0.2);padding:4px 0"><span style="opacity:0.6">Origem</span><span>IT</span></div>
+            <div style="display:flex;justify-content:space-between;border-bottom:0.5px solid rgba(201,160,99,0.2);padding:4px 0"><span style="opacity:0.6">Tecido</span><span>Merino</span></div>
+            <div style="display:flex;justify-content:space-between;padding:4px 0"><span style="opacity:0.6">Ref</span><span>02 · 24</span></div>
+          </div>
+        </div>
+        <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:8px;color:var(--gold);text-align:center;line-height:1.3">"uma escolha,<br>não um impulso."</p>
+      </div>
+    </div>
+
+    <p class="apl-tag">Cartão de visita</p>
+    <div class="cartao-pad">
+      <div class="cartao cartao-frente">
+        <div><p class="cartao-logo">BK</p><div class="cartao-line"></div><p class="cartao-sig">rebeka fragoso</p></div>
+        <div><p class="cartao-tagline">curadoria autoral</p><p class="cartao-foot">vestuário feminino · recife</p></div>
+      </div>
+      <div style="height:14px"></div>
+      <div class="cartao cartao-verso">
+        <p class="cartao-verso-tag">contato</p>
+        <div>
+          <p class="cartao-nome">Rebeka Fragoso</p>
+          <p class="cartao-role">fundadora · curadora</p>
+          <p class="cartao-contato">+55 81 9 9999-9999<br>@bk.curadoria<br>recife · pernambuco</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============== TOM DE VOZ ============== -->
+  <section class="section active" id="sec-voz">
+    <div class="sec-head">
+      <div class="sec-num"><span class="sec-num-tag">08</span><span class="sec-cap">Capítulo</span></div>
+      <h2 class="sec-title">Tom de voz</h2>
+      <p class="sec-sub">Como a BK fala</p>
+    </div>
+    <div class="voz-intro">
+      <p class="voz-intro-q">"Próxima, mas nunca íntima demais. Refinada, mas nunca distante. Confiante, mas nunca arrogante."</p>
+    </div>
+
+    <!-- ========= ARQUITETURA DE DUAS VOZES ========= -->
+    <div class="duas-vozes">
+      <div class="duas-vozes-header">
+        <span class="duas-vozes-tag">A casa fala em duas vozes</span>
+        <h3 class="duas-vozes-title">Lívia <em>e</em> Rebeka.</h3>
+        <p class="duas-vozes-sub">A BK opera com uma estrutura de atendimento em dois níveis. Lívia é a assistente do ateliê — a primeira voz que a cliente encontra. Rebeka é a curadora — a voz que aparece nos momentos que pedem autoria. Essa arquitetura preserva o tempo da Rebeka como recurso escasso e faz da conversa com ela um gesto de reconhecimento.</p>
+      </div>
+
+      <div class="voz-cards">
+        <!-- LÍVIA -->
+        <div class="voz-card livia">
+          <p class="voz-card-role">Primeira voz · operacional</p>
+          <h4 class="voz-card-name"><em>Lívia</em></h4>
+          <div class="voz-card-line"></div>
+          <div class="voz-card-attrs">
+            <div class="voz-card-attr"><span class="voz-card-attr-l">Função</span><span class="voz-card-attr-v">Assistente do ateliê. Primeira pessoa que responde no WhatsApp.</span></div>
+            <div class="voz-card-attr"><span class="voz-card-attr-l">Tom</span><span class="voz-card-attr-v">Formal-cordial, eficiente, brasileira impecável. Sem diminutivos, sem emojis, sem estrangeirismos.</span></div>
+            <div class="voz-card-attr"><span class="voz-card-attr-l">Pronome</span><span class="voz-card-attr-v">Sempre "você". Refere-se à Rebeka na terceira pessoa: "a Rebeka".</span></div>
+            <div class="voz-card-attr"><span class="voz-card-attr-l">Velocidade</span><span class="voz-card-attr-v">Resposta rápida, dentro de minutos no horário comercial.</span></div>
+            <div class="voz-card-attr"><span class="voz-card-attr-l">Identifica-se</span><span class="voz-card-attr-v">"Oi, aqui é a Lívia, do ateliê BK."</span></div>
+          </div>
+          <p class="voz-card-amostra">"Oi, [nome]. Aqui é a Lívia, do ateliê BK. Posso te ajudar?"</p>
+        </div>
+
+        <!-- REBEKA -->
+        <div class="voz-card rebeka">
+          <p class="voz-card-role">Segunda voz · autoral</p>
+          <h4 class="voz-card-name"><em>Rebeka</em></h4>
+          <div class="voz-card-line"></div>
+          <div class="voz-card-attrs">
+            <div class="voz-card-attr"><span class="voz-card-attr-l">Função</span><span class="voz-card-attr-v">Curadora. Aparece em momentos que envolvem decisão, autoria e relacionamento.</span></div>
+            <div class="voz-card-attr"><span class="voz-card-attr-l">Tom</span><span class="voz-card-attr-v">Próxima sem ser íntima. Pausada, refinada, autoral. Como uma carta escrita à mão.</span></div>
+            <div class="voz-card-attr"><span class="voz-card-attr-l">Pronome</span><span class="voz-card-attr-v">"Você", com tom de quem reconhece a cliente individualmente.</span></div>
+            <div class="voz-card-attr"><span class="voz-card-attr-l">Velocidade</span><span class="voz-card-attr-v">Responde ao longo do dia. Sua presença é intencional, nunca apressada.</span></div>
+            <div class="voz-card-attr"><span class="voz-card-attr-l">Identifica-se</span><span class="voz-card-attr-v">"Oi, [nome]. Aqui é a Rebeka."</span></div>
+          </div>
+          <p class="voz-card-amostra">"Oi, Mariana. Aqui é a Rebeka. Vi a sua mensagem com a Lívia e quis te responder pessoalmente."</p>
+        </div>
+      </div>
+
+      <!-- QUANDO A REBEKA ENTRA -->
+      <div class="transicao">
+        <p class="transicao-tag">Os três momentos</p>
+        <h4 class="transicao-title">Quando a Rebeka <em>entra na conversa.</em></h4>
+        <div class="transicao-trigger">
+          <span class="transicao-trigger-n">01</span>
+          <div>
+            <p class="transicao-trigger-t">Clientes recorrentes e VIPs</p>
+            <p class="transicao-trigger-d">A partir da segunda compra, ou clientes que já têm vínculo com a casa. A Rebeka entra para reconhecer a presença — não para vender.</p>
+          </div>
+        </div>
+        <div class="transicao-trigger">
+          <span class="transicao-trigger-n">02</span>
+          <div>
+            <p class="transicao-trigger-t">Quando a cliente pede pra falar com ela</p>
+            <p class="transicao-trigger-d">Pedido explícito. A Lívia faz a transição com elegância e nunca como obstáculo.</p>
+          </div>
+        </div>
+        <div class="transicao-trigger">
+          <span class="transicao-trigger-n">03</span>
+          <div>
+            <p class="transicao-trigger-t">Consultorias de imagem</p>
+            <p class="transicao-trigger-d">Personal shopping, análise cromática, reposicionamento e adequação de estilo são sempre conduzidos diretamente pela Rebeka, do primeiro contato ao encerramento.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- DIÁLOGO 1 — entrada normal -->
+      <p class="dialogo-tag" style="padding:0 0 0;margin-bottom:14px;font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:var(--terracotta);text-transform:uppercase">Diálogo · primeira compra</p>
+      <div class="dialogo">
+        <div class="dialogo-msgs">
+          <div class="dialogo-msg cliente">
+            <span class="dialogo-msg-quem">Cliente · Camila</span>
+            Oi! Vi o cardigan tessuto no instagram, ainda tem em M?
+            <span class="dialogo-msg-hora">10:14</span>
+          </div>
+          <div class="dialogo-msg livia">
+            <span class="dialogo-msg-quem">Lívia · ateliê BK</span>
+            Oi, Camila. Aqui é a Lívia, do ateliê BK. Sim, ainda temos uma peça em M. Posso reservar para você por 48h sem compromisso, enquanto você pensa. Quer?
+            <span class="dialogo-msg-hora">10:16</span>
+          </div>
+          <div class="dialogo-msg cliente">
+            <span class="dialogo-msg-quem">Cliente · Camila</span>
+            Pode sim! Como funciona o pagamento?
+            <span class="dialogo-msg-hora">10:17</span>
+          </div>
+          <div class="dialogo-msg livia">
+            <span class="dialogo-msg-quem">Lívia · ateliê BK</span>
+            Reservado. Aceitamos Pix, cartão em até 6x e transferência. A peça parte no dia seguinte à confirmação. Te envio o link com os detalhes da peça?
+            <span class="dialogo-msg-hora">10:18</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DIÁLOGO 2 — cliente VIP, Rebeka aparece -->
+      <p class="dialogo-tag" style="padding:0 0 0;margin:24px 0 14px;font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:var(--terracotta);text-transform:uppercase">Diálogo · cliente recorrente</p>
+      <div class="dialogo">
+        <div class="dialogo-msgs">
+          <div class="dialogo-msg cliente">
+            <span class="dialogo-msg-quem">Cliente · Mariana</span>
+            Oi! Recebi o convite do provador, queria confirmar presença.
+            <span class="dialogo-msg-hora">15:42</span>
+          </div>
+          <div class="dialogo-msg livia">
+            <span class="dialogo-msg-quem">Lívia · ateliê BK</span>
+            Oi, Mariana. Que bom ter você de volta. Sua presença está confirmada para sexta, às 19h. Vou avisar a Rebeka — ela costuma escrever pessoalmente para as clientes que vêm aos encontros.
+            <span class="dialogo-msg-hora">15:44</span>
+          </div>
+          <div class="dialogo-msg rebeka">
+            <span class="dialogo-msg-quem">Rebeka</span>
+            Oi, Mariana. Aqui é a Rebeka. Que alegria saber que você virá sexta. Separei duas peças que acho que vão dialogar bem com o que você levou no último drop — quero te mostrar pessoalmente. Até lá.
+            <span class="dialogo-msg-hora">17:08</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DIÁLOGO 3 — cliente pede pela Rebeka -->
+      <p class="dialogo-tag" style="padding:0 0 0;margin:24px 0 14px;font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:var(--terracotta);text-transform:uppercase">Diálogo · cliente pede pela Rebeka</p>
+      <div class="dialogo">
+        <div class="dialogo-msgs">
+          <div class="dialogo-msg cliente">
+            <span class="dialogo-msg-quem">Cliente · Helena</span>
+            Estou em dúvida entre o vestido linho e o blazer sage. Tinha como falar com a Rebeka? Queria a opinião dela.
+            <span class="dialogo-msg-hora">11:02</span>
+          </div>
+          <div class="dialogo-msg livia">
+            <span class="dialogo-msg-quem">Lívia · ateliê BK</span>
+            Claro, Helena. Vou deixar registrada sua questão. A Rebeka responde pessoalmente ao longo do dia, geralmente até o fim da tarde. Enquanto isso, posso te enviar as duas peças com detalhes de modelagem e tecido?
+            <span class="dialogo-msg-hora">11:04</span>
+          </div>
+          <div class="dialogo-msg rebeka">
+            <span class="dialogo-msg-quem">Rebeka</span>
+            Oi, Helena. Aqui é a Rebeka. A Lívia me passou sua dúvida. Olhei suas escolhas anteriores e te respondo o que penso: o vestido linho vai te servir mais agora — ele dialoga com a paleta que você já tem. O blazer sage, guarde para quando vier o azul-marinho do próximo drop. Vão fazer par.
+            <span class="dialogo-msg-hora">16:30</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SCRIPTS PRONTOS DA LÍVIA -->
+      <p class="scripts-tag" style="margin-top:36px">Scripts prontos · Lívia</p>
+      <div class="scripts">
+        <div class="script-bloco">
+          <p class="script-bloco-situacao">Abertura padrão</p>
+          <p class="script-bloco-msg">"Oi, [nome]. Aqui é a Lívia, do ateliê BK. Como posso te ajudar?"</p>
+        </div>
+        <div class="script-bloco">
+          <p class="script-bloco-situacao">Quando a cliente pede pela Rebeka</p>
+          <p class="script-bloco-msg">"Claro. Vou deixar registrada sua questão — a Rebeka responde pessoalmente as clientes ao longo do dia. Ela costuma escrever até o fim da tarde."</p>
+        </div>
+        <div class="script-bloco">
+          <p class="script-bloco-situacao">Cliente recorrente entra em contato</p>
+          <p class="script-bloco-msg">"Oi, [nome]. Que bom ter você de volta. Vou avisar a Rebeka que você está aqui — ela vai querer te responder pessoalmente."</p>
+        </div>
+        <div class="script-bloco">
+          <p class="script-bloco-situacao">Pergunta sobre disponibilidade</p>
+          <p class="script-bloco-msg">"Vou conferir o acervo e te respondo em alguns minutos."</p>
+        </div>
+        <div class="script-bloco">
+          <p class="script-bloco-situacao">Reserva de peça</p>
+          <p class="script-bloco-msg">"Posso reservar para você por 48h, sem compromisso. Quer?"</p>
+        </div>
+        <div class="script-bloco">
+          <p class="script-bloco-situacao">Confirmação de envio</p>
+          <p class="script-bloco-msg">"A peça partiu hoje pela manhã. Te envio o código de rastreio assim que a transportadora gerar."</p>
+        </div>
+        <div class="script-bloco">
+          <p class="script-bloco-situacao">Consultoria de imagem (sempre transfere)</p>
+          <p class="script-bloco-msg">"Os serviços de consultoria são conduzidos diretamente pela Rebeka. Vou passar sua mensagem para ela — ela retorna ainda hoje com a agenda."</p>
+        </div>
+        <div class="script-bloco">
+          <p class="script-bloco-situacao">Horário de funcionamento alterado</p>
+          <p class="script-bloco-msg">"Hoje atendemos apenas à tarde, a partir das 14h. Deixe sua mensagem que respondo assim que retornar."</p>
+        </div>
+        <div class="script-bloco">
+          <p class="script-bloco-situacao">Pergunta sobre preço (nunca minimizar)</p>
+          <p class="script-bloco-msg">"O valor é R$ [valor], com parcelamento em até 6x. O preço reflete a origem do tecido e a modelagem — a Rebeka pode te contar a história da peça se quiser."</p>
+        </div>
+        <div class="script-bloco">
+          <p class="script-bloco-situacao">Fora do horário</p>
+          <p class="script-bloco-msg">"Olá. O ateliê BK responde a partir das 9h, segunda a sexta. Sua mensagem está registrada — retorno pela manhã."</p>
+        </div>
+      </div>
+
+      <!-- SCRIPTS REBEKA -->
+      <p class="scripts-tag">Scripts prontos · Rebeka</p>
+      <div class="scripts">
+        <div class="script-bloco" style="border-left-color:var(--terracotta)">
+          <p class="script-bloco-situacao" style="color:var(--terracotta)">Primeira mensagem para cliente recorrente</p>
+          <p class="script-bloco-msg">"Oi, [nome]. Aqui é a Rebeka. A Lívia me avisou que você está com a gente de novo — quis te escrever pessoalmente."</p>
+        </div>
+        <div class="script-bloco" style="border-left-color:var(--terracotta)">
+          <p class="script-bloco-situacao" style="color:var(--terracotta)">Respondendo pedido de conselho</p>
+          <p class="script-bloco-msg">"A Lívia me passou sua dúvida. Olhei seu histórico e te respondo o que penso: [orientação]. É uma escolha, não uma regra — confia no seu instinto também."</p>
+        </div>
+        <div class="script-bloco" style="border-left-color:var(--terracotta)">
+          <p class="script-bloco-situacao" style="color:var(--terracotta)">Convite para encontro privado</p>
+          <p class="script-bloco-msg">"[Nome], separei algumas peças desse drop que acredito que vão te interessar. Quer vir ao ateliê em horário reservado, antes da abertura ao público?"</p>
+        </div>
+        <div class="script-bloco" style="border-left-color:var(--terracotta)">
+          <p class="script-bloco-situacao" style="color:var(--terracotta)">Pós-compra de cliente VIP</p>
+          <p class="script-bloco-msg">"Obrigada pela confiança de sempre, [nome]. Quando vestir, me conta como ficou."</p>
+        </div>
+        <div class="script-bloco" style="border-left-color:var(--terracotta)">
+          <p class="script-bloco-situacao" style="color:var(--terracotta)">Início de consultoria</p>
+          <p class="script-bloco-msg">"Oi, [nome]. Vou ser eu mesma a conduzir sua consultoria — é assim que faço com todas as clientes. Antes de marcarmos, me conta um pouco sobre o que te trouxe até aqui."</p>
+        </div>
+      </div>
+
+      <!-- REGRAS DA ARQUITETURA -->
+      <div class="regras-vozes">
+        <p class="regras-vozes-tag">Regras da arquitetura</p>
+        <h4 class="regras-vozes-title">Sete coisas que protegem <em>as duas vozes.</em></h4>
+        <p class="regras-vozes-lista">
+          <strong>01 ·</strong> A Lívia nunca diz "ela está ocupada" nem "ela vai te retornar". A frase certa é "<em style="color:var(--cream);font-style:italic">a Rebeka responde pessoalmente ao longo do dia</em>".<br>
+          <strong>02 ·</strong> Quando a Rebeka entra, ela sempre se identifica: "<em style="color:var(--cream);font-style:italic">Aqui é a Rebeka</em>". Nunca emenda na conversa da Lívia sem se anunciar.<br>
+          <strong>03 ·</strong> A Lívia nunca opina sobre estilo, modelagem ou caimento. Quem aconselha é a Rebeka.<br>
+          <strong>04 ·</strong> Consultorias (cromática, personal shopping, reposicionamento) são sempre conduzidas pela Rebeka, do primeiro contato ao fechamento. A Lívia só agenda.<br>
+          <strong>05 ·</strong> A Rebeka responde menos vezes, mas com mais peso. Se ela responder toda mensagem, perde o valor da entrada.<br>
+          <strong>06 ·</strong> Nunca dizer que a Lívia "fez a triagem". Ela é a assistente do ateliê — uma figura, não um filtro.<br>
+          <strong>07 ·</strong> Se a cliente perguntar "<em style="color:var(--cream);font-style:italic">você é a Rebeka?</em>", a Lívia responde com honestidade e elegância: "<em style="color:var(--cream);font-style:italic">Não, sou a Lívia. A Rebeka responde pessoalmente — quer que eu deixe sua mensagem com ela?</em>"
+        </p>
+      </div>
+
+      <!-- BIO/ASSINATURA -->
+      <div style="background:var(--cream-soft);padding:24px 22px;border-radius:6px;margin-bottom:40px;border:0.5px solid rgba(201,160,99,0.2)">
+        <p style="font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:14px">Assinaturas em e-mails</p>
+        <div style="padding:14px 0;border-bottom:0.5px solid rgba(92,86,78,0.12)">
+          <p style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--ink);line-height:1.5;margin-bottom:6px">Com cuidado,</p>
+          <p style="font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;color:var(--ink);margin-bottom:3px">Lívia</p>
+          <p style="font-size:10px;letter-spacing:2px;color:var(--ink-soft);text-transform:uppercase">Assistente · ateliê BK</p>
+        </div>
+        <div style="padding:14px 0 4px">
+          <p style="font-family:'Cormorant Garamond',serif;font-size:13px;color:var(--ink);line-height:1.5;margin-bottom:6px">Até logo,</p>
+          <p style="font-family:'Cormorant Garamond',serif;font-size:18px;font-style:italic;color:var(--ink);margin-bottom:3px">Rebeka Fragoso</p>
+          <p style="font-size:10px;letter-spacing:2px;color:var(--ink-soft);text-transform:uppercase">Curadora · BK</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="divisor-grande"></div>
+
+    <div class="faz">
+      <p class="faz-tag">A BK diz · A BK não diz</p>
+      <p style="font-size:13.5px;line-height:1.65;color:var(--ink-soft);margin-bottom:30px">Exemplos organizados por situação real de comunicação. Use estes como referência tanto em posts e legendas quanto em conversas no WhatsApp.</p>
+    </div>
+
+    <!-- LANÇAMENTO DE PEÇA -->
+    <div class="voz-context-group">
+      <span class="voz-context-tag">01 · Lançamento de peça</span>
+      <p class="voz-context-title">Quando uma nova peça entra na curadoria.</p>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Chegou para acompanhar você pelos próximos anos."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Novidade quentíssima! Não pode ficar de fora!"</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Tricô merino de uma malharia em Florença que produz há três gerações."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Cardigan importado da Itália de qualidade premium!"</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Uma peça de longevidade. Vai se mover com você."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Vai ser tendência no inverno todo!"</p></div>
+      </div>
+    </div>
+
+    <div class="voz-divider"></div>
+
+    <!-- ANÚNCIO DE DROP -->
+    <div class="voz-context-group">
+      <span class="voz-context-tag">02 · Anúncio de drop</span>
+      <p class="voz-context-title">Quando a coleção da estação entra.</p>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Outono '26 acessível em 10 de maio. Reservas pelo WhatsApp."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Nova coleção disponível! Garanta a sua antes que esgote!"</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"29 peças. Curadas uma a uma."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Mais de 30 produtos lindos esperando por você!"</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"O drop deste outono fala sobre território."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Nossa coleção mais incrível chegou! 🔥🔥🔥"</p></div>
+      </div>
+    </div>
+
+    <div class="voz-divider"></div>
+
+    <!-- ESCASSEZ / ÚLTIMAS PEÇAS -->
+    <div class="voz-context-group">
+      <span class="voz-context-tag">03 · Escassez · últimas peças</span>
+      <p class="voz-context-title">Quando o estoque está terminando.</p>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Última peça em P. Permanece no acervo apenas em M."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"ÚLTIMA UNIDADE! Não perca! Corre que está acabando!"</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Esta peça já encontrou sua casa."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"ESGOTADO! Vendido!"</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Drop encerrado. Nos vemos na próxima estação."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Acabou! Próxima coleção em breve, fiquem ligados!"</p></div>
+      </div>
+    </div>
+
+    <div class="voz-divider"></div>
+
+    <!-- ATENDIMENTO NO WHATSAPP -->
+    <div class="voz-context-group">
+      <span class="voz-context-tag">04 · Atendimento no WhatsApp</span>
+      <p class="voz-context-title">Como a Rebeka responde uma cliente.</p>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Oi, [nome]. Que bom ver você por aqui. Me conta o que está procurando?"</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Oiiii amor! 🥰 Posso te ajudar?"</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Posso reservar para você por 48h. Sem compromisso."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Reservo já pra você antes que alguém leve!!"</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Esta peça pede uma silhueta de M. Pelas suas medidas, acredito que vá te servir bem."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Vai ficar uma graça em você! Tenho certeza que vai amar!"</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Obrigada pela confiança. A peça parte amanhã."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Tudo certo! Já tô enviando pra você! ❤️"</p></div>
+      </div>
+    </div>
+
+    <div class="voz-divider"></div>
+
+    <!-- DESCRIÇÃO DE PEÇA -->
+    <div class="voz-context-group">
+      <span class="voz-context-tag">05 · Descrição de peça</span>
+      <p class="voz-context-title">Texto que acompanha a peça no site.</p>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Caimento estruturado nos ombros, fluidez na cintura. Linho lavado de gramatura média."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Peça super confortável, modelagem perfeita pra qualquer ocasião!"</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Modelagem que se ajusta ao corpo sem aprisionar."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Veste super bem e valoriza o corpo da mulher!"</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Tom argila — terra de Recife em tecido."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Linda cor terracota super tendência!"</p></div>
+      </div>
+    </div>
+
+    <div class="voz-divider"></div>
+
+    <!-- PREÇO / INVESTIMENTO -->
+    <div class="voz-context-group">
+      <span class="voz-context-tag">06 · Preço e investimento</span>
+      <p class="voz-context-title">Como falar sobre valor sem soar comercial.</p>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"R$ 1.890 · um investimento de longo prazo."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Apenas R$ 1.890! Vale cada centavo!"</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Parcelamos em até 6x. Frete por nossa conta acima de R$ 1.500."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Parcele em até 6x SEM JUROS! Frete grátis acima de R$ 1.500!"</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"O valor da peça reflete a origem do tecido, a modelagem e o atelier que a costurou."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Pode parecer caro, mas a qualidade compensa muito!"</p></div>
+      </div>
+    </div>
+
+    <div class="voz-divider"></div>
+
+    <!-- CONSULTORIA -->
+    <div class="voz-context-group">
+      <span class="voz-context-tag">07 · Serviços de consultoria</span>
+      <p class="voz-context-title">Quando a Rebeka anuncia um serviço.</p>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Análise cromática individual. Três horas. As cores que iluminam você."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Descubra suas cores ideais e transforme seu visual!"</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Personal shopping conduzido por mim. Para mulheres que querem editar — não acumular."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Consultoria personal stylist pra você ter o look perfeito!"</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Reposicionamento de imagem para uma nova fase profissional."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Renove seu guarda-roupa! Mude visualmente e mude a vida!"</p></div>
+      </div>
+    </div>
+
+    <div class="voz-divider"></div>
+
+    <!-- EVENTO / PROVADOR -->
+    <div class="voz-context-group">
+      <span class="voz-context-tag">08 · Eventos e provador aberto</span>
+      <p class="voz-context-title">Convites privados e encontros.</p>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Provador aberto · 21 de maio · ateliê privado, com champagne. Vagas limitadas. Confirme pelo WhatsApp."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"VEM PRO NOSSO EVENTO! Vai ter bebida e muitas peças lindas! 🥂"</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Um encontro para apresentar as peças antes da abertura ao público."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Acesso antecipado exclusivo só pra nossas clientes top!"</p></div>
+      </div>
+    </div>
+
+    <div class="voz-divider"></div>
+
+    <!-- AGRADECIMENTO / PÓS-COMPRA -->
+    <div class="voz-context-group">
+      <span class="voz-context-tag">09 · Agradecimento e pós-compra</span>
+      <p class="voz-context-title">Quando a peça encontra sua casa.</p>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Obrigada pela escolha. Que ela te acompanhe por muitos anos."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Muito obrigada pela compra amor! Aproveite muito! 💖"</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Quando vestir, me conte como foi."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Manda foto pra gente postar lá no Insta da loja!"</p></div>
+      </div>
+    </div>
+
+    <div class="voz-divider"></div>
+
+    <!-- COMUNICADO / ATRASO -->
+    <div class="voz-context-group">
+      <span class="voz-context-tag">10 · Comunicados e imprevistos</span>
+      <p class="voz-context-title">Quando algo precisa ser informado com honestidade.</p>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"O envio terá dois dias de atraso. Já entrei em contato com cada uma de vocês individualmente."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Ops, deu um probleminha com a transportadora! Em breve resolvemos!"</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"O drop foi adiado em uma semana. Decidi não acelerar a confecção."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Adiamento por motivos de força maior, em breve mais informações."</p></div>
+      </div>
+    </div>
+
+    <div class="voz-divider"></div>
+
+    <!-- HORÁRIO DE FUNCIONAMENTO -->
+    <div class="voz-context-group">
+      <span class="voz-context-tag">11 · Horário de funcionamento</span>
+      <p class="voz-context-title">Quando o expediente muda — pausas, feriados, atendimento parcial.</p>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Hoje atendemos apenas à tarde. A partir das 14h, estamos de volta."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Hoje não funcionaremos pela manhã, voltaremos à tarde."</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Esta manhã o ateliê está fechado. Retomamos o atendimento às 14h."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Não estaremos abertos hoje pela manhã, pedimos desculpas pelo transtorno!"</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Pela manhã, em pausa. À tarde, à sua espera."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Galera, fechado pela manhã hoje, abrimos à tarde, ok?"</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Atendimento reduzido nesta manhã. Mensagens no WhatsApp serão respondidas a partir das 14h."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Atendimento só à tarde hoje, responderemos as msgs depois!"</p></div>
+      </div>
+      <div class="faz-item-mini">
+        <div class="faz-row"><span class="faz-sim">sim</span><p class="faz-sim-t">"Sexta · 14h às 19h. Manhã reservada para curadoria interna."</p></div>
+        <div class="faz-row"><span class="faz-nao">não</span><p class="faz-nao-t">"Sextou! Hoje só funcionamos à tarde, vem visitar a gente!"</p></div>
+      </div>
+    </div>
+
+    <!-- FRASES PRONTAS PARA POSTS -->
+    <div class="frases-prontas">
+      <p class="frases-prontas-tag">Bônus</p>
+      <h3 class="frases-prontas-title">Frases prontas para <em>copiar e usar</em></h3>
+      <p class="frases-prontas-sub">Banco de aberturas e encerramentos no tom da marca. Mude o final, mantenha a voz.</p>
+
+      <div class="frase-grupo">
+        <p class="frase-grupo-l">Aberturas de legenda</p>
+        <div class="frase-item"><p>"Há peças que se compram. Há outras que se reconhecem."</p></div>
+        <div class="frase-item"><p>"Esta chegou no ateliê na semana passada."</p></div>
+        <div class="frase-item"><p>"Quando vi este tecido em Florença, soube."</p></div>
+        <div class="frase-item"><p>"Uma das minhas favoritas do drop."</p></div>
+        <div class="frase-item"><p>"Para mulheres que escolhem com tempo."</p></div>
+      </div>
+
+      <div class="frase-grupo">
+        <p class="frase-grupo-l">Encerramentos / call-to-action</p>
+        <div class="frase-item"><p>"Reservas pelo WhatsApp no link da bio."</p></div>
+        <div class="frase-item"><p>"Me chama no privado se quiser saber mais sobre o caimento."</p></div>
+        <div class="frase-item"><p>"Disponível em P, M e G. Pelo WhatsApp."</p></div>
+        <div class="frase-item"><p>"Última peça desta cor. Quem reserva primeiro fica com ela."</p></div>
+        <div class="frase-item"><p>"Acessível a partir de sexta, às 19h."</p></div>
+      </div>
+
+      <div class="frase-grupo">
+        <p class="frase-grupo-l">Manifestos e citações</p>
+        <div class="frase-item"><p>"Vestir-se com intenção é o primeiro ato político do dia."</p></div>
+        <div class="frase-item"><p>"Curo para mulheres que já sabem quem são."</p></div>
+        <div class="frase-item"><p>"Uma escolha, não um impulso."</p></div>
+        <div class="frase-item"><p>"O guarda-roupa é uma biografia em tecido."</p></div>
+        <div class="frase-item"><p>"Menos peças, mais presença."</p></div>
+        <div class="frase-item"><p>"O que veste você, te apresenta antes da fala."</p></div>
+      </div>
+    </div>
+
+    <!-- VOCABULÁRIO CATEGORIZADO -->
+    <div class="vocab">
+      <p class="vocab-tag">Vocabulário da casa</p>
+      <p style="font-size:13px;line-height:1.65;color:var(--cream);opacity:0.75;margin-bottom:32px">Palavras organizadas por território semântico. Use livremente — elas constroem a voz da BK em qualquer canal.</p>
+
+      <div class="vocab-section">
+        <p class="vocab-cat-tag">01 · Curadoria</p>
+        <h4 class="vocab-cat-title">O ato de <em>selecionar.</em></h4>
+        <p class="vocab-cat-desc">Quando a Rebeka fala sobre o trabalho dela, sobre o que faz a BK existir.</p>
+        <div class="vocab-list">
+          <span class="vocab-word">curadoria</span>
+          <span class="vocab-word">curar</span>
+          <span class="vocab-word">selecionar</span>
+          <span class="vocab-word">acervo</span>
+          <span class="vocab-word">recorte</span>
+          <span class="vocab-word">edição</span>
+          <span class="vocab-word">filtro</span>
+          <span class="vocab-word">olhar</span>
+          <span class="vocab-word">discernimento</span>
+          <span class="vocab-word">curadora</span>
+          <span class="vocab-word">conceber</span>
+          <span class="vocab-word">consagrar</span>
+        </div>
+      </div>
+
+      <div class="vocab-section">
+        <p class="vocab-cat-tag">02 · Peça e tecido</p>
+        <h4 class="vocab-cat-title">A <em>materialidade</em> do vestir.</h4>
+        <p class="vocab-cat-desc">Para descrever peças, tecidos, modelagens. Termos técnicos sem perder a poesia.</p>
+        <div class="vocab-list">
+          <span class="vocab-word">silhueta</span>
+          <span class="vocab-word">caimento</span>
+          <span class="vocab-word">modelagem</span>
+          <span class="vocab-word">estrutura</span>
+          <span class="vocab-word">fluidez</span>
+          <span class="vocab-word">gramatura</span>
+          <span class="vocab-word">trama</span>
+          <span class="vocab-word">fio</span>
+          <span class="vocab-word">acabamento</span>
+          <span class="vocab-word">aviamento</span>
+          <span class="vocab-word">forro</span>
+          <span class="vocab-word">corte</span>
+          <span class="vocab-word">drapeado</span>
+          <span class="vocab-word">textura</span>
+          <span class="vocab-word">toque</span>
+          <span class="vocab-word">peça</span>
+          <span class="vocab-word">vestir</span>
+        </div>
+      </div>
+
+      <div class="vocab-section">
+        <p class="vocab-cat-tag">03 · Tempo e longevidade</p>
+        <h4 class="vocab-cat-title">A peça que <em>permanece.</em></h4>
+        <p class="vocab-cat-desc">A BK não fala em tendência. Fala em duração — peças que atravessam o tempo.</p>
+        <div class="vocab-list">
+          <span class="vocab-word">longevidade</span>
+          <span class="vocab-word">atemporalidade</span>
+          <span class="vocab-word">permanência</span>
+          <span class="vocab-word">duração</span>
+          <span class="vocab-word">presença</span>
+          <span class="vocab-word">memória</span>
+          <span class="vocab-word">herança</span>
+          <span class="vocab-word">legado</span>
+          <span class="vocab-word">acompanhar</span>
+          <span class="vocab-word">atravessar</span>
+          <span class="vocab-word">perdurar</span>
+          <span class="vocab-word">repousar</span>
+        </div>
+      </div>
+
+      <div class="vocab-section">
+        <p class="vocab-cat-tag">04 · Intenção e escolha</p>
+        <h4 class="vocab-cat-title">O ato <em>consciente</em> de vestir.</h4>
+        <p class="vocab-cat-desc">O coração da marca. Vestir-se na BK é decisão, não consumo.</p>
+        <div class="vocab-list">
+          <span class="vocab-word">intenção</span>
+          <span class="vocab-word">escolha</span>
+          <span class="vocab-word">consciência</span>
+          <span class="vocab-word">propósito</span>
+          <span class="vocab-word">decisão</span>
+          <span class="vocab-word">consideração</span>
+          <span class="vocab-word">cuidado</span>
+          <span class="vocab-word">atenção</span>
+          <span class="vocab-word">pertinência</span>
+          <span class="vocab-word">deliberação</span>
+          <span class="vocab-word">apuro</span>
+          <span class="vocab-word">discernir</span>
+          <span class="vocab-word">reconhecer</span>
+        </div>
+      </div>
+
+      <div class="vocab-section">
+        <p class="vocab-cat-tag">05 · Origem e território</p>
+        <h4 class="vocab-cat-title">De onde a peça <em>vem.</em></h4>
+        <p class="vocab-cat-desc">Para falar de produção, lugar, terroir. Recife como força narrativa.</p>
+        <div class="vocab-list">
+          <span class="vocab-word">origem</span>
+          <span class="vocab-word">território</span>
+          <span class="vocab-word">procedência</span>
+          <span class="vocab-word">atelier</span>
+          <span class="vocab-word">ateliê</span>
+          <span class="vocab-word">malharia</span>
+          <span class="vocab-word">manufatura</span>
+          <span class="vocab-word">artesanal</span>
+          <span class="vocab-word">geração</span>
+          <span class="vocab-word">tradição</span>
+          <span class="vocab-word">raiz</span>
+          <span class="vocab-word">lugar</span>
+          <span class="vocab-word">recifense</span>
+          <span class="vocab-word">nordestina</span>
+        </div>
+      </div>
+
+      <div class="vocab-section">
+        <p class="vocab-cat-tag">06 · Mulher e corpo</p>
+        <h4 class="vocab-cat-title">A quem a BK <em>se dirige.</em></h4>
+        <p class="vocab-cat-desc">Como falar da cliente sem reduzi-la. Sem "amor", sem "lindeza", sem diminutivos.</p>
+        <div class="vocab-list">
+          <span class="vocab-word">mulher</span>
+          <span class="vocab-word">você</span>
+          <span class="vocab-word">presença</span>
+          <span class="vocab-word">corpo</span>
+          <span class="vocab-word">postura</span>
+          <span class="vocab-word">gesto</span>
+          <span class="vocab-word">identidade</span>
+          <span class="vocab-word">singularidade</span>
+          <span class="vocab-word">individualidade</span>
+          <span class="vocab-word">autoria</span>
+          <span class="vocab-word">maturidade</span>
+        </div>
+      </div>
+
+      <div class="vocab-section">
+        <p class="vocab-cat-tag">07 · Estética e refinamento</p>
+        <h4 class="vocab-cat-title">A <em>qualidade</em> do que se vê.</h4>
+        <p class="vocab-cat-desc">Adjetivos e qualidades que descrevem o universo visual da marca.</p>
+        <div class="vocab-list">
+          <span class="vocab-word">autoral</span>
+          <span class="vocab-word">assinatura</span>
+          <span class="vocab-word">sutileza</span>
+          <span class="vocab-word">discrição</span>
+          <span class="vocab-word">elegância</span>
+          <span class="vocab-word">refinamento</span>
+          <span class="vocab-word">sobriedade</span>
+          <span class="vocab-word">silêncio</span>
+          <span class="vocab-word">respiro</span>
+          <span class="vocab-word">poesia</span>
+          <span class="vocab-word">leveza</span>
+          <span class="vocab-word">essencialidade</span>
+          <span class="vocab-word">delicadeza</span>
+          <span class="vocab-word">contenção</span>
+        </div>
+      </div>
+
+      <div class="vocab-section">
+        <p class="vocab-cat-tag">08 · Verbos da casa</p>
+        <h4 class="vocab-cat-title">Os <em>movimentos</em> da marca.</h4>
+        <p class="vocab-cat-desc">Verbos preferidos para descrever ações no universo BK.</p>
+        <div class="vocab-list">
+          <span class="vocab-word">acompanhar</span>
+          <span class="vocab-word">habitar</span>
+          <span class="vocab-word">repousar</span>
+          <span class="vocab-word">vestir</span>
+          <span class="vocab-word">curar</span>
+          <span class="vocab-word">escolher</span>
+          <span class="vocab-word">editar</span>
+          <span class="vocab-word">depurar</span>
+          <span class="vocab-word">reconhecer</span>
+          <span class="vocab-word">descobrir</span>
+          <span class="vocab-word">apresentar</span>
+          <span class="vocab-word">ofertar</span>
+          <span class="vocab-word">conviver</span>
+        </div>
+      </div>
+
+      <!-- PALAVRAS A EVITAR -->
+      <p class="vocab-tag evita">Palavras que a BK evita</p>
+      <p style="font-size:12.5px;line-height:1.55;color:var(--terracotta-soft);opacity:0.9;margin-bottom:18px;font-style:italic;font-family:'Cormorant Garamond',serif">Vocabulário de varejo de massa, urgência comercial e infantilização da cliente. Não fazem parte da casa.</p>
+
+      <div class="vocab-section" style="padding-top:8px">
+        <p class="vocab-cat-tag" style="color:var(--terracotta-soft)">Urgência comercial</p>
+        <div class="vocab-list">
+          <span class="vocab-evita">promoção</span>
+          <span class="vocab-evita">desconto</span>
+          <span class="vocab-evita">oferta</span>
+          <span class="vocab-evita">imperdível</span>
+          <span class="vocab-evita">queima</span>
+          <span class="vocab-evita">liquida</span>
+          <span class="vocab-evita">liquidação</span>
+          <span class="vocab-evita">última chance</span>
+          <span class="vocab-evita">aproveite</span>
+          <span class="vocab-evita">corre</span>
+          <span class="vocab-evita">não perca</span>
+          <span class="vocab-evita">garanta a sua</span>
+          <span class="vocab-evita">esgotando</span>
+          <span class="vocab-evita">só hoje</span>
+        </div>
+      </div>
+
+      <div class="vocab-section">
+        <p class="vocab-cat-tag" style="color:var(--terracotta-soft)">Hipérbole vazia</p>
+        <div class="vocab-list">
+          <span class="vocab-evita">incrível</span>
+          <span class="vocab-evita">maravilhoso</span>
+          <span class="vocab-evita">perfeito</span>
+          <span class="vocab-evita">sensacional</span>
+          <span class="vocab-evita">arrasador</span>
+          <span class="vocab-evita">queridinho</span>
+          <span class="vocab-evita">hit</span>
+          <span class="vocab-evita">it bag</span>
+          <span class="vocab-evita">must have</span>
+          <span class="vocab-evita">tendência</span>
+          <span class="vocab-evita">trend</span>
+          <span class="vocab-evita">hype</span>
+        </div>
+      </div>
+
+      <div class="vocab-section">
+        <p class="vocab-cat-tag" style="color:var(--terracotta-soft)">Infantilização e diminutivos</p>
+        <div class="vocab-list">
+          <span class="vocab-evita">amor</span>
+          <span class="vocab-evita">amorzinho</span>
+          <span class="vocab-evita">lindeza</span>
+          <span class="vocab-evita">linda</span>
+          <span class="vocab-evita">gata</span>
+          <span class="vocab-evita">mores</span>
+          <span class="vocab-evita">vestidinho</span>
+          <span class="vocab-evita">peçinha</span>
+          <span class="vocab-evita">corzinha</span>
+          <span class="vocab-evita">comprinha</span>
+          <span class="vocab-evita">novidadezinha</span>
+        </div>
+      </div>
+
+      <div class="vocab-section">
+        <p class="vocab-cat-tag" style="color:var(--terracotta-soft)">Estrangeirismos genéricos</p>
+        <div class="vocab-list">
+          <span class="vocab-evita">look</span>
+          <span class="vocab-evita">outfit</span>
+          <span class="vocab-evita">ootd</span>
+          <span class="vocab-evita">vibe</span>
+          <span class="vocab-evita">mood</span>
+          <span class="vocab-evita">fashion</span>
+          <span class="vocab-evita">trendy</span>
+          <span class="vocab-evita">basic</span>
+          <span class="vocab-evita">cool</span>
+          <span class="vocab-evita">lover</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p class="footer-logo">BK</p>
+    <p class="footer-sig">rebeka fragoso · recife</p>
+    <p class="footer-meta">Manual de marca · v1.1 · 2026</p>
+  </footer>
+
+</div>
+
+<script>
+document.getElementById("nav-scroll").addEventListener("click", e => {
+  const btn = e.target.closest(".nav-pill");
+  if (!btn) return;
+  document.querySelectorAll(".nav-pill").forEach(b => b.classList.remove("on"));
+  btn.classList.add("on");
+  const sec = btn.dataset.sec;
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.getElementById("sec-" + sec).classList.add("active");
+  window.scrollTo({top: 0, behavior: "smooth"});
+});
+</script>
+
+</body>
+</html>

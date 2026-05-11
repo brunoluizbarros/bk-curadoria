@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BK Curadoria · Rebeka Fragoso · Recife</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:#e8dfcc;font-family:'Jost',system-ui,-apple-system,sans-serif;color:#2a2420;overflow-x:hidden}
+body{min-height:100vh}
+::-webkit-scrollbar{display:none}
+
+/* ============== ESTRUTURA ============== */
+.app{max-width:480px;margin:0 auto;background:#f0e8d8;min-height:100vh;position:relative;overflow:hidden}
+
+.page{display:none;animation:fade .35s ease-out}
+.page.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ============== NAV / HEADER ============== */
+.nav{background:#f0e8d8;padding:18px 22px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid #d8cfc0;position:sticky;top:0;z-index:50}
+.logo{font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;letter-spacing:6px;color:#2a2420;line-height:1;font-weight:300}
+.logo-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:10px;letter-spacing:3px;color:#c9a063;display:block;margin-top:3px}
+.menu-ico{font-size:22px;color:#2a2420;background:none;border:none;cursor:pointer}
+
+.back-nav{display:flex;align-items:center;gap:8px;background:none;border:none;cursor:pointer;color:#2a2420;padding:0;font-family:'Jost',sans-serif}
+.back-nav i{font-size:18px}
+.back-nav span{font-size:11px;letter-spacing:2px;text-transform:uppercase}
+
+/* ============== HOME · HERO ============== */
+.hero{background:linear-gradient(160deg,#4f5841 0%,#3d5243 100%);padding:44px 24px 40px;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:-30px;right:-30px;width:140px;height:140px;border-radius:50%;background:#c9a063;opacity:0.08}
+.htag{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#c9a063;margin-bottom:18px}
+.htitle{font-family:'Cormorant Garamond',serif;font-size:38px;color:#f0e8d8;line-height:1.05;margin-bottom:18px;font-weight:300;letter-spacing:-0.5px}
+.htitle em{font-style:italic;color:#c9a063}
+.hbody{font-size:14px;color:#d8cfb8;line-height:1.65;max-width:300px}
+
+/* ============== BANNER CURADORIA CTA ============== */
+.banner-cur{margin:18px 16px 0;background:linear-gradient(135deg,#b8634a 0%,#8e4a35 100%);padding:32px 24px;border-radius:6px;position:relative;overflow:hidden;cursor:pointer;border:none;width:calc(100% - 32px);text-align:left;color:#f0e8d8;font-family:inherit}
+.banner-cur::after{content:'';position:absolute;top:-20px;right:-20px;width:120px;height:120px;border-radius:50%;background:#c9a063;opacity:0.15}
+.banner-cur-tag{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:#f5d8c0;text-transform:uppercase;margin-bottom:12px;position:relative;z-index:2}
+.banner-cur-title{font-family:'Cormorant Garamond',serif;font-size:24px;line-height:1.1;font-weight:300;margin-bottom:14px;color:#f0e8d8;position:relative;z-index:2}
+.banner-cur-title em{font-style:italic;color:#f5d8c0}
+.banner-cur-cta{display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:2px;text-transform:uppercase;position:relative;z-index:2}
+
+/* ============== FILTROS ============== */
+.filters{background:#f0e8d8;padding:18px 16px 12px;display:flex;gap:8px;border-bottom:0.5px solid #d8cfc0;overflow-x:auto}
+.filters::-webkit-scrollbar{display:none}
+.fpill{padding:9px 16px;border-radius:40px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;white-space:nowrap;cursor:pointer;border:1px solid rgba(42,36,32,0.35);background:transparent;color:#2a2420;transition:all 0.2s;font-family:'Jost',sans-serif;font-weight:400}
+.fpill.on{background:#2a2420;color:#f0e8d8;border-color:#2a2420;font-weight:500}
+
+/* ============== GRID ============== */
+.grid{padding:14px 16px 30px;display:grid;grid-template-columns:1fr 1fr;gap:10px;background:#f0e8d8}
+.pcard{border-radius:2px;overflow:hidden;background:transparent;cursor:pointer;transition:transform 0.2s;border:none;padding:0;font-family:inherit;text-align:left}
+.pcard:active{transform:scale(0.98)}
+.pimg{width:100%;aspect-ratio:3/4;display:block;position:relative;border-radius:2px;overflow:hidden}
+.ptag{position:absolute;top:10px;left:10px;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 10px;border-radius:20px;background:#f0e8d8;color:#2a2420;font-weight:500}
+.pinfo{padding:10px 4px 4px}
+.pname{font-family:'Cormorant Garamond',serif;font-size:15px;color:#2a2420;line-height:1.2;margin-bottom:3px;font-weight:400}
+.pcolor{font-size:11px;color:#8a7a64;margin-bottom:6px;letter-spacing:0.3px}
+.pprice{font-size:12px;color:#b8634a;letter-spacing:1px;font-weight:500}
+
+/* ============== MODAL FULLSCREEN PRODUTO ============== */
+.modal{position:fixed;inset:0;background:#f0e8d8;z-index:1000;overflow-y:auto;display:none;animation:slideUp .3s ease-out}
+.modal.open{display:block}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.modal-top{position:sticky;top:0;background:#f0e8d8;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;z-index:5;border-bottom:0.5px solid rgba(42,36,32,0.08)}
+.modal-logo{font-family:'Cormorant Garamond',serif;font-size:18px;letter-spacing:4px;color:#2a2420;font-weight:300}
+.modal-close{background:#2a2420;border:none;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#f0e8d8;font-size:18px}
+
+/* Carrossel */
+.carousel{position:relative;width:100%;aspect-ratio:3/4;background:#e0d4c4;overflow:hidden}
+.carousel-track{display:flex;width:100%;height:100%;transition:transform 0.4s cubic-bezier(0.4,0,0.2,1)}
+.carousel-slide{min-width:100%;height:100%;display:flex;align-items:center;justify-content:center;position:relative}
+.carousel-indicators{position:absolute;top:14px;left:0;right:0;display:flex;gap:6px;justify-content:center;padding:0 20px;z-index:3}
+.carousel-indicators .ind{flex:1;max-width:60px;height:2px;background:rgba(240,232,216,0.4);border-radius:1px;transition:all 0.3s}
+.carousel-indicators .ind.on{background:#f0e8d8}
+.carousel-arrow{position:absolute;top:50%;transform:translateY(-50%);background:rgba(240,232,216,0.85);border:none;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#2a2420;font-size:16px;z-index:3;transition:opacity 0.2s}
+.carousel-arrow.left{left:14px}
+.carousel-arrow.right{right:14px}
+.carousel-arrow:disabled{opacity:0;pointer-events:none}
+.carousel-count{position:absolute;bottom:14px;right:14px;background:rgba(42,36,32,0.75);color:#f0e8d8;padding:5px 12px;border-radius:14px;font-size:11px;letter-spacing:1px;z-index:3}
+
+.modal-body{padding:28px 24px 130px}
+.modal-tag{display:inline-block;background:#b8634a;color:#f0e8d8;padding:5px 12px;border-radius:20px;font-size:9px;letter-spacing:2px;text-transform:uppercase;font-weight:500;margin-bottom:16px}
+.modal-name{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;line-height:1.1;margin-bottom:6px;letter-spacing:-0.3px}
+.modal-color{font-size:13px;color:#8a7a64;margin-bottom:14px;letter-spacing:0.5px}
+.modal-price{font-size:18px;color:#b8634a;font-weight:500;letter-spacing:0.5px;margin-bottom:26px}
+.modal-desc{font-size:14.5px;line-height:1.7;color:#5c564e;margin-bottom:28px}
+
+.attrs{border-top:0.5px solid rgba(42,36,32,0.15);padding-top:18px;margin-bottom:8px}
+.attr{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 0;border-bottom:0.5px solid rgba(42,36,32,0.08);gap:16px}
+.attr:last-child{border-bottom:none}
+.attr-l{font-size:10px;letter-spacing:2.5px;color:#c9a063;text-transform:uppercase;font-weight:500;padding-top:2px;flex-shrink:0}
+.attr-v{font-size:13.5px;color:#2a2420;text-align:right;line-height:1.5;max-width:70%}
+
+.modal-quote{margin-top:30px;padding:22px 20px;background:#f5f0e6;border-left:2px solid #c9a063;border-radius:2px}
+.modal-quote p{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;line-height:1.55;color:#2a2420}
+.modal-quote span{display:block;font-size:10px;letter-spacing:2.5px;color:#c9a063;text-transform:uppercase;margin-top:12px}
+
+.modal-cta{position:fixed;bottom:0;left:0;right:0;padding:14px 20px 20px;background:#f0e8d8;border-top:0.5px solid rgba(42,36,32,0.15);z-index:6;max-width:480px;margin:0 auto}
+.modal-wbtn{display:flex;align-items:center;justify-content:center;gap:12px;background:#4f5841;color:#f0e8d8;padding:18px 22px;border-radius:6px;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;font-weight:500;text-decoration:none;width:100%;border:none;cursor:pointer;font-family:'Jost',sans-serif}
+.modal-wbtn i{font-size:18px}
+
+/* ============== SOBRE ============== */
+.about{background:#2a2420;padding:40px 24px}
+.atag{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#b8634a;margin-bottom:16px}
+.atitle{font-family:'Cormorant Garamond',serif;font-size:24px;color:#f0e8d8;line-height:1.25;margin-bottom:18px;font-style:italic;font-weight:400}
+.abody{font-size:14px;color:#a09080;line-height:1.75}
+
+/* ============== DIFERENCIAIS ============== */
+.diffs{padding:30px 16px;background:#f0e8d8;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dcard{background:#f5f0e6;border-radius:4px;padding:20px 16px;border:0.5px solid rgba(42,36,32,0.08)}
+.dico{width:34px;height:34px;border-radius:50%;background:#f0e8d8;display:flex;align-items:center;justify-content:center;margin-bottom:14px;color:#b8634a;font-size:16px;border:0.5px solid rgba(184,99,74,0.2)}
+.dtitle{font-family:'Cormorant Garamond',serif;font-size:16px;color:#2a2420;font-weight:500;margin-bottom:5px;line-height:1.2}
+.ddesc{font-size:12px;color:#8a7a64;line-height:1.5}
+
+/* ============== SERVIÇOS ============== */
+.svc{background:#4f5841;padding:42px 24px 40px;position:relative;overflow:hidden}
+.svc::before{content:'';position:absolute;bottom:-50px;left:-50px;width:200px;height:200px;border-radius:50%;background:#c9a063;opacity:0.06}
+.svc-tag{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;text-transform:uppercase;color:#c9a063;margin-bottom:14px;position:relative;z-index:2}
+.stitle{font-family:'Cormorant Garamond',serif;font-size:28px;color:#f0e8d8;line-height:1.05;font-weight:300;margin-bottom:6px;letter-spacing:-0.3px;position:relative;z-index:2}
+.stitle em{font-style:italic;color:#c9a063}
+.ssub{font-size:13px;color:#a09080;margin-bottom:26px;line-height:1.6;position:relative;z-index:2}
+.sitem{display:flex;align-items:center;gap:14px;padding:18px 0;border-top:0.5px solid rgba(201,160,99,0.25);background:none;border-left:none;border-right:none;border-bottom:none;width:100%;cursor:pointer;color:inherit;font-family:inherit;text-align:left;position:relative;z-index:2}
+.sitem:last-child{border-bottom:0.5px solid rgba(201,160,99,0.25)}
+.snum{font-family:'Cormorant Garamond',serif;font-size:13px;color:#c9a063;font-style:italic;min-width:22px}
+.sname{font-family:'Cormorant Garamond',serif;font-size:18px;color:#f0e8d8;flex:1;line-height:1.2;font-weight:400}
+.sarr{color:#b8634a;font-size:18px}
+
+/* ============== CTA FINAL ============== */
+.cta{background:#2a2420;padding:38px 24px;text-align:left}
+.ctitle{font-family:'Cormorant Garamond',serif;font-size:24px;color:#f0e8d8;line-height:1.15;margin-bottom:8px;font-weight:300}
+.ctitle em{font-style:italic;color:#c9a063}
+.csub{font-size:13.5px;color:#a09080;margin-bottom:24px;line-height:1.65}
+.cwbtn{display:flex;align-items:center;justify-content:center;gap:12px;padding:18px 24px;background:#b8634a;color:#f0e8d8;border-radius:6px;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;cursor:pointer;border:none;width:100%;font-weight:500;font-family:'Jost',sans-serif;text-decoration:none}
+.cwbtn i{font-size:18px}
+
+.foot{background:#2a2420;padding:24px;text-align:center;border-top:0.5px solid rgba(240,232,216,0.1)}
+.flogo{font-family:'Cormorant Garamond',serif;font-size:18px;letter-spacing:5px;color:#f0e8d8;font-weight:300;margin-bottom:4px}
+.fsub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:10px;letter-spacing:2.5px;color:#c9a063}
+
+/* ============== PÁGINA CURADORIA ============== */
+.cur-hero{padding:32px 24px 50px}
+.cur-eyebrow{font-family:'Cormorant Garamond',serif;font-size:11px;letter-spacing:4px;color:#c9a063;text-transform:uppercase;margin-bottom:22px}
+.cur-h1{font-family:'Cormorant Garamond',serif;font-size:40px;line-height:1.05;font-weight:300;margin-bottom:24px;letter-spacing:-0.5px}
+.cur-h1 em{font-style:italic;color:#b8634a}
+.cur-lead{font-size:15px;line-height:1.7;color:#5c564e;margin-bottom:16px}
+.cur-lead strong{color:#2a2420;font-weight:500}
+
+.cur-quote-card{margin:0 24px 44px;background:linear-gradient(140deg,#4f5841 0%,#3d4231 100%);border-radius:4px;padding:42px 26px;position:relative;overflow:hidden}
+.cur-quote-card::after{content:'R';position:absolute;top:14px;right:20px;font-family:'Cormorant Garamond',serif;font-size:64px;color:#c9a063;opacity:0.2;font-style:italic;line-height:1}
+.cur-quote-text{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:21px;color:#f0e8d8;line-height:1.4;margin-bottom:22px;position:relative;z-index:2}
+.cur-quote-line{height:1px;background:#c9a063;width:36px;margin-bottom:14px;opacity:0.7}
+.cur-quote-sig{font-size:10px;letter-spacing:3px;color:#c9a063;text-transform:uppercase}
+
+.cur-crivos{padding:0 24px 50px}
+.cur-crivos-tag{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:#b8634a;text-transform:uppercase;margin-bottom:26px}
+.crivo{display:flex;gap:18px;padding:24px 0;border-bottom:0.5px solid rgba(42,36,32,0.15)}
+.crivo:first-of-type{border-top:0.5px solid rgba(42,36,32,0.15)}
+.crivo-num{font-family:'Cormorant Garamond',serif;font-size:13px;color:#c9a063;font-style:italic;flex-shrink:0;padding-top:6px}
+.crivo-t{font-family:'Cormorant Garamond',serif;font-size:23px;font-weight:400;margin-bottom:8px}
+.crivo-d{font-size:14px;line-height:1.6;color:#5c564e}
+
+.relacao{background:#f5f0e6;padding:44px 24px;border-top:1px solid rgba(201,160,99,0.25)}
+.relacao-tag{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:#b8634a;text-transform:uppercase;margin-bottom:16px}
+.relacao-h{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;line-height:1.1;margin-bottom:28px}
+.relacao-h em{font-style:italic;color:#4f5841}
+.rel-item{display:flex;gap:14px;padding-bottom:20px;margin-bottom:20px;border-bottom:0.5px solid rgba(201,160,99,0.3);align-items:flex-start}
+.rel-item:last-child{border-bottom:none;padding-bottom:0;margin-bottom:0}
+.rel-dot{width:6px;height:6px;border-radius:50%;background:#b8634a;margin-top:8px;flex-shrink:0}
+.rel-t{font-size:14.5px;font-weight:500;margin-bottom:5px;color:#2a2420}
+.rel-d{font-size:13px;line-height:1.55;color:#5c564e}
+
+.cur-cta{padding:36px 24px 50px;background:#f0e8d8}
+.cur-cta-btn{display:flex;align-items:center;justify-content:center;gap:12px;background:#4f5841;color:#f0e8d8;padding:18px 24px;border-radius:6px;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;font-weight:500;text-decoration:none;width:100%;border:none;cursor:pointer;font-family:'Jost',sans-serif}
+.cur-cta-btn i{font-size:18px}
+.cur-cta-sub{text-align:center;margin-top:16px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:#8a7a64}
+
+/* ============== PÁGINA SERVIÇO ============== */
+.sv-hero{padding:42px 24px 48px;position:relative;overflow:hidden}
+.sv-hero-num{position:absolute;top:14px;right:22px;font-family:'Cormorant Garamond',serif;font-size:120px;color:#f0e8d8;opacity:0.12;font-style:italic;line-height:0.85;font-weight:300}
+.sv-eyebrow{font-size:10px;letter-spacing:4px;color:#f0e8d8;text-transform:uppercase;opacity:0.75;margin-bottom:14px}
+.sv-h1{font-family:'Cormorant Garamond',serif;font-size:36px;line-height:1.05;color:#f0e8d8;font-weight:300;margin-bottom:10px;letter-spacing:-0.5px}
+.sv-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;color:#f0e8d8;opacity:0.85}
+
+.sv-lead{padding:34px 24px 28px}
+.sv-lead p{font-size:16px;line-height:1.7;color:#2a2420;font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400}
+
+.sv-etapas{padding:14px 24px 44px}
+.sv-tag{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:#b8634a;text-transform:uppercase;margin-bottom:26px}
+.etapa{display:flex;gap:18px;margin-bottom:24px;padding-bottom:24px;border-bottom:0.5px solid rgba(42,36,32,0.12)}
+.etapa:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.etapa-num{font-family:'Cormorant Garamond',serif;font-size:28px;color:#c9a063;font-style:italic;line-height:1;flex-shrink:0;padding-top:2px;font-weight:300}
+.etapa-t{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:400;margin-bottom:8px;color:#2a2420}
+.etapa-d{font-size:14px;line-height:1.6;color:#5c564e}
+
+.sv-entrega{margin:0 24px 28px;background:#4f5841;padding:32px 24px;border-radius:6px;color:#f0e8d8}
+.sv-entrega-tag{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:#c9a063;text-transform:uppercase;margin-bottom:16px}
+.sv-entrega-d{font-size:14.5px;line-height:1.7;margin-bottom:22px}
+.sv-entrega-line{height:1px;background:#c9a063;opacity:0.35;margin-bottom:16px}
+.sv-duracao{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13.5px;color:#f0e8d8;opacity:0.85}
+
+.sv-cta{padding:14px 24px 36px}
+.sv-cta-btn{display:flex;align-items:center;justify-content:center;gap:12px;background:#b8634a;color:#f0e8d8;padding:18px 24px;border-radius:6px;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;font-weight:500;text-decoration:none;width:100%;border:none;cursor:pointer;font-family:'Jost',sans-serif}
+.sv-cta-btn i{font-size:18px}
+
+.sv-outros{background:#f5f0e6;padding:34px 24px 50px;border-top:1px solid rgba(201,160,99,0.3)}
+.sv-outros-tag{font-family:'Cormorant Garamond',serif;font-size:10px;letter-spacing:4px;color:#c9a063;text-transform:uppercase;margin-bottom:18px}
+.sv-outro-link{display:flex;align-items:center;justify-content:space-between;width:100%;padding:20px 0;border-top:0.5px solid rgba(42,36,32,0.12);background:none;border-left:none;border-right:none;border-bottom:none;cursor:pointer;color:inherit;font-family:inherit;text-align:left}
+.sv-outro-link:last-child{border-bottom:0.5px solid rgba(42,36,32,0.12)}
+.sv-outro-num{font-family:'Cormorant Garamond',serif;font-size:12px;color:#c9a063;font-style:italic;margin-right:12px}
+.sv-outro-nome{font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:400;color:#2a2420}
+.sv-outro-arr{color:#b8634a;font-size:18px}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============== PÁGINA HOME ============== -->
+  <div class="page active" id="page-home">
+
+    <div class="nav">
+      <div>
+        <span class="logo">BK</span>
+        <span class="logo-sub">rebeka fragoso</span>
+      </div>
+      <button class="menu-ico" aria-label="menu"><i class="ti ti-menu-2"></i></button>
+    </div>
+
+    <div class="hero">
+      <div class="htag">Curadoria · Recife</div>
+      <div class="htitle">Vestir-se<br><em>com intenção.</em></div>
+      <div class="hbody">Uma seleção autoral de peças para mulheres que reconhecem o valor da escolha sobre o acúmulo.</div>
+    </div>
+
+    <button class="banner-cur" onclick="goCuradoria()">
+      <div class="banner-cur-tag">O método BK</div>
+      <div class="banner-cur-title">Conheça nossa<br><em>curadoria.</em></div>
+      <div class="banner-cur-cta">Saiba mais <i class="ti ti-arrow-right"></i></div>
+    </button>
+
+    <div class="filters" id="filters">
+      <button class="fpill on" data-cat="all">Todas</button>
+      <button class="fpill" data-cat="nova">Novidades</button>
+      <button class="fpill" data-cat="look">Looks</button>
+      <button class="fpill" data-cat="basic">Básicos</button>
+      <button class="fpill" data-cat="promo">Últimas peças</button>
+    </div>
+
+    <div class="grid" id="catalog"></div>
+
+    <div class="about">
+      <div class="atag">A curadoria</div>
+      <div class="atitle">"Cada peça passou pelo nosso olhar antes de chegar no seu."</div>
+      <div class="abody">BK é uma seleção rigorosa de vestuário feminino de alto padrão. Aqui você não encontra volume — encontra escolha. Cada item é avaliado pelo caimento, tecido, marcação e identidade antes de entrar no acervo.</div>
+    </div>
+
+    <div class="diffs">
+      <div class="dcard">
+        <div class="dico"><i class="ti ti-eye"></i></div>
+        <div class="dtitle">Curadoria real</div>
+        <div class="ddesc">Nenhuma peça entra sem aprovação editorial prévia.</div>
+      </div>
+      <div class="dcard">
+        <div class="dico"><i class="ti ti-star"></i></div>
+        <div class="dtitle">Alto padrão</div>
+        <div class="ddesc">Tecidos nobres, acabamento impecável.</div>
+      </div>
+      <div class="dcard">
+        <div class="dico"><i class="ti ti-user"></i></div>
+        <div class="dtitle">Atendimento íntimo</div>
+        <div class="ddesc">Fechamento direto com a Rebeka, via WhatsApp.</div>
+      </div>
+      <div class="dcard">
+        <div class="dico"><i class="ti ti-refresh"></i></div>
+        <div class="dtitle">Drops limitados</div>
+        <div class="ddesc">Lotes pequenos. Exclusividade garantida.</div>
+      </div>
+    </div>
+
+    <div class="svc">
+      <div class="svc-tag">Consultoria de imagem</div>
+      <div class="stitle">Além das peças,<br><em>uma visão.</em></div>
+      <div class="ssub">Muito além das roupas — um reposicionamento completo de quem você apresenta ao mundo.</div>
+      <button class="sitem" onclick="goServico('personal')">
+        <span class="snum">01</span>
+        <span class="sname">Personal Shopper</span>
+        <i class="ti ti-arrow-right sarr"></i>
+      </button>
+      <button class="sitem" onclick="goServico('reposicionamento')">
+        <span class="snum">02</span>
+        <span class="sname">Reposicionamento de Imagem</span>
+        <i class="ti ti-arrow-right sarr"></i>
+      </button>
+      <button class="sitem" onclick="goServico('estilo')">
+        <span class="snum">03</span>
+        <span class="sname">Adequação de Estilo</span>
+        <i class="ti ti-arrow-right sarr"></i>
+      </button>
+      <button class="sitem" onclick="goServico('cromatica')">
+        <span class="snum">04</span>
+        <span class="sname">Análise Cromática</span>
+        <i class="ti ti-arrow-right sarr"></i>
+      </button>
+    </div>
+
+    <div class="cta">
+      <div class="ctitle">Pronta para encontrar<br><em>a sua peça?</em></div>
+      <div class="csub">O atendimento é personalizado. Conta o que você procura e a gente cuida do resto.</div>
+      <a class="cwbtn" href="https://wa.me/5581999999999?text=Olá%20Rebeka,%20vim%20pelo%20site%20da%20BK." target="_blank">
+        <i class="ti ti-brand-whatsapp"></i>
+        Falar no WhatsApp
+      </a>
+    </div>
+
+    <div class="foot">
+      <div class="flogo">BK</div>
+      <div class="fsub">rebeka fragoso · recife · 2026</div>
+    </div>
+  </div>
+
+  <!-- ============== PÁGINA CURADORIA ============== -->
+  <div class="page" id="page-curadoria">
+    <div class="nav">
+      <button class="back-nav" onclick="goHome()">
+        <i class="ti ti-arrow-left"></i>
+        <span>Voltar</span>
+      </button>
+      <span class="logo" style="font-size:18px">BK</span>
+    </div>
+
+    <div class="cur-hero">
+      <div class="cur-eyebrow">O método</div>
+      <h1 class="cur-h1">A curadoria<br><em>não é uma loja.</em></h1>
+      <p class="cur-lead">É um filtro. Entre milhares de marcas, modelagens e tecidos que passam pelo mercado todos os meses, eu seleciono entre 30 e 50 peças por estação — as que de fato merecem habitar o guarda-roupa de uma mulher que reconhece valor.</p>
+      <p class="cur-lead">Cada peça da BK passa por três crivos: <strong>origem</strong>, <strong>longevidade</strong> e <strong>pertinência ao território Recife</strong>.</p>
+    </div>
+
+    <div class="cur-quote-card">
+      <p class="cur-quote-text">"Curadoria é a arte de dizer não com a mesma elegância com que se diz sim."</p>
+      <div class="cur-quote-line"></div>
+      <p class="cur-quote-sig">Rebeka Fragoso · Fundadora</p>
+    </div>
+
+    <div class="cur-crivos">
+      <p class="cur-crivos-tag">Os três crivos</p>
+
+      <div class="crivo">
+        <span class="crivo-num">01</span>
+        <div>
+          <h3 class="crivo-t">Origem</h3>
+          <p class="crivo-d">Cada peça tem rastreabilidade. Sei o ateliê, a cidade, o tecido e — quando possível — a costureira. Isso elimina ruído e garante que o investimento corresponde à entrega.</p>
+        </div>
+      </div>
+
+      <div class="crivo">
+        <span class="crivo-num">02</span>
+        <div>
+          <h3 class="crivo-t">Longevidade</h3>
+          <p class="crivo-d">Não trabalho com tendências de 90 dias. As peças entram pela capacidade de atravessar 3, 5, 10 anos de uso sem perder relevância visual ou estrutural.</p>
+        </div>
+      </div>
+
+      <div class="crivo">
+        <span class="crivo-num">03</span>
+        <div>
+          <h3 class="crivo-t">Pertinência ao território</h3>
+          <p class="crivo-d">Recife é úmido, luminoso, social. Modelagens pesadas, tecidos sintéticos e propostas de inverno europeu não habitam a BK. A curadoria respeita o clima e a cultura local.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="relacao">
+      <p class="relacao-tag">O que você recebe</p>
+      <h2 class="relacao-h">Mais do que peças.<br><em>Uma relação.</em></h2>
+
+      <div class="rel-item">
+        <span class="rel-dot"></span>
+        <div>
+          <h4 class="rel-t">Pré-acesso aos drops</h4>
+          <p class="rel-d">Você vê e reserva antes do site ir ao público.</p>
+        </div>
+      </div>
+      <div class="rel-item">
+        <span class="rel-dot"></span>
+        <div>
+          <h4 class="rel-t">Reservas via WhatsApp direto</h4>
+          <p class="rel-d">Atendimento pessoal comigo, sem intermediários.</p>
+        </div>
+      </div>
+      <div class="rel-item">
+        <span class="rel-dot"></span>
+        <div>
+          <h4 class="rel-t">Trocas e ajustes inclusos</h4>
+          <p class="rel-d">Pequenos ajustes de modelagem por conta da casa.</p>
+        </div>
+      </div>
+      <div class="rel-item">
+        <span class="rel-dot"></span>
+        <div>
+          <h4 class="rel-t">Convites para experiências</h4>
+          <p class="rel-d">Encontros privados, lançamentos e jantares com a comunidade BK.</p>
+        </div>
+      </div>
+      <div class="rel-item">
+        <span class="rel-dot"></span>
+        <div>
+          <h4 class="rel-t">Sugestões personalizadas</h4>
+          <p class="rel-d">Quando uma peça entra que combina com você, eu te aviso primeiro.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="cur-cta">
+      <a class="cur-cta-btn" href="https://wa.me/5581999999999?text=Olá%20Rebeka,%20quero%20conhecer%20melhor%20a%20curadoria%20BK." target="_blank">
+        <i class="ti ti-brand-whatsapp"></i>
+        Falar com Rebeka
+      </a>
+      <p class="cur-cta-sub">Atendimento personalizado · Recife</p>
+    </div>
+
+    <div class="foot">
+      <div class="flogo">BK</div>
+      <div class="fsub">rebeka fragoso · recife · 2026</div>
+    </div>
+  </div>
+
+  <!-- ============== PÁGINA SERVIÇO (dinâmica) ============== -->
+  <div class="page" id="page-servico">
+    <div class="nav">
+      <button class="back-nav" onclick="goHome()">
+        <i class="ti ti-arrow-left"></i>
+        <span>Voltar</span>
+      </button>
+      <span class="logo" style="font-size:18px">BK</span>
+    </div>
+    <div id="servico-content"></div>
+  </div>
+
+</div>
+
+<!-- ============== MODAL PRODUTO ============== -->
+<div class="modal" id="modal">
+  <div class="modal-top">
+    <span class="modal-logo">BK</span>
+    <button class="modal-close" onclick="closeModal()" aria-label="Fechar">
+      <i class="ti ti-x"></i>
+    </button>
+  </div>
+
+  <div class="carousel">
+    <div class="carousel-indicators" id="car-indicators"></div>
+    <div class="carousel-track" id="car-track"></div>
+    <button class="carousel-arrow left" onclick="carouselPrev()" id="car-prev"><i class="ti ti-chevron-left"></i></button>
+    <button class="carousel-arrow right" onclick="carouselNext()" id="car-next"><i class="ti ti-chevron-right"></i></button>
+    <div class="carousel-count" id="car-count"></div>
+  </div>
+
+  <div class="modal-body" id="modal-body"></div>
+
+  <div class="modal-cta">
+    <a class="modal-wbtn" id="modal-wsp" href="#" target="_blank">
+      <i class="ti ti-brand-whatsapp"></i>
+      Pedir pelo WhatsApp
+    </a>
+  </div>
+</div>
+
+<script>
+// ============== DADOS ==============
+const products = [
+  {
+    id:1, name:"Cardigan Tessuto", color:"Terracota · Tricô italiano", price:"R$ 1.890", tag:"Novidades", cat:["all","nova","look"],
+    desc:"Tricô italiano em fio merino, modelagem oversized com caimento estruturado nos ombros. Peça-chave que conversa com alfaiataria e jeans cru com a mesma elegância.",
+    composicao:"70% lã merino · 30% caxemira", origem:"Florença, IT",
+    imgs:[
+      "linear-gradient(140deg,#b8634a 0%,#8e4a35 60%,#6a3826 100%)",
+      "linear-gradient(160deg,#d88068 0%,#b8634a 70%)",
+      "linear-gradient(180deg,#8e4a35 0%,#5c3522 100%)"
+    ]
+  },
+  {
+    id:2, name:"Slip Dress Seda", color:"Creme · Seda pura", price:"R$ 2.340", tag:"Looks", cat:["all","look"],
+    desc:"Seda pura francesa com toque acetinado, viés diagonal que esculpe a silhueta sem marcar. Caimento fluido que pede acessórios discretos e brilho próprio.",
+    composicao:"100% seda pura", origem:"Lyon, FR",
+    imgs:[
+      "linear-gradient(160deg,#efe8dc 0%,#d9cfb8 100%)",
+      "linear-gradient(180deg,#f5f0e6 0%,#c9b891 100%)",
+      "linear-gradient(140deg,#d9cfb8 0%,#a8956e 100%)"
+    ]
+  },
+  {
+    id:3, name:"Blazer Estruturado", color:"Sage · Lã fria", price:"R$ 3.120", tag:"Looks", cat:["all","look"],
+    desc:"Alfaiataria desconstruída em lã fria com forro acetinado. Lapela alongada e cintura levemente marcada — peça que assina presença em qualquer reunião ou evento noturno.",
+    composicao:"92% lã fria · 8% elastano", origem:"Milão, IT",
+    imgs:[
+      "linear-gradient(140deg,#6a7256 0%,#4f5841 100%)",
+      "linear-gradient(160deg,#7e8867 0%,#5a6248 100%)",
+      "linear-gradient(180deg,#4f5841 0%,#2f352a 100%)"
+    ]
+  },
+  {
+    id:4, name:"Calça Wide Leg", color:"Grafite · Linho belga", price:"R$ 1.480", tag:"Básicos", cat:["all","basic"],
+    desc:"Linho belga com lavagem especial, modelagem wide com pregas frontais. Cintura alta que alonga e caimento que se move com o corpo — clássico atemporal da curadoria.",
+    composicao:"100% linho belga", origem:"Bruxelas, BE",
+    imgs:[
+      "linear-gradient(160deg,#3c3a36 0%,#1f1d1a 100%)",
+      "linear-gradient(180deg,#5c564e 0%,#2a2722 100%)",
+      "linear-gradient(140deg,#2a2722 0%,#0f0e0c 100%)"
+    ]
+  },
+  {
+    id:5, name:"Vestido Linho", color:"Dourado · Linho lavado", price:"R$ 1.690", tag:"Últimas peças", cat:["all","promo"],
+    desc:"Linho lavado com toque amaciado, decote em V suave e mangas bufantes contidas. Última peça do drop — não retornará à curadoria.",
+    composicao:"100% linho italiano", origem:"Como, IT",
+    imgs:[
+      "linear-gradient(140deg,#c9a063 0%,#a07a3f 100%)",
+      "linear-gradient(160deg,#d9b47a 0%,#b08850 100%)",
+      "linear-gradient(180deg,#a07a3f 0%,#6a4f22 100%)"
+    ]
+  },
+  {
+    id:6, name:"Camisa Oversized", color:"Off-white · Algodão egípcio", price:"R$ 980", tag:"Básicos", cat:["all","basic"],
+    desc:"Algodão egípcio fio 120, gola italiana e barra arredondada. Versatilidade absoluta — combina com jeans, alfaiataria e saias longas com igual desenvoltura.",
+    composicao:"100% algodão egípcio", origem:"Porto, PT",
+    imgs:[
+      "linear-gradient(160deg,#f5f0e6 0%,#e0d5bd 100%)",
+      "linear-gradient(180deg,#efe8dc 0%,#c9b891 100%)",
+      "linear-gradient(140deg,#e0d5bd 0%,#9e8b68 100%)"
+    ]
+  },
+  {
+    id:7, name:"Saia Plissada", color:"Sage claro · Tech-silk", price:"R$ 1.320", tag:"Novidades", cat:["all","nova","look"],
+    desc:"Plissado permanente em tecido tecnológico com toque de seda. Movimento sutil a cada passo — peça que traduz a leveza do dia ensolarado em Recife.",
+    composicao:"95% poliéster tech · 5% elastano", origem:"Tokyo, JP",
+    imgs:[
+      "linear-gradient(140deg,#7e8867 0%,#5a6248 100%)",
+      "linear-gradient(160deg,#a8b488 0%,#6a7256 100%)",
+      "linear-gradient(180deg,#5a6248 0%,#3a4030 100%)"
+    ]
+  },
+  {
+    id:8, name:"Top Tricô", color:"Terracota suave · Algodão pima", price:"R$ 890", tag:"Looks", cat:["all","look"],
+    desc:"Tricô fino em algodão pima com decote canoa e mangas curtas. Peça que conversa com saias longas, alfaiataria leve e cintura alta.",
+    composicao:"100% algodão pima", origem:"Lima, PE",
+    imgs:[
+      "linear-gradient(140deg,#d88068 0%,#b8634a 100%)",
+      "linear-gradient(160deg,#e89a82 0%,#c46a4f 100%)",
+      "linear-gradient(180deg,#b8634a 0%,#8e4a35 100%)"
+    ]
+  }
+];
+
+// ============== SERVIÇOS ==============
+const servicos = {
+  personal: {
+    num:"01",
+    nome:"Personal Shopper",
+    sub:"Compras com curadoria pessoal",
+    hero:"linear-gradient(140deg,#b8634a 0%,#8e4a35 100%)",
+    lead:"Para quem valoriza o tempo, mas não abre mão da peça certa. Eu vou às lojas, aos showrooms e aos ateliês por você — e volto apenas com o que combina com a sua silhueta, sua agenda e o seu universo estético.",
+    etapas:[
+      {t:"Conversa de imersão", d:"Encontro de 90 minutos para entender seus compromissos, hábitos, peças favoritas do guarda-roupa atual e o que falta. É aqui que mapeio o seu DNA de estilo."},
+      {t:"Briefing de peças", d:"Defino contigo as categorias prioritárias — alfaiataria, casualwear, eventos, viagem — e o investimento por categoria."},
+      {t:"Garimpo curado", d:"Visito as lojas de Recife e fornecedores internacionais selecionando 3 a 5 opções por categoria. Você não pisa em uma loja desnecessariamente."},
+      {t:"Prova guiada", d:"Encontro presencial onde apresento as peças, sugiro combinações e fechamos juntos as escolhas. Levo polaroids do que entra no closet."}
+    ],
+    entrega:"Guarda-roupa atualizado com 8 a 15 peças cuidadosamente escolhidas, dossiê fotográfico de combinações sugeridas e relacionamento contínuo para repor peças-chave.",
+    duracao:"4 a 6 semanas · investimento sob consulta"
+  },
+  reposicionamento: {
+    num:"02",
+    nome:"Reposicionamento de Imagem",
+    sub:"Para um novo capítulo da sua história",
+    hero:"linear-gradient(140deg,#6a7256 0%,#4f5841 100%)",
+    lead:"Houve uma promoção. Uma mudança de cidade. Um divórcio. Um novo cargo. Sua vida mudou — e a imagem precisa contar essa nova história com a mesma precisão. O reposicionamento é uma reconstrução estratégica.",
+    etapas:[
+      {t:"Diagnóstico de imagem atual", d:"Análise honesta de fotos profissionais, sociais e do dia a dia. Identifico o que a imagem atual está comunicando — e o gap em relação ao que você precisa comunicar."},
+      {t:"Definição do novo posicionamento", d:"Trabalhamos a percepção desejada: autoridade, sensibilidade, modernidade, sofisticação clássica. A imagem é desenhada para sustentar essa leitura."},
+      {t:"Edição do guarda-roupa", d:"Visita ao seu closet. Mantemos, doamos e ajustamos. Identifico exatamente as lacunas que sustentam o novo posicionamento."},
+      {t:"Reconstrução estratégica", d:"Compras orientadas das peças-âncora do novo capítulo. Acompanhamento por 60 dias para garantir consistência."}
+    ],
+    entrega:"Guarda-roupa alinhado ao novo momento, manual visual de combinações e ensaio fotográfico opcional para atualização de redes e materiais profissionais.",
+    duracao:"8 a 12 semanas · investimento sob consulta"
+  },
+  estilo: {
+    num:"03",
+    nome:"Adequação de Estilo",
+    sub:"Encontre a sua assinatura visual",
+    hero:"linear-gradient(140deg,#c9a063 0%,#a07a3f 100%)",
+    lead:"Você sente que se veste bem, mas falta uma coerência. Algumas peças do closet parecem de pessoas diferentes. A adequação de estilo é o trabalho de encontrar — e refinar — a sua assinatura.",
+    etapas:[
+      {t:"Mapeamento de referências", d:"Construímos juntas um painel visual com o que te atrai esteticamente. Identifico os fios condutores que você ainda não enxergou."},
+      {t:"Definição do estilo-âncora", d:"Entre clássico contemporâneo, minimalismo elevado, romântico moderno, editorial estruturado — encontramos o território que é genuinamente seu."},
+      {t:"Tradução para o closet", d:"Edição do que você já tem sob a ótica do estilo-âncora. Identificamos peças-curinga, peças-erro e peças-faltantes."},
+      {t:"Guia de assinatura", d:"Documento personalizado com modelagens, tecidos, cortes e proporções que se tornam o seu vocabulário. Compras futuras passam a fazer sentido sozinhas."}
+    ],
+    entrega:"Guia de assinatura pessoal em PDF, closet editado e curadoria de 5 a 8 peças que ancoram o novo estilo no dia a dia.",
+    duracao:"3 a 5 semanas · investimento sob consulta"
+  },
+  cromatica: {
+    num:"04",
+    nome:"Análise Cromática",
+    sub:"A ciência das cores que iluminam você",
+    hero:"linear-gradient(140deg,#d88068 0%,#b8634a 100%)",
+    lead:"Existem cores que iluminam o seu rosto e cores que apagam — e isso não é opinião, é leitura técnica. A análise cromática é o estudo objetivo da relação entre a sua pele, olhos, cabelos e as cores que você veste.",
+    etapas:[
+      {t:"Sessão presencial em luz natural", d:"Encontro de 2h30 em ambiente com luz neutra. Aplico tecidos drapeados em mais de 100 tons para identificar reações luminosas no seu rosto."},
+      {t:"Identificação da cartela", d:"Defino a sua subestação dentro das 12 cartelas sazonais. Não é só 'inverno' ou 'verão' — é o nível exato de profundidade, intensidade e temperatura que combina com você."},
+      {t:"Paleta personalizada", d:"Recebe uma cartela física de 30 a 40 tons que pode levar para qualquer loja. As cores certas, sempre na sua mão."},
+      {t:"Aplicação no closet", d:"Sessão extra opcional para revisar peças atuais sob a ótica da nova paleta — o que mantém, o que ajusta, o que substitui."}
+    ],
+    entrega:"Cartela física personalizada, paleta digital para celular, guia de combinações de cores e orientações para cabelo, maquiagem e acessórios.",
+    duracao:"1 sessão de 2h30 · investimento sob consulta"
+  }
+};
+
+// ============== ESTADO ==============
+let activeFilter = "all";
+let currentProduct = null;
+let currentSlide = 0;
+
+// ============== GRID ==============
+function getCats(filterKey) {
+  if (filterKey === "all") return products;
+  return products.filter(p => p.cat.includes(filterKey));
+}
+
+function renderGrid() {
+  const list = getCats(activeFilter);
+  const grid = document.getElementById("catalog");
+
+  if (!list.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;padding:30px;text-align:center;font-size:13px;color:#8a7a64">Nenhuma peça nesta categoria no momento.</div>';
+    return;
+  }
+
+  grid.innerHTML = list.map(p => `
+    <button class="pcard" onclick="openModal(${p.id})">
+      <div class="pimg" style="background:${p.imgs[0]}">
+        ${p.tag ? `<span class="ptag">${p.tag}</span>` : ""}
+      </div>
+      <div class="pinfo">
+        <div class="pname">${p.name}</div>
+        <div class="pcolor">${p.color}</div>
+        <div class="pprice">${p.price}</div>
+      </div>
+    </button>
+  `).join("");
+}
+
+document.getElementById("filters").addEventListener("click", e => {
+  const btn = e.target.closest(".fpill");
+  if (!btn) return;
+  document.querySelectorAll(".fpill").forEach(b => b.classList.remove("on"));
+  btn.classList.add("on");
+  activeFilter = btn.dataset.cat;
+  renderGrid();
+});
+
+// ============== MODAL PRODUTO ==============
+function openModal(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  currentProduct = p;
+  currentSlide = 0;
+
+  // monta carrossel
+  const track = document.getElementById("car-track");
+  track.innerHTML = p.imgs.map(bg => `<div class="carousel-slide" style="background:${bg}"></div>`).join("");
+  track.style.transform = `translateX(0%)`;
+
+  // indicadores
+  const inds = document.getElementById("car-indicators");
+  inds.innerHTML = p.imgs.map((_, i) => `<div class="ind ${i === 0 ? 'on' : ''}"></div>`).join("");
+
+  // contador
+  document.getElementById("car-count").textContent = `1 / ${p.imgs.length}`;
+
+  // setas
+  updateArrows();
+
+  // corpo
+  document.getElementById("modal-body").innerHTML = `
+    ${p.tag ? `<span class="modal-tag">${p.tag}</span>` : ""}
+    <h2 class="modal-name">${p.name}</h2>
+    <p class="modal-color">${p.color}</p>
+    <p class="modal-price">${p.price}</p>
+    <p class="modal-desc">${p.desc}</p>
+    <div class="attrs">
+      <div class="attr"><span class="attr-l">Composição</span><span class="attr-v">${p.composicao}</span></div>
+      <div class="attr"><span class="attr-l">Origem</span><span class="attr-v">${p.origem}</span></div>
+      <div class="attr"><span class="attr-l">Curadoria</span><span class="attr-v">Peça selecionada por Rebeka Fragoso</span></div>
+    </div>
+    <div class="modal-quote">
+      <p>"Uma peça da curadoria não vai te servir uma estação — vai te acompanhar pelos próximos anos."</p>
+      <span>Rebeka Fragoso</span>
+    </div>
+  `;
+
+  // CTA WhatsApp
+  document.getElementById("modal-wsp").href = `https://wa.me/5581999999999?text=${encodeURIComponent(`Olá Rebeka, tenho interesse em: ${p.name} (${p.price})`)}`;
+
+  // abre modal
+  document.getElementById("modal").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal() {
+  document.getElementById("modal").classList.remove("open");
+  document.body.style.overflow = "";
+  currentProduct = null;
+}
+
+function carouselGo(i) {
+  if (!currentProduct) return;
+  const max = currentProduct.imgs.length - 1;
+  currentSlide = Math.max(0, Math.min(i, max));
+  document.getElementById("car-track").style.transform = `translateX(-${currentSlide * 100}%)`;
+  document.querySelectorAll("#car-indicators .ind").forEach((el, idx) => {
+    el.classList.toggle("on", idx === currentSlide);
+  });
+  document.getElementById("car-count").textContent = `${currentSlide + 1} / ${currentProduct.imgs.length}`;
+  updateArrows();
+}
+
+function carouselPrev() { carouselGo(currentSlide - 1); }
+function carouselNext() { carouselGo(currentSlide + 1); }
+
+function updateArrows() {
+  if (!currentProduct) return;
+  document.getElementById("car-prev").disabled = currentSlide === 0;
+  document.getElementById("car-next").disabled = currentSlide === currentProduct.imgs.length - 1;
+}
+
+// swipe no carrossel
+let touchStartX = 0;
+let touchEndX = 0;
+const carouselEl = document.querySelector(".carousel");
+carouselEl.addEventListener("touchstart", e => {
+  touchStartX = e.changedTouches[0].screenX;
+}, {passive: true});
+carouselEl.addEventListener("touchend", e => {
+  touchEndX = e.changedTouches[0].screenX;
+  const diff = touchStartX - touchEndX;
+  if (Math.abs(diff) > 50) {
+    if (diff > 0) carouselNext();
+    else carouselPrev();
+  }
+}, {passive: true});
+
+// ============== NAVEGAÇÃO ==============
+function showPage(id) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0, 0);
+}
+
+function goHome() { showPage("page-home"); }
+function goCuradoria() { showPage("page-curadoria"); }
+
+function goServico(id) {
+  const s = servicos[id];
+  if (!s) return;
+
+  const outros = Object.entries(servicos).filter(([k]) => k !== id);
+
+  document.getElementById("servico-content").innerHTML = `
+    <div class="sv-hero" style="background:${s.hero}">
+      <span class="sv-hero-num">${s.num}</span>
+      <div class="sv-eyebrow">Serviço ${s.num}</div>
+      <h1 class="sv-h1">${s.nome}</h1>
+      <p class="sv-sub">${s.sub}</p>
+    </div>
+
+    <div class="sv-lead"><p>${s.lead}</p></div>
+
+    <div class="sv-etapas">
+      <p class="sv-tag">Como acontece</p>
+      ${s.etapas.map((e, i) => `
+        <div class="etapa">
+          <span class="etapa-num">0${i + 1}</span>
+          <div>
+            <h3 class="etapa-t">${e.t}</h3>
+            <p class="etapa-d">${e.d}</p>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+
+    <div class="sv-entrega">
+      <p class="sv-entrega-tag">A entrega</p>
+      <p class="sv-entrega-d">${s.entrega}</p>
+      <div class="sv-entrega-line"></div>
+      <p class="sv-duracao">${s.duracao}</p>
+    </div>
+
+    <div class="sv-cta">
+      <a class="sv-cta-btn" href="https://wa.me/5581999999999?text=${encodeURIComponent(`Olá Rebeka, tenho interesse em ${s.nome}.`)}" target="_blank">
+        <i class="ti ti-brand-whatsapp"></i>
+        Agendar conversa
+      </a>
+    </div>
+
+    <div class="sv-outros">
+      <p class="sv-outros-tag">Outros serviços</p>
+      ${outros.map(([k, o]) => `
+        <button class="sv-outro-link" onclick="goServico('${k}')">
+          <span><span class="sv-outro-num">${o.num}</span><span class="sv-outro-nome">${o.nome}</span></span>
+          <i class="ti ti-chevron-right sv-outro-arr"></i>
+        </button>
+      `).join("")}
+    </div>
+
+    <div class="foot">
+      <div class="flogo">BK</div>
+      <div class="fsub">rebeka fragoso · recife · 2026</div>
+    </div>
+  `;
+
+  showPage("page-servico");
+}
+
+// ============== INIT ==============
+renderGrid();
+
+// ESC fecha modal
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && document.getElementById("modal").classList.contains("open")) {
+    closeModal();
+  }
+});
+</script>
+
+</body>
+</html>
