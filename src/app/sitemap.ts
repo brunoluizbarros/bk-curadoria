@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getActiveProducts } from "@/server/queries/products";
 import { getActiveServices } from "@/server/queries/services";
 import type { MetadataRoute } from "next";
