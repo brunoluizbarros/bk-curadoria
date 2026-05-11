@@ -21,11 +21,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export async function generateStaticParams() {
-  const services = await getActiveServices();
-  return services.map((s) => ({ slug: s.slug }));
-}
-
 export default async function ServicoPage({ params }: Props) {
   const { slug } = await params;
 
