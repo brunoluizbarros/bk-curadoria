@@ -14,6 +14,7 @@ import {
   IconLogout,
   IconMenu2,
   IconX,
+  IconFolder,
 } from "@/components/ui/icons";
 
 const navItems = [
@@ -23,6 +24,7 @@ const navItems = [
   { href: "/admin/services", label: "Serviços", icon: IconFileText },
   { href: "/admin/curadoria", label: "Curadoria", icon: IconFileText },
   { href: "/admin/site", label: "Site", icon: IconSettings },
+  { href: "/admin/storage", label: "Arquivos", icon: IconFolder },
   { href: "/admin/account", label: "Conta", icon: IconKey },
 ];
 

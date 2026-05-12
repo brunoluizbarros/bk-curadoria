@@ -24,4 +24,11 @@ export {
   IconFileText,
   IconLayoutDashboard,
   IconKey,
+  IconFolder,
+  IconFolderPlus,
+  IconHome,
+  IconUpload,
+  IconDotsVertical,
+  IconFile,
+  IconCopy,
 } from "@tabler/icons-react";

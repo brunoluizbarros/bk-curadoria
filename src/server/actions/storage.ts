@@ -7,7 +7,12 @@ import {
   PutObjectCommand,
 } from "@aws-sdk/client-s3";
 import { s3, BUCKET, publicUrl } from "@/lib/upload";
-import { requireAdmin } from "@/lib/auth";
+import { auth } from "@/lib/auth";
+
+async function requireAdmin() {
+  const session = await auth();
+  if (!session?.user) throw new Error("Não autorizado");
+}
 
 export type S3Object = {
   key: string;
