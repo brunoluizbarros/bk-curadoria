@@ -12,8 +12,8 @@ export default async function NewProductPage() {
   async function handleCreate(data: Parameters<typeof createProduct>[0]) {
     "use server";
     const result = await createProduct(data);
-    if ("id" in (result ?? {})) {
-      redirect("/admin/products");
+    if (result && "id" in result) {
+      redirect(`/admin/products/${result.id}/edit`);
     }
     return result;
   }
@@ -21,7 +21,8 @@ export default async function NewProductPage() {
   return (
     <div>
       <h1 className="font-display font-400 text-3xl text-ink mb-6">Novo produto</h1>
-      <ProductForm categories={categories} onSubmit={handleCreate} />
+      <p className="text-xs text-ink-soft mb-6">Preencha as informações do produto. Após salvar, você será redirecionado para adicionar as fotos.</p>
+      <ProductForm categories={categories} onSubmit={handleCreate} submitLabel="Salvar e adicionar fotos →" />
     </div>
   );
 }

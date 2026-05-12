@@ -13,9 +13,10 @@ interface ProductFormProps {
   defaultValues?: Partial<ProductInput>;
   categories: Category[];
   onSubmit: (data: ProductInput) => Promise<{ error?: unknown } | undefined>;
+  submitLabel?: string;
 }
 
-export function ProductForm({ defaultValues, categories, onSubmit }: ProductFormProps) {
+export function ProductForm({ defaultValues, categories, onSubmit, submitLabel = "Salvar produto" }: ProductFormProps) {
   const {
     register,
     handleSubmit,
@@ -178,7 +179,7 @@ export function ProductForm({ defaultValues, categories, onSubmit }: ProductForm
       />
 
       <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Salvando..." : "Salvar produto"}
+        {isSubmitting ? "Salvando..." : submitLabel}
       </Button>
     </form>
   );
