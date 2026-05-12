@@ -11,7 +11,7 @@ export default async function SiteLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const config = await getSiteConfig();
+  const config = await getSiteConfig().catch(() => ({} as Record<string, string>));
 
   return (
     <>
