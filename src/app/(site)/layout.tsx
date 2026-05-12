@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
+import { WishlistFloatingButton } from "@/components/site/WishlistFloatingButton";
 import { getSiteConfig } from "@/server/queries/site-config";
 
 export default async function SiteLayout({
@@ -20,6 +21,7 @@ export default async function SiteLayout({
         {children}
       </main>
       <Footer signature={config.footer_sig} />
+<WishlistFloatingButton />
     </>
   );
 }

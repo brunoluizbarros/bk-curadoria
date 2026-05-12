@@ -2,6 +2,7 @@ import { getProductBySlug } from "@/server/queries/products";
 import { getSiteConfig } from "@/server/queries/site-config";
 import { ProductCarousel } from "@/components/site/ProductCarousel";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
+import { AddToWishlistButton } from "@/components/site/AddToWishlistButton";
 import { ShareButton } from "@/components/site/ShareButton";
 import { BackOrHome } from "@/components/site/BackOrHome";
 import { formatBRL } from "@/lib/format";
@@ -95,6 +96,18 @@ export default async function ProdutoPage({ params }: Props) {
               ctx={{ kind: "product", name: product.name, price: formatBRL(product.priceCents), slug: product.slug }}
               phone={phone}
               label="Tenho interesse"
+              className="w-full"
+            />
+            <AddToWishlistButton
+              product={{
+                id: product.id,
+                name: product.name,
+                priceCents: product.priceCents,
+                slug: product.slug,
+                firstImageUrl: product.images[0]?.url ?? null,
+                fallbackGradient: product.fallbackGradient ?? null,
+              }}
+              label="Adicionar à lista de desejos"
               className="w-full"
             />
             <div className="flex justify-center pt-1">

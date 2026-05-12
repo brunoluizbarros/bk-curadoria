@@ -31,4 +31,8 @@ export {
   IconDotsVertical,
   IconFile,
   IconCopy,
+  IconHeart,
+  IconHeartFilled,
+  IconShare,
+  IconLink,
 } from "@tabler/icons-react";

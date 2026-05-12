@@ -4,3 +4,4 @@ export * from "./products";
 export * from "./services";
 export * from "./curadoria";
 export * from "./site-config";
+export * from "./wishlists";

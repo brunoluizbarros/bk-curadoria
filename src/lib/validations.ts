@@ -68,6 +68,32 @@ export const curadoriaContentSchema = z.object({
   ctaSubtext: z.string().optional(),
 });
 
+// Aceita 10-11 dígitos (DDD + número, sem código do país)
+// ou 12-13 dígitos (55 + DDD + número), apenas dígitos
+const brPhoneRegex = /^(55)?[1-9]{2}9?[0-9]{8}$/;
+
+function phoneMsg(field: string) {
+  return `${field} inválido — informe DDD + número (ex: 81999998888)`;
+}
+
+export const wishlistSubmitSchema = z.object({
+  wisherName: z.string().min(2, "Nome obrigatório"),
+  wisherPhone: z
+    .string()
+    .transform((v) => v.replace(/\D/g, ""))
+    .pipe(z.string().regex(brPhoneRegex, phoneMsg("Seu WhatsApp"))),
+  gifterName: z.string().min(2, "Nome obrigatório"),
+  gifterPhone: z
+    .string()
+    .transform((v) => v.replace(/\D/g, ""))
+    .pipe(z.string().regex(brPhoneRegex, phoneMsg("WhatsApp do presenteador"))),
+  gifterRelation: z.string().min(1, "Informe a relação (ex: namorado, marido, amiga)"),
+  note: z.string().optional(),
+  occasion: z.string().optional(),
+  productIds: z.array(z.string().uuid()).min(1, "Adicione pelo menos um produto"),
+});
+
+export type WishlistSubmitInput = z.infer<typeof wishlistSubmitSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type PasswordChangeInput = z.infer<typeof passwordChangeSchema>;
 export type ProductInput = z.infer<typeof productSchema>;
