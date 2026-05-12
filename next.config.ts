@@ -7,9 +7,7 @@ const nextConfig: NextConfig = {
     deviceSizes: [390, 640, 828, 1080, 1280, 1920],
     imageSizes: [64, 128, 256, 384],
     remotePatterns: [
-      // Tigris (S3-compatible) — bucket de produção
-      { protocol: "https", hostname: "t3.storageapi.dev" },
-      // CDN custom opcional
+      // CDN custom opcional (quando configurado no futuro)
       { protocol: "https", hostname: "cdn.bkcuradoria.com.br" },
     ],
   },

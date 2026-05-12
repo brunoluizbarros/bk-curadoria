@@ -20,8 +20,6 @@ export const PUBLIC_BASE = process.env.STORAGE_PUBLIC_BASE ?? "";
 
 export function publicUrl(key: string): string {
   if (isDev) return `/uploads/${key}`;
-  // Se PUBLIC_BASE estiver configurado (bucket público), usa URL direta.
-  // Caso contrário, serve via rota proxy /api/images/<key>.
-  if (PUBLIC_BASE) return `${PUBLIC_BASE}/${key}`;
+  // Bucket privado — sempre serve via proxy que usa credenciais S3.
   return `/api/images/${key}`;
 }
