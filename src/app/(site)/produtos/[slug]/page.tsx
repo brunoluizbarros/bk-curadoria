@@ -79,22 +79,14 @@ export default async function ProdutoPage({ params }: Props) {
             {product.description}
           </p>
 
-          {(product.composition || product.origin) && (
-            <div className="mt-5 space-y-2 border-t border-ink/10 pt-4">
-              {product.composition && (
-                <div className="flex justify-between gap-4">
-                  <span className="font-body text-[10px] tracking-widest uppercase text-ink-soft">Composição</span>
-                  <span className="font-body text-xs text-ink text-right">
-                    {product.composition.split(",").map((p) => p.trim()).join(" · ")}
-                  </span>
-                </div>
-              )}
-              {product.origin && (
-                <div className="flex justify-between gap-4">
-                  <span className="font-body text-[10px] tracking-widest uppercase text-ink-soft">Origem</span>
-                  <span className="font-body text-xs text-ink text-right">{product.origin}</span>
-                </div>
-              )}
+          {product.composition && (
+            <div className="mt-5 border-t border-ink/10 pt-4">
+              <div className="flex justify-between gap-4">
+                <span className="font-body text-[10px] tracking-widest uppercase text-ink-soft">Composição</span>
+                <span className="font-body text-xs text-ink text-right">
+                  {product.composition.split(",").map((p) => p.trim()).join(" · ")}
+                </span>
+              </div>
             </div>
           )}
 

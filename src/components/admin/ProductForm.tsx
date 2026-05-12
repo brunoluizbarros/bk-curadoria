@@ -6,6 +6,7 @@ import { productSchema, type ProductInput } from "@/lib/validations";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
+import { GradientPicker } from "@/components/admin/GradientPicker";
 import { Category } from "@/db/schema";
 import { slugify } from "@/lib/slug";
 
@@ -127,20 +128,14 @@ export function ProductForm({ defaultValues, categories, onSubmit, submitLabel =
           />
           <p className="text-[10px] text-ink-soft/70 font-body">Separe os valores por vírgula — no site aparecerão com · entre eles.</p>
         </div>
-        <Input
-          id="origin"
-          label="Origem"
-          placeholder="Florença, IT"
-          {...register("origin")}
-        />
       </div>
 
-      <Textarea
-        id="fallbackGradient"
-        label="Gradiente fallback (CSS)"
-        rows={2}
-        placeholder="linear-gradient(140deg,#b8634a 0%,#8e4a35 100%)"
-        {...register("fallbackGradient")}
+      <Controller
+        control={control}
+        name="fallbackGradient"
+        render={({ field }) => (
+          <GradientPicker value={field.value ?? undefined} onChange={field.onChange} />
+        )}
       />
 
       {/* Categorias */}
