@@ -92,7 +92,7 @@ export default async function ProdutoPage({ params }: Props) {
 
           <div className="mt-auto pt-8 md:pt-6 space-y-4">
             <WhatsAppButton
-              ctx={{ kind: "product", name: product.name, price: formatBRL(product.priceCents) }}
+              ctx={{ kind: "product", name: product.name, price: formatBRL(product.priceCents), slug: product.slug }}
               phone={phone}
               label="Tenho interesse"
               className="w-full"

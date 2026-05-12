@@ -81,14 +81,18 @@ export async function getAllProductsAdmin() {
     .from(products)
     .orderBy(asc(products.sortOrder), asc(products.createdAt));
 
-  const images = await db
-    .select()
-    .from(productImages)
-    .orderBy(asc(productImages.sortOrder));
+  const [images, catLinks] = await Promise.all([
+    db.select().from(productImages).orderBy(asc(productImages.sortOrder)),
+    db
+      .select({ productId: productCategories.productId, label: categories.label })
+      .from(productCategories)
+      .innerJoin(categories, eq(productCategories.categoryId, categories.id)),
+  ]);
 
   return rows.map((p) => ({
     ...p,
     firstImage: images.find((img) => img.productId === p.id) ?? null,
+    categoryLabels: catLinks.filter((c) => c.productId === p.id).map((c) => c.label),
   }));
 }
 

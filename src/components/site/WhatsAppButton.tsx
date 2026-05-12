@@ -5,7 +5,7 @@ import { IconBrandWhatsapp } from "@tabler/icons-react";
 type WaCtx =
   | { kind: "default" }
   | { kind: "curadoria" }
-  | { kind: "product"; name: string; price: string }
+  | { kind: "product"; name: string; price: string; slug: string }
   | { kind: "service"; name: string };
 
 interface WhatsAppButtonProps {

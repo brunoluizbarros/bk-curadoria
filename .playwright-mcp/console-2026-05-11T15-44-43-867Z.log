@@ -924,3 +924,11 @@ Import trace:
 [36628816ms] [LOG] [HMR] connected @ http://localhost:3000/_next/static/chunks/0fri_next_dist_0tpe6z5._.js:2477
 [36629120ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0fri_next_dist_0tpe6z5._.js:2477
 [36629161ms] [LOG] [Fast Refresh] done in 145ms @ http://localhost:3000/_next/static/chunks/0fri_next_dist_0tpe6z5._.js:2477
+[37830017ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0fri_next_dist_0tpe6z5._.js:2477
+[37830294ms] [LOG] [Fast Refresh] done in 380ms @ http://localhost:3000/_next/static/chunks/0fri_next_dist_0tpe6z5._.js:2477
+[37835749ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0fri_next_dist_0tpe6z5._.js:2477
+[37835862ms] [LOG] [Fast Refresh] done in 183ms @ http://localhost:3000/_next/static/chunks/0fri_next_dist_0tpe6z5._.js:2477
+[38002022ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0fri_next_dist_0tpe6z5._.js:2477
+[38002105ms] [LOG] [Fast Refresh] done in 133ms @ http://localhost:3000/_next/static/chunks/0fri_next_dist_0tpe6z5._.js:2477
+[38119495ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0fri_next_dist_0tpe6z5._.js:2477
+[38120091ms] [LOG] [Fast Refresh] done in 334ms @ http://localhost:3000/_next/static/chunks/0fri_next_dist_0tpe6z5._.js:2477

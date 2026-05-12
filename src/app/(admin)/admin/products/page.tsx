@@ -49,7 +49,14 @@ export default async function ProductsPage() {
 
               <div className="flex-1 min-w-0">
                 <p className="font-display font-400 text-sm text-ink truncate">{p.name}</p>
-                <p className="font-body text-xs text-ink-soft">{formatBRL(p.priceCents)}</p>
+                <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                  <span className="font-body text-xs text-ink-soft">{formatBRL(p.priceCents)}</span>
+                  {p.categoryLabels.map((label) => (
+                    <span key={label} className="font-body text-[9px] tracking-wider uppercase px-1.5 py-0.5 rounded-sm bg-gold/15 text-gold">
+                      {label}
+                    </span>
+                  ))}
+                </div>
               </div>
 
               <span
