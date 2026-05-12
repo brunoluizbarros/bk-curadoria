@@ -3,6 +3,7 @@ import {
   uuid,
   text,
   integer,
+  real,
   boolean,
   timestamp,
   index,
@@ -23,7 +24,7 @@ export const products = pgTable("products", {
   fallbackGradient: text("fallback_gradient"),
   featured: boolean("featured").notNull().default(false),
   active: boolean("active").notNull().default(true),
-  sortOrder: integer("sort_order").notNull().default(0),
+  sortOrder: real("sort_order").notNull().default(0),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });

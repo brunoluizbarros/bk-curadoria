@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { productSchema, type ProductInput } from "@/lib/validations";
 import { Input } from "@/components/ui/Input";
@@ -22,6 +22,7 @@ export function ProductForm({ defaultValues, categories, onSubmit, submitLabel =
     handleSubmit,
     setValue,
     watch,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<ProductInput>({
     resolver: zodResolver(productSchema),
@@ -68,20 +69,37 @@ export function ProductForm({ defaultValues, categories, onSubmit, submitLabel =
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Input
-          id="color"
-          label="Cor / Material"
-          placeholder="Terracota · Tricô italiano"
-          {...register("color")}
-          error={errors.color?.message}
-        />
-        <Input
-          id="priceCents"
-          label="Preço (em centavos)"
-          type="number"
-          placeholder="189000"
-          {...register("priceCents", { valueAsNumber: true })}
-          error={errors.priceCents?.message}
+        <div className="flex flex-col gap-1">
+          <Input
+            id="color"
+            label="Cor / Material"
+            placeholder="Terracota, Tricô italiano"
+            {...register("color")}
+            error={errors.color?.message}
+          />
+          <p className="text-[10px] text-ink-soft/70 font-body">Separe os valores por vírgula — no site aparecerão com · entre eles.</p>
+        </div>
+        <Controller
+          control={control}
+          name="priceCents"
+          render={({ field }) => (
+            <Input
+              id="priceCents"
+              label="Preço"
+              placeholder="R$ 0,00"
+              inputMode="numeric"
+              value={
+                field.value
+                  ? (field.value / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+                  : ""
+              }
+              onChange={(e) => {
+                const digits = e.target.value.replace(/\D/g, "");
+                field.onChange(digits === "" ? 0 : parseInt(digits, 10));
+              }}
+              error={errors.priceCents?.message}
+            />
+          )}
         />
       </div>
 
@@ -100,12 +118,15 @@ export function ProductForm({ defaultValues, categories, onSubmit, submitLabel =
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Input
-          id="composition"
-          label="Composição"
-          placeholder="70% lã merino · 30% caxemira"
-          {...register("composition")}
-        />
+        <div className="flex flex-col gap-1">
+          <Input
+            id="composition"
+            label="Composição"
+            placeholder="70% lã merino, 30% caxemira"
+            {...register("composition")}
+          />
+          <p className="text-[10px] text-ink-soft/70 font-body">Separe os valores por vírgula — no site aparecerão com · entre eles.</p>
+        </div>
         <Input
           id="origin"
           label="Origem"
@@ -173,8 +194,9 @@ export function ProductForm({ defaultValues, categories, onSubmit, submitLabel =
 
       <Input
         id="sortOrder"
-        label="Ordem"
+        label="Ordem (ex: 1, 2.5, 10)"
         type="number"
+        step="0.1"
         {...register("sortOrder", { valueAsNumber: true })}
       />
 

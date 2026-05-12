@@ -64,7 +64,9 @@ export default async function ProdutoPage({ params }: Props) {
           <h1 className="font-display font-400 text-2xl md:text-3xl text-ink leading-tight">
             {product.name}
           </h1>
-          <p className="font-body font-200 text-xs text-ink-soft mt-1">{product.color}</p>
+          <p className="font-body font-200 text-xs text-ink-soft mt-1">
+            {product.color.split(",").map((p) => p.trim()).join(" · ")}
+          </p>
           <p className="font-body text-xl text-terracotta mt-2">{formatBRL(product.priceCents)}</p>
 
           {product.tag && (
@@ -82,7 +84,9 @@ export default async function ProdutoPage({ params }: Props) {
               {product.composition && (
                 <div className="flex justify-between gap-4">
                   <span className="font-body text-[10px] tracking-widest uppercase text-ink-soft">Composição</span>
-                  <span className="font-body text-xs text-ink text-right">{product.composition}</span>
+                  <span className="font-body text-xs text-ink text-right">
+                    {product.composition.split(",").map((p) => p.trim()).join(" · ")}
+                  </span>
                 </div>
               )}
               {product.origin && (

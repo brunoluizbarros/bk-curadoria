@@ -28,7 +28,7 @@ export const productSchema = z.object({
   fallbackGradient: z.string().optional(),
   featured: z.boolean(),
   active: z.boolean(),
-  sortOrder: z.number().int(),
+  sortOrder: z.number(),
   categoryIds: z.array(z.string().uuid()),
 });
 
