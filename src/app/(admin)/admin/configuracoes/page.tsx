@@ -1,5 +1,6 @@
 import { getPaymentFeeConfigs, getMetaConfig, getWaApiConfig } from "@/server/queries/settings";
-import { savePaymentFeeConfigs, saveMetaConfig, saveWaApiConfig } from "@/server/actions/settings";
+import { savePaymentFeeConfigs, saveMetaConfig, saveWaApiConfig, saveAnalyticsConfig } from "@/server/actions/settings";
+import { getSiteConfig } from "@/server/queries/site-config";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { IconSettings, IconBrandWhatsapp } from "@/components/ui/icons";
@@ -18,10 +19,11 @@ const METHOD_LABELS: Record<string, string> = {
 const METHODS = ["pix", "credit_card", "debit_card", "cash", "transfer"];
 
 export default async function ConfiguracoesPage() {
-  const [feeConfigs, metaConfig, waConfig] = await Promise.all([
+  const [feeConfigs, metaConfig, waConfig, siteConfig] = await Promise.all([
     getPaymentFeeConfigs(),
     getMetaConfig(),
     getWaApiConfig(),
+    getSiteConfig(),
   ]);
 
   return (
@@ -131,6 +133,27 @@ export default async function ConfiguracoesPage() {
             />
           </div>
           <Button type="submit">Salvar configurações WhatsApp</Button>
+        </form>
+      </section>
+
+      {/* Google Analytics */}
+      <section>
+        <h2 className="font-body text-xs uppercase tracking-widest text-ink-soft mb-1">
+          Google Analytics
+        </h2>
+        <p className="font-body text-xs text-ink-soft mb-4">
+          Measurement ID do GA4 (formato <code className="bg-ink/5 px-1 rounded font-mono text-[10px]">G-XXXXXXXXXX</code>).
+          Deixe em branco para desativar o rastreamento.
+        </p>
+        <form action={saveAnalyticsConfig} className="space-y-4">
+          <Input
+            id="ga_measurement_id"
+            name="ga_measurement_id"
+            label="Measurement ID"
+            placeholder="G-XXXXXXXXXX"
+            defaultValue={siteConfig.ga_measurement_id ?? ""}
+          />
+          <Button type="submit">Salvar Analytics</Button>
         </form>
       </section>
 

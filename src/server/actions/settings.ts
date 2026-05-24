@@ -52,6 +52,18 @@ export async function saveWaApiConfig(data: FormData) {
   revalidatePath("/admin/configuracoes");
 }
 
+export async function saveAnalyticsConfig(data: FormData) {
+  await requireAdmin();
+
+  const value = (data.get("ga_measurement_id") as string | null) ?? "";
+  await db
+    .insert(siteConfig)
+    .values({ key: "ga_measurement_id", value })
+    .onConflictDoUpdate({ target: siteConfig.key, set: { value, updatedAt: new Date() } });
+
+  revalidatePath("/admin/configuracoes");
+}
+
 export async function saveMetaConfig(data: FormData) {
   await requireAdmin();
 
