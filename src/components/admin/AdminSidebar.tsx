@@ -16,10 +16,20 @@ import {
   IconX,
   IconFolder,
   IconHeart,
+  IconReceipt,
+  IconUsers,
+  IconCashBanknote,
+  IconCoin,
+  IconReportMoney,
 } from "@/components/ui/icons";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: IconLayoutDashboard },
+  { href: "/admin/pedidos", label: "Pedidos", icon: IconReceipt },
+  { href: "/admin/clientes", label: "Clientes", icon: IconUsers },
+  { href: "/admin/recebimentos", label: "Recebimentos", icon: IconCashBanknote },
+  { href: "/admin/despesas", label: "Despesas", icon: IconCoin },
+  { href: "/admin/dre", label: "DRE", icon: IconReportMoney },
   { href: "/admin/products", label: "Produtos", icon: IconPackage },
   { href: "/admin/categories", label: "Categorias", icon: IconTag },
   { href: "/admin/services", label: "Serviços", icon: IconFileText },
@@ -27,6 +37,7 @@ const navItems = [
   { href: "/admin/site", label: "Site", icon: IconSettings },
   { href: "/admin/wishlists", label: "Listas de desejos", icon: IconHeart },
   { href: "/admin/storage", label: "Arquivos", icon: IconFolder },
+  { href: "/admin/configuracoes", label: "Configurações", icon: IconSettings },
   { href: "/admin/account", label: "Conta", icon: IconKey },
 ];
 

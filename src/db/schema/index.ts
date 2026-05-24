@@ -5,3 +5,8 @@ export * from "./services";
 export * from "./curadoria";
 export * from "./site-config";
 export * from "./wishlists";
+export * from "./customers";
+export * from "./orders";
+export * from "./payments";
+export * from "./expenses";
+export * from "./settings";

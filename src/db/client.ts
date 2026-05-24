@@ -4,8 +4,9 @@ import * as schema from "./schema";
 
 const client = postgres(process.env.DATABASE_URL!, {
   max: 5,
-  idle_timeout: 20,       // fecha conexões ociosas após 20s
-  max_lifetime: 1800,     // recicla conexões após 30min
-  connect_timeout: 10,    // falha rápido se DB estiver inacessível
+  idle_timeout: 20,
+  max_lifetime: 1800,
+  connect_timeout: 10,
+  prepare: false,   // evita prepared statements que ficam inválidos após restart do Railway
 });
 export const db = drizzle(client, { schema });

@@ -8,6 +8,20 @@
       "when": 1778553881748,
       "tag": "0000_fuzzy_virginia_dare",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1779643296588,
+      "tag": "0001_handy_molten_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1779649919899,
+      "tag": "0002_massive_solo",
+      "breakpoints": true
     }
   ]
 }

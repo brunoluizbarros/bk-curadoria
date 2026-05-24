@@ -1127,3 +1127,7 @@ TypeError: Cannot convert undefined or null to object
 [40874105ms] [LOG] [Fast Refresh] done in 127ms @ http://localhost:3000/_next/static/chunks/0fri_next_dist_0tpe6z5._.js:2477
 [40874742ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0fri_next_dist_0tpe6z5._.js:2477
 [40874794ms] [LOG] [Fast Refresh] done in 67ms @ http://localhost:3000/_next/static/chunks/0fri_next_dist_0tpe6z5._.js:2477
+[41206354ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0fri_next_dist_0tpe6z5._.js:2477
+[41206390ms] [LOG] [Fast Refresh] done in 137ms @ http://localhost:3000/_next/static/chunks/0fri_next_dist_0tpe6z5._.js:2477
+[41226445ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3000/_next/static/chunks/0fri_next_dist_0tpe6z5._.js:2477
+[41226446ms] [LOG] [Fast Refresh] done in 103ms @ http://localhost:3000/_next/static/chunks/0fri_next_dist_0tpe6z5._.js:2477
