@@ -6,10 +6,66 @@ import { orders, orderItems, products } from "@/db/schema";
 import { orderSchema } from "@/lib/validations";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { getOrderById } from "@/server/queries/orders";
+import { getWaApiConfig } from "@/server/queries/settings";
+import { sendWhatsAppText } from "@/lib/whatsapp-api";
+import {
+  buildMalinhaEnviadaMessage,
+  buildLinkPagamentoMessage,
+  buildPagamentoConfirmadoMessage,
+  buildItemsConfirmadosMessage,
+} from "@/lib/whatsapp-order-templates";
 
 async function requireAdmin() {
   const session = await auth();
   if (!session?.user) throw new Error("Não autorizado");
+}
+
+export type WaNotificationType =
+  | "malinha_enviada"
+  | "link_pagamento"
+  | "pagamento_confirmado"
+  | "itens_confirmados";
+
+// Shared internal helper — no auth check, call from within other server actions
+async function dispatchOrderWhatsApp(
+  orderId: string,
+  type: WaNotificationType,
+  extra?: { paymentLink?: string }
+): Promise<void> {
+  const [order, waConfig] = await Promise.all([getOrderById(orderId), getWaApiConfig()]);
+  if (!order) return;
+
+  let message: string;
+
+  if (type === "malinha_enviada") {
+    message = buildMalinhaEnviadaMessage(order);
+  } else if (type === "link_pagamento") {
+    if (!extra?.paymentLink) return;
+    message = buildLinkPagamentoMessage(order, extra.paymentLink);
+  } else if (type === "pagamento_confirmado") {
+    message = buildPagamentoConfirmadoMessage(order);
+  } else {
+    message = buildItemsConfirmadosMessage(order);
+  }
+
+  await sendWhatsAppText(order.customer.phone, message, waConfig);
+}
+
+// Public server action — used by manual buttons on the pedido page
+export async function sendOrderWhatsApp(
+  orderId: string,
+  type: WaNotificationType,
+  extra?: { paymentLink?: string }
+) {
+  await requireAdmin();
+  try {
+    await dispatchOrderWhatsApp(orderId, type, extra);
+    return { success: true };
+  } catch (err) {
+    console.error("[sendOrderWhatsApp]", err);
+    return { error: String(err) };
+  }
 }
 
 export async function createOrder(data: unknown) {
@@ -59,7 +115,10 @@ export async function updateOrder(id: string, data: unknown) {
   return { success: true };
 }
 
-export async function setOrderStatus(id: string, status: "draft" | "sent" | "returned" | "paid" | "cancelled") {
+export async function setOrderStatus(
+  id: string,
+  status: "draft" | "sent" | "returned" | "paid" | "cancelled"
+) {
   await requireAdmin();
   await db
     .update(orders)
@@ -67,6 +126,14 @@ export async function setOrderStatus(id: string, status: "draft" | "sent" | "ret
     .where(eq(orders.id, id));
   revalidatePath("/admin/pedidos");
   revalidatePath(`/admin/pedidos/${id}`);
+
+  // Auto-notify customer on meaningful transitions
+  if (status === "sent" || status === "paid") {
+    const type: WaNotificationType =
+      status === "sent" ? "malinha_enviada" : "pagamento_confirmado";
+    dispatchOrderWhatsApp(id, type).catch((e) => console.error("[auto-wa]", e));
+  }
+
   return { success: true };
 }
 
@@ -88,12 +155,13 @@ export async function addOrderItem(orderId: string, productId: string, quantity 
   return { id: item.id };
 }
 
-export async function updateOrderItemStatus(itemId: string, orderId: string, status: "kept" | "returned") {
+export async function updateOrderItemStatus(
+  itemId: string,
+  orderId: string,
+  status: "kept" | "returned"
+) {
   await requireAdmin();
-  await db
-    .update(orderItems)
-    .set({ status })
-    .where(eq(orderItems.id, itemId));
+  await db.update(orderItems).set({ status }).where(eq(orderItems.id, itemId));
   revalidatePath(`/admin/pedidos/${orderId}`);
   return { success: true };
 }

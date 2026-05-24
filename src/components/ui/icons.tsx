@@ -49,4 +49,6 @@ export {
   IconCircle,
   IconAlertCircle,
   IconClock,
+  IconSend,
+  IconMessageCircle,
 } from "@tabler/icons-react";

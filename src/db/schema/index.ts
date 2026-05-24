@@ -10,3 +10,4 @@ export * from "./orders";
 export * from "./payments";
 export * from "./expenses";
 export * from "./settings";
+export * from "./leads";

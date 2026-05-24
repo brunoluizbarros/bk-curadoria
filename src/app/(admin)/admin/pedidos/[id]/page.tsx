@@ -6,12 +6,13 @@ import {
   addOrderItem,
   removeOrderItem,
   deleteOrder,
+  sendOrderWhatsApp,
 } from "@/server/actions/orders";
 import { deletePayment, markPaymentSettled } from "@/server/actions/payments";
 import { getAllProductsAdmin } from "@/server/queries/products";
 import { formatBRL, formatDate, formatPhone, formatCEP } from "@/lib/format";
 import { Button } from "@/components/ui/Button";
-import { IconReceipt, IconMapPin, IconCashBanknote, IconCircleCheck, IconClock, IconTrash, IconPlus } from "@/components/ui/icons";
+import { IconReceipt, IconMapPin, IconCashBanknote, IconCircleCheck, IconClock, IconTrash, IconPlus, IconBrandWhatsapp, IconSend, IconMessageCircle } from "@/components/ui/icons";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { PaymentFormInline } from "@/components/admin/PaymentFormInline";
@@ -299,6 +300,89 @@ export default async function PedidoDetailPage({ params }: Props) {
 
         {/* Formulário de novo pagamento */}
         <PaymentFormInline orderId={id} orderTotal={order.total} feeConfigs={feeConfigs} />
+      </section>
+
+      {/* Notificações WhatsApp */}
+      <section className="mb-6">
+        <div className="flex items-center gap-2 mb-3">
+          <IconBrandWhatsapp size={14} className="text-sage-deep" />
+          <h2 className="font-body text-xs uppercase tracking-widest text-ink-soft">WhatsApp</h2>
+          <span className="font-body text-[10px] text-ink-soft/60">(enviado automaticamente ao mudar status)</span>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {/* Malinha enviada */}
+          <form
+            action={async () => {
+              "use server";
+              await sendOrderWhatsApp(id, "malinha_enviada");
+            }}
+          >
+            <button
+              type="submit"
+              className="inline-flex items-center gap-1.5 font-body text-xs px-3 py-1.5 rounded-btn border border-sage/40 text-sage-deep hover:bg-sage/10 transition-colors"
+            >
+              <IconSend size={12} />
+              Malinha enviada
+            </button>
+          </form>
+
+          {/* Itens confirmados */}
+          <form
+            action={async () => {
+              "use server";
+              await sendOrderWhatsApp(id, "itens_confirmados");
+            }}
+          >
+            <button
+              type="submit"
+              className="inline-flex items-center gap-1.5 font-body text-xs px-3 py-1.5 rounded-btn border border-gold/40 text-gold hover:bg-gold/10 transition-colors"
+            >
+              <IconMessageCircle size={12} />
+              Itens confirmados
+            </button>
+          </form>
+
+          {/* Link de pagamento */}
+          <form
+            action={async (fd: FormData) => {
+              "use server";
+              const link = fd.get("paymentLink") as string;
+              if (link?.trim()) await sendOrderWhatsApp(id, "link_pagamento", { paymentLink: link.trim() });
+            }}
+            className="flex items-center gap-1.5"
+          >
+            <input
+              name="paymentLink"
+              type="url"
+              placeholder="Link de pagamento (URL)"
+              className="border border-ink/20 bg-cream rounded px-2 py-1 font-body text-xs text-ink focus:outline-none focus:border-ink w-56"
+            />
+            <button
+              type="submit"
+              className="inline-flex items-center gap-1.5 font-body text-xs px-3 py-1.5 rounded-btn border border-terracotta/40 text-terracotta hover:bg-terracotta/10 transition-colors shrink-0"
+            >
+              <IconSend size={12} />
+              Enviar link
+            </button>
+          </form>
+
+          {/* Pagamento confirmado */}
+          <form
+            action={async () => {
+              "use server";
+              await sendOrderWhatsApp(id, "pagamento_confirmado");
+            }}
+          >
+            <button
+              type="submit"
+              className="inline-flex items-center gap-1.5 font-body text-xs px-3 py-1.5 rounded-btn border border-ink/20 text-ink-soft hover:bg-ink/5 transition-colors"
+            >
+              <IconCircleCheck size={12} />
+              Pago confirmado
+            </button>
+          </form>
+        </div>
       </section>
 
       {/* Status + ações */}
