@@ -39,6 +39,9 @@ export function Navbar({ brandName = "BK" }: NavbarProps) {
 
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-8">
+            <Link href="/categorias" className="font-body text-xs tracking-widest uppercase text-ink hover:text-terracotta transition-colors">
+              Loja
+            </Link>
             <Link href="/curadoria" className="font-body text-xs tracking-widest uppercase text-ink hover:text-terracotta transition-colors">
               Curadoria
             </Link>
@@ -74,6 +77,12 @@ export function Navbar({ brandName = "BK" }: NavbarProps) {
             role="dialog"
             aria-label="Menu de navegação"
           >
+            <Link
+              href="/categorias"
+              className="font-body text-sm tracking-widest uppercase text-ink hover:text-terracotta transition-colors"
+            >
+              Loja
+            </Link>
             <Link
               href="/curadoria"
               className="font-body text-sm tracking-widest uppercase text-ink hover:text-terracotta transition-colors"

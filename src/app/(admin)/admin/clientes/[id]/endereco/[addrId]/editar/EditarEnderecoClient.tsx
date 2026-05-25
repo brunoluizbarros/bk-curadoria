@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { AddressForm } from "@/components/admin/AddressForm";
 import { updateAddress } from "@/server/actions/addresses";
+import { toast } from "sonner";
 import type { AddressInput } from "@/lib/validations";
 
 interface Props {
@@ -16,7 +17,11 @@ export function EditarEnderecoClient({ customerId, addrId, defaultValues }: Prop
 
   async function handleSubmit(data: AddressInput) {
     const result = await updateAddress(addrId, customerId, data);
-    if ("error" in result && result.error) return result;
+    if ("error" in result) {
+      const err = (result as { error: unknown }).error;
+      toast.error(typeof err === "string" ? err : "Erro ao salvar endereço");
+      return result;
+    }
     router.push(`/admin/clientes/${customerId}`);
   }
 

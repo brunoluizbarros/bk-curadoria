@@ -6,6 +6,7 @@ import { AddressForm } from "@/components/admin/AddressForm";
 import { createAddress } from "@/server/actions/addresses";
 import { IconMapPin } from "@/components/ui/icons";
 import Link from "next/link";
+import { toast } from "sonner";
 import type { AddressInput } from "@/lib/validations";
 
 export default function NovoEnderecoPage({ params }: { params: Promise<{ id: string }> }) {
@@ -14,7 +15,11 @@ export default function NovoEnderecoPage({ params }: { params: Promise<{ id: str
 
   async function handleSubmit(data: AddressInput) {
     const result = await createAddress(id, data);
-    if ("error" in result && result.error) return result;
+    if ("error" in result) {
+      const err = (result as { error: unknown }).error;
+      toast.error(typeof err === "string" ? err : "Erro ao salvar endereço");
+      return result;
+    }
     router.push(`/admin/clientes/${id}`);
   }
 

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { OrderForm } from "@/components/admin/OrderForm";
 import { createOrder } from "@/server/actions/orders";
+import { toast } from "sonner";
 import type { OrderInput } from "@/lib/validations";
 import type { Product, Address } from "@/db/schema";
 
@@ -24,8 +25,11 @@ export function NovoPedidoClient({ products, defaultCustomerId, defaultCustomerN
 
   async function handleSubmit(data: OrderInput) {
     const result = await createOrder(data);
-    if ("error" in result && result.error) {
-      setMessage("Erro ao criar pedido. Verifique os dados.");
+    if ("error" in result) {
+      const err = (result as { error: unknown }).error;
+      const msg = typeof err === "string" ? err : "Erro ao criar pedido. Verifique os dados.";
+      setMessage(msg);
+      toast.error(msg);
       return result;
     }
     if ("id" in result) {

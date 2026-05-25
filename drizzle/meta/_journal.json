@@ -29,6 +29,13 @@
       "when": 1779651030546,
       "tag": "0003_black_the_professor",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1779674527153,
+      "tag": "0004_woozy_rictor",
+      "breakpoints": true
     }
   ]
 }

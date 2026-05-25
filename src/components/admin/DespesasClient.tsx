@@ -8,6 +8,7 @@ import { formatBRL, formatDate } from "@/lib/format";
 import { Button } from "@/components/ui/Button";
 import { IconPlus, IconTrash } from "@/components/ui/icons";
 import Link from "next/link";
+import { toast } from "sonner";
 import type { ExpenseInput } from "@/lib/validations";
 import type { ExpenseCategory } from "@/db/schema";
 
@@ -35,7 +36,12 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
 
   async function handleSubmit(data: ExpenseInput) {
     const result = await createExpense(data);
-    if ("error" in result && result.error) return result;
+    if ("error" in result) {
+      const err = (result as { error: unknown }).error;
+      toast.error(typeof err === "string" ? err : "Erro ao salvar despesa");
+      return result;
+    }
+    toast.success("Despesa registrada");
     setShowForm(false);
     router.refresh();
   }
@@ -46,6 +52,7 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
     await deleteExpense(id);
     setExpenses((prev) => prev.filter((e) => e.id !== id));
     setDeleting(null);
+    toast.success("Despesa excluída");
   }
 
   return (

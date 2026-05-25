@@ -6,10 +6,13 @@ import { RelacaoList } from "@/components/site/RelacaoList";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildMetadata({
   title: "Curadoria",
-  description: "Entenda o método por trás da BK Curadoria.",
-};
+  description: "Conheça o método da BK Curadoria: como Rebeka Fragoso seleciona cada peça de moda feminina em Recife com critério, intenção e olhar autoral.",
+  path: "/curadoria",
+});
 
 export default async function CuradoriaPage() {
   const [{ content, crivos, relacao }, config] = await Promise.all([

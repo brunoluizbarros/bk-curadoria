@@ -30,6 +30,7 @@ export async function savePaymentFeeConfigs(data: FormData) {
   }
 
   revalidatePath("/admin/configuracoes");
+  return { success: true };
 }
 
 export async function saveWaApiConfig(data: FormData) {
@@ -50,6 +51,7 @@ export async function saveWaApiConfig(data: FormData) {
   }
 
   revalidatePath("/admin/configuracoes");
+  return { success: true };
 }
 
 export async function saveAnalyticsConfig(data: FormData) {
@@ -62,6 +64,7 @@ export async function saveAnalyticsConfig(data: FormData) {
     .onConflictDoUpdate({ target: siteConfig.key, set: { value, updatedAt: new Date() } });
 
   revalidatePath("/admin/configuracoes");
+  return { success: true };
 }
 
 export async function saveMetaConfig(data: FormData) {
@@ -83,4 +86,36 @@ export async function saveMetaConfig(data: FormData) {
   }
 
   revalidatePath("/admin/configuracoes");
+  return { success: true };
+}
+
+export async function saveBusinessConfig(data: FormData) {
+  await requireAdmin();
+
+  const keys = [
+    "business_address_street",
+    "business_city",
+    "business_state",
+    "business_postal_code",
+    "business_phone",
+    "business_email",
+    "business_opening_hours",
+    "business_instagram_url",
+    "business_facebook_url",
+    "business_latitude",
+    "business_longitude",
+    "og_image_default",
+  ] as const;
+
+  for (const key of keys) {
+    const value = (data.get(key) as string | null) ?? "";
+    await db
+      .insert(siteConfig)
+      .values({ key, value })
+      .onConflictDoUpdate({ target: siteConfig.key, set: { value, updatedAt: new Date() } });
+  }
+
+  revalidatePath("/admin/configuracoes");
+  revalidatePath("/", "layout");
+  return { success: true };
 }

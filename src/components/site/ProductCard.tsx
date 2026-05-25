@@ -10,6 +10,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product, firstImage }: ProductCardProps) {
   return (
+    <article>
     <Link href={`/produtos/${product.slug}`} className="block group">
       {/* Imagem / placeholder gradiente */}
       <div
@@ -46,5 +47,6 @@ export function ProductCard({ product, firstImage }: ProductCardProps) {
         <p className="font-body text-sm text-terracotta mt-1">{formatBRL(product.priceCents)}</p>
       </div>
     </Link>
+    </article>
   );
 }

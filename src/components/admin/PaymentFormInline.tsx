@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { formatBRL } from "@/lib/format";
 import { IconPlus } from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import type { PaymentInput } from "@/lib/validations";
 
 interface PaymentFormInlineProps {
@@ -21,7 +22,12 @@ export function PaymentFormInline({ orderId, orderTotal, feeConfigs }: PaymentFo
 
   async function handleSubmit(data: PaymentInput) {
     const result = await createPayment(orderId, data);
-    if ("error" in result && result.error) return result;
+    if ("error" in result) {
+      const err = (result as { error: unknown }).error;
+      toast.error(typeof err === "string" ? err : "Erro ao registrar pagamento");
+      return result;
+    }
+    toast.success("Pagamento registrado");
     setOpen(false);
     router.refresh();
   }

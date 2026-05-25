@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { Toaster } from "sonner";
 
 export default async function AdminLayout({
   children,
@@ -18,6 +19,7 @@ export default async function AdminLayout({
       <main className="flex-1 min-h-screen overflow-auto pt-14 md:pt-0">
         <div className="max-w-4xl mx-auto px-6 py-8">{children}</div>
       </main>
+      <Toaster position="bottom-right" richColors closeButton />
     </div>
   );
 }

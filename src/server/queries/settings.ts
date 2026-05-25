@@ -67,3 +67,34 @@ export async function getWaApiConfig(): Promise<{
     senderNumber: map.wa_sender_number ?? "",
   };
 }
+
+const BUSINESS_KEYS = [
+  "business_address_street",
+  "business_city",
+  "business_state",
+  "business_postal_code",
+  "business_phone",
+  "business_email",
+  "business_opening_hours",
+  "business_instagram_url",
+  "business_facebook_url",
+  "business_latitude",
+  "business_longitude",
+  "og_image_default",
+] as const;
+
+export type BusinessConfigKey = (typeof BUSINESS_KEYS)[number];
+export type BusinessConfig = Record<BusinessConfigKey, string>;
+
+export async function getBusinessConfig(): Promise<BusinessConfig> {
+  const rows = await db
+    .select()
+    .from(siteConfig)
+    .where(inArray(siteConfig.key, [...BUSINESS_KEYS]));
+
+  const config = Object.fromEntries(BUSINESS_KEYS.map((k) => [k, ""])) as BusinessConfig;
+  for (const row of rows) {
+    if (row.key in config) config[row.key as BusinessConfigKey] = row.value;
+  }
+  return config;
+}

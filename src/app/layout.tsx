@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Cormorant_Garamond, Jost } from "next/font/google";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { buildOrganizationSchema, buildWebSiteSchema } from "@/lib/jsonld";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -61,6 +63,8 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" className={`${cormorant.variable} ${jost.variable}`}>
       <body className="min-h-screen bg-cream text-ink antialiased" suppressHydrationWarning>
+        <JsonLd data={buildOrganizationSchema()} />
+        <JsonLd data={buildWebSiteSchema()} />
         {children}
       </body>
     </html>

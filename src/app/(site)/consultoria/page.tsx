@@ -3,13 +3,14 @@ import { getSiteConfig } from "@/server/queries/site-config";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 import Link from "next/link";
 import { IconArrowRight } from "@tabler/icons-react";
+import { buildMetadata } from "@/lib/seo";
 import type { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Consultoria",
-  description:
-    "Quatro formas de transformar a sua relação com a moda. Consultoria de imagem presencial em Recife com Rebeka Fragoso.",
-};
+export const metadata: Metadata = buildMetadata({
+  title: "Consultoria de imagem",
+  description: "Quatro formas de transformar sua relação com a moda com Rebeka Fragoso em Recife: consultoria de imagem presencial, personal shopper e mais.",
+  path: "/consultoria",
+});
 
 export default async function ConsultoriaPage() {
   const [services, config] = await Promise.all([

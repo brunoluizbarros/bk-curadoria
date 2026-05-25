@@ -11,6 +11,21 @@ import { AboutSection } from "@/components/site/AboutSection";
 import { DifferentialsGrid } from "@/components/site/DifferentialsGrid";
 import { ServicesList } from "@/components/site/ServicesList";
 import { FinalCTA } from "@/components/site/FinalCTA";
+import type { Metadata } from "next";
+
+const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://bkcuradoria.com.br";
+
+export const metadata: Metadata = {
+  title: { absolute: "BK Curadoria · Rebeka Fragoso · Recife" },
+  description: "Curadoria autoral de moda feminina de alto padrão em Recife. Peças selecionadas com intenção por Rebeka Fragoso. Consultoria de imagem e personal shopper.",
+  alternates: { canonical: BASE },
+  openGraph: {
+    title: "BK Curadoria · Rebeka Fragoso · Recife",
+    description: "Curadoria autoral de moda feminina de alto padrão em Recife. Peças selecionadas com intenção por Rebeka Fragoso.",
+    url: BASE,
+    type: "website",
+  },
+};
 
 interface HomeProps {
   searchParams: Promise<{ cat?: string }>;

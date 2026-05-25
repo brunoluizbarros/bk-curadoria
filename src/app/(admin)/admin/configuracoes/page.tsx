@@ -1,9 +1,10 @@
-import { getPaymentFeeConfigs, getMetaConfig, getWaApiConfig } from "@/server/queries/settings";
-import { savePaymentFeeConfigs, saveMetaConfig, saveWaApiConfig, saveAnalyticsConfig } from "@/server/actions/settings";
+import { getPaymentFeeConfigs, getMetaConfig, getWaApiConfig, getBusinessConfig } from "@/server/queries/settings";
+import { savePaymentFeeConfigs, saveMetaConfig, saveWaApiConfig, saveAnalyticsConfig, saveBusinessConfig } from "@/server/actions/settings";
 import { getSiteConfig } from "@/server/queries/site-config";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { IconSettings, IconBrandWhatsapp } from "@/components/ui/icons";
+import { FormWithToast } from "@/components/admin/FormWithToast";
+import { IconSettings, IconBrandWhatsapp, IconMapPin } from "@/components/ui/icons";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: { absolute: "Configurações · BK Admin" } };
@@ -19,11 +20,12 @@ const METHOD_LABELS: Record<string, string> = {
 const METHODS = ["pix", "credit_card", "debit_card", "cash", "transfer"];
 
 export default async function ConfiguracoesPage() {
-  const [feeConfigs, metaConfig, waConfig, siteConfig] = await Promise.all([
+  const [feeConfigs, metaConfig, waConfig, siteConfig, bizConfig] = await Promise.all([
     getPaymentFeeConfigs(),
     getMetaConfig(),
     getWaApiConfig(),
     getSiteConfig(),
+    getBusinessConfig(),
   ]);
 
   return (
@@ -42,7 +44,7 @@ export default async function ConfiguracoesPage() {
           Pré-preenche o campo de taxa ao registrar um pagamento.
         </p>
 
-        <form action={savePaymentFeeConfigs} className="space-y-3">
+        <FormWithToast action={savePaymentFeeConfigs} successMessage="Taxas salvas com sucesso" className="space-y-3">
           <div className="bg-cream rounded-card border border-ink/10 divide-y divide-ink/5">
             {METHODS.map((method) => (
               <div key={method} className="flex items-center justify-between px-4 py-3">
@@ -66,7 +68,7 @@ export default async function ConfiguracoesPage() {
             ))}
           </div>
           <Button type="submit">Salvar taxas</Button>
-        </form>
+        </FormWithToast>
       </section>
 
       {/* WhatsApp API */}
@@ -90,7 +92,7 @@ export default async function ConfiguracoesPage() {
           </p>
         </div>
 
-        <form action={saveWaApiConfig} className="space-y-4">
+        <FormWithToast action={saveWaApiConfig} successMessage="Configurações WhatsApp salvas" className="space-y-4">
           <Input
             id="wa_sender_number"
             name="wa_sender_number"
@@ -133,7 +135,7 @@ export default async function ConfiguracoesPage() {
             />
           </div>
           <Button type="submit">Salvar configurações WhatsApp</Button>
-        </form>
+        </FormWithToast>
       </section>
 
       {/* Google Analytics */}
@@ -145,7 +147,7 @@ export default async function ConfiguracoesPage() {
           Measurement ID do GA4 (formato <code className="bg-ink/5 px-1 rounded font-mono text-[10px]">G-XXXXXXXXXX</code>).
           Deixe em branco para desativar o rastreamento.
         </p>
-        <form action={saveAnalyticsConfig} className="space-y-4">
+        <FormWithToast action={saveAnalyticsConfig} successMessage="Analytics salvo com sucesso" className="space-y-4">
           <Input
             id="ga_measurement_id"
             name="ga_measurement_id"
@@ -154,7 +156,7 @@ export default async function ConfiguracoesPage() {
             defaultValue={siteConfig.ga_measurement_id ?? ""}
           />
           <Button type="submit">Salvar Analytics</Button>
-        </form>
+        </FormWithToast>
       </section>
 
       {/* Meta Ads / CAPI */}
@@ -168,7 +170,7 @@ export default async function ConfiguracoesPage() {
           captura leads de anúncios e redireciona para o WhatsApp.
         </p>
 
-        <form action={saveMetaConfig} className="space-y-4">
+        <FormWithToast action={saveMetaConfig} successMessage="Configurações Meta salvas" className="space-y-4">
           <Input
             id="meta_whatsapp_number"
             name="meta_whatsapp_number"
@@ -211,7 +213,123 @@ export default async function ConfiguracoesPage() {
             </p>
           </div>
           <Button type="submit">Salvar configurações Meta</Button>
-        </form>
+        </FormWithToast>
+      </section>
+
+      {/* SEO & Negócio Local */}
+      <section>
+        <div className="flex items-center gap-2 mb-1">
+          <IconMapPin size={14} className="text-terracotta" />
+          <h2 className="font-body text-xs uppercase tracking-widest text-ink-soft">
+            SEO & Negócio Local
+          </h2>
+        </div>
+        <p className="font-body text-xs text-ink-soft mb-4">
+          Dados usados para o schema <code className="bg-ink/5 px-1 rounded font-mono text-[10px]">LocalBusiness</code> do Google.
+          Quanto mais completo, melhor o ranqueamento em pesquisas locais (&ldquo;curadoria de moda Recife&rdquo;).
+        </p>
+
+        <FormWithToast action={saveBusinessConfig} successMessage="Configurações de negócio salvas" className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              id="business_phone"
+              name="business_phone"
+              label="Telefone / WhatsApp"
+              placeholder="+5581999999999"
+              defaultValue={bizConfig.business_phone}
+            />
+            <Input
+              id="business_email"
+              name="business_email"
+              label="E-mail de contato"
+              placeholder="contato@bkcuradoria.com.br"
+              defaultValue={bizConfig.business_email}
+            />
+          </div>
+          <Input
+            id="business_address_street"
+            name="business_address_street"
+            label="Endereço (rua + número)"
+            placeholder="Rua Exemplo, 123 — Boa Viagem"
+            defaultValue={bizConfig.business_address_street}
+          />
+          <div className="grid grid-cols-3 gap-3">
+            <div className="col-span-2">
+              <Input
+                id="business_city"
+                name="business_city"
+                label="Cidade"
+                placeholder="Recife"
+                defaultValue={bizConfig.business_city}
+              />
+            </div>
+            <Input
+              id="business_state"
+              name="business_state"
+              label="Estado (sigla)"
+              placeholder="PE"
+              defaultValue={bizConfig.business_state}
+            />
+          </div>
+          <Input
+            id="business_postal_code"
+            name="business_postal_code"
+            label="CEP"
+            placeholder="51000-000"
+            defaultValue={bizConfig.business_postal_code}
+          />
+          <Input
+            id="business_opening_hours"
+            name="business_opening_hours"
+            label="Horário de funcionamento (Schema.org)"
+            placeholder="Mo-Fr 09:00-18:00"
+            defaultValue={bizConfig.business_opening_hours}
+          />
+          <p className="font-body text-[10px] text-ink-soft -mt-3">
+            Formato: <code className="font-mono">Mo-Fr 09:00-18:00, Sa 10:00-14:00</code>
+          </p>
+          <Input
+            id="business_instagram_url"
+            name="business_instagram_url"
+            label="Instagram (URL completa)"
+            placeholder="https://instagram.com/bkcuradoria"
+            defaultValue={bizConfig.business_instagram_url}
+          />
+          <Input
+            id="business_facebook_url"
+            name="business_facebook_url"
+            label="Facebook (URL completa, opcional)"
+            placeholder="https://facebook.com/bkcuradoria"
+            defaultValue={bizConfig.business_facebook_url}
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              id="business_latitude"
+              name="business_latitude"
+              label="Latitude (opcional)"
+              placeholder="-8.119447"
+              defaultValue={bizConfig.business_latitude}
+            />
+            <Input
+              id="business_longitude"
+              name="business_longitude"
+              label="Longitude (opcional)"
+              placeholder="-34.900043"
+              defaultValue={bizConfig.business_longitude}
+            />
+          </div>
+          <Input
+            id="og_image_default"
+            name="og_image_default"
+            label="Imagem Open Graph padrão (URL)"
+            placeholder="https://bkcuradoria.com.br/og-default.png"
+            defaultValue={bizConfig.og_image_default}
+          />
+          <p className="font-body text-[10px] text-ink-soft -mt-3">
+            Aparece quando o link do site é compartilhado sem imagem específica. Recomendado: 1200×630px.
+          </p>
+          <Button type="submit">Salvar SEO & Negócio</Button>
+        </FormWithToast>
       </section>
     </div>
   );
