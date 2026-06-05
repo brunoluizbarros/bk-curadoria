@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { GradientPicker } from "@/components/admin/GradientPicker";
 import { Category } from "@/db/schema";
 import { slugify } from "@/lib/slug";
+import { toast } from "sonner";
 
 interface ProductFormProps {
   defaultValues?: Partial<ProductInput>;
@@ -24,6 +25,7 @@ export function ProductForm({ defaultValues, categories, onSubmit, submitLabel =
     setValue,
     watch,
     control,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<ProductInput>({
     resolver: zodResolver(productSchema),
@@ -47,7 +49,13 @@ export function ProductForm({ defaultValues, categories, onSubmit, submitLabel =
   async function onValid(data: ProductInput) {
     const result = await onSubmit(data);
     if (result?.error) {
-      console.error(result.error);
+      const msg = typeof result.error === "string"
+        ? result.error
+        : "Verifique os campos destacados e tente novamente.";
+      toast.error(msg);
+      if (typeof result.error === "string" && result.error.includes("slug")) {
+        setError("slug", { message: "Este slug já está em uso. Escolha outro." });
+      }
     }
   }
 

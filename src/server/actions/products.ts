@@ -36,7 +36,16 @@ export async function createProduct(data: unknown) {
 
   const { categoryIds, ...productData } = parsed.data;
 
-  const [product] = await db.insert(products).values(productData).returning();
+  let product: { id: string; slug: string };
+  try {
+    [product] = await db.insert(products).values(productData).returning();
+  } catch (err) {
+    const cause = (err as { cause?: { code?: string; constraint_name?: string } })?.cause;
+    if (cause?.code === "23505" && cause?.constraint_name === "products_slug_unique") {
+      return { error: `O slug "${productData.slug}" já está em uso por outro produto. Escolha um slug diferente.` };
+    }
+    return { error: "Erro ao salvar produto. Tente novamente." };
+  }
 
   if (categoryIds.length > 0) {
     await db.insert(productCategories).values(
@@ -56,10 +65,18 @@ export async function updateProduct(id: string, data: unknown) {
 
   const { categoryIds, ...productData } = parsed.data;
 
-  await db
-    .update(products)
-    .set({ ...productData, updatedAt: new Date() })
-    .where(eq(products.id, id));
+  try {
+    await db
+      .update(products)
+      .set({ ...productData, updatedAt: new Date() })
+      .where(eq(products.id, id));
+  } catch (err) {
+    const cause = (err as { cause?: { code?: string; constraint_name?: string } })?.cause;
+    if (cause?.code === "23505" && cause?.constraint_name === "products_slug_unique") {
+      return { error: `O slug "${productData.slug}" já está em uso por outro produto. Escolha um slug diferente.` };
+    }
+    return { error: "Erro ao salvar produto. Tente novamente." };
+  }
 
   await db.delete(productCategories).where(eq(productCategories.productId, id));
 
