@@ -2,11 +2,13 @@
 
 import { auth } from "@/lib/auth";
 import { db } from "@/db/client";
-import { payments, orders, orderItems } from "@/db/schema";
+import { payments, orders, orderItems, loyaltyCredits } from "@/db/schema";
 import { paymentSchema } from "@/lib/validations";
 import { calcFeeCents, calcNetCents } from "@/lib/fees";
-import { eq, sum } from "drizzle-orm";
+import { and, eq, sum } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { getLoyaltyConfig, hasEarnedCreditForOrder } from "@/server/queries/loyalty";
+import { computeOrderItemTotal } from "@/server/queries/orders";
 
 async function requireAdmin() {
   const session = await auth();
@@ -90,21 +92,33 @@ export async function deletePayment(id: string, orderId: string) {
 
 async function markOrderPaidIfNeeded(orderId: string) {
   const [order] = await db
-    .select({ paidAt: orders.paidAt })
+    .select({
+      paidAt: orders.paidAt,
+      customerId: orders.customerId,
+      discountCents: orders.discountCents,
+      shippingCents: orders.shippingCents,
+      creditAppliedCents: orders.creditAppliedCents,
+    })
     .from(orders)
     .where(eq(orders.id, orderId));
 
   if (!order || order.paidAt) return;
 
   const items = await db
-    .select({ unitPriceCents: orderItems.unitPriceCents, quantity: orderItems.quantity })
+    .select({
+      unitPriceCents: orderItems.unitPriceCents,
+      discountCents: orderItems.discountCents,
+      quantity: orderItems.quantity,
+      status: orderItems.status,
+    })
     .from(orderItems)
     .where(eq(orderItems.orderId, orderId));
 
-  const keptItems = items.filter(() => true); // kept items total
-  const orderTotal = keptItems.reduce(
-    (acc, i) => acc + i.unitPriceCents * i.quantity,
-    0
+  const orderTotal = computeOrderItemTotal(
+    items,
+    order.discountCents,
+    order.shippingCents,
+    order.creditAppliedCents
   );
 
   const [{ totalPaid }] = await db
@@ -113,9 +127,35 @@ async function markOrderPaidIfNeeded(orderId: string) {
     .where(eq(payments.orderId, orderId));
 
   if (Number(totalPaid ?? 0) >= orderTotal) {
-    await db
-      .update(orders)
-      .set({ paidAt: new Date(), status: "paid", updatedAt: new Date() })
-      .where(eq(orders.id, orderId));
+    await db.transaction(async (tx) => {
+      await tx
+        .update(orders)
+        .set({ paidAt: new Date(), status: "paid", updatedAt: new Date() })
+        .where(eq(orders.id, orderId));
+
+      // Gerar crédito de fidelidade (idempotente)
+      const alreadyEarned = await hasEarnedCreditForOrder(orderId);
+      if (!alreadyEarned) {
+        const cfg = await getLoyaltyConfig();
+        const creditableBase = items
+          .filter((i) => i.status === "kept" && (i.discountCents ?? 0) === 0)
+          .reduce((acc, i) => acc + i.unitPriceCents * i.quantity, 0);
+
+        if (cfg.enabled && creditableBase >= cfg.minOrderCents && creditableBase > 0) {
+          const earned = Math.floor((creditableBase * cfg.percent) / 100);
+          if (earned > 0) {
+            const expiresAt = new Date(Date.now() + cfg.validityDays * 86_400_000);
+            await tx.insert(loyaltyCredits).values({
+              customerId: order.customerId,
+              kind: "earn",
+              amountCents: earned,
+              orderId,
+              expiresAt,
+              notes: `Compra paga`,
+            });
+          }
+        }
+      }
+    });
   }
 }

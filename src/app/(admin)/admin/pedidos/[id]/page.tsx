@@ -1,5 +1,6 @@
 import { getOrderById } from "@/server/queries/orders";
 import { getPaymentFeeConfigs } from "@/server/queries/settings";
+import { getCustomerCreditBalance } from "@/server/queries/loyalty";
 import {
   setOrderStatus,
   updateOrderItemStatus,
@@ -16,6 +17,8 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { PaymentFormInline } from "@/components/admin/PaymentFormInline";
 import { WaOrderButtons } from "@/components/admin/WaOrderButtons";
+import { LoyaltyCreditPanel } from "@/components/admin/LoyaltyCreditPanel";
+import { OrderItemDiscountForm } from "@/components/admin/OrderItemDiscountForm";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: { absolute: "Pedido · BK Admin" } };
@@ -55,8 +58,8 @@ export default async function PedidoDetailPage({ params }: Props) {
     getAllProductsAdmin(),
     getPaymentFeeConfigs(),
   ]);
-
   if (!order) notFound();
+  const creditBalance = await getCustomerCreditBalance(order.customer.id);
 
   const s = STATUS_LABELS[order.status] ?? STATUS_LABELS.draft;
   const keptItems = order.items.filter((i) => i.status === "kept");
@@ -153,8 +156,23 @@ export default async function PedidoDetailPage({ params }: Props) {
                   </p>
                   <p className="font-body text-xs text-terracotta">
                     {item.quantity}× {formatBRL(item.unitPriceCents)}
-                    {item.quantity > 1 && ` = ${formatBRL(item.unitPriceCents * item.quantity)}`}
+                    {item.discountCents > 0 && (
+                      <span className="text-ink-soft"> −{formatBRL(item.discountCents)}/peça</span>
+                    )}
+                    {item.quantity > 1 && (
+                      <span>
+                        {" "}= {formatBRL((item.unitPriceCents - item.discountCents) * item.quantity)}
+                      </span>
+                    )}
                   </p>
+                  {isKept && order.status !== "paid" && order.status !== "cancelled" && (
+                    <OrderItemDiscountForm
+                      itemId={item.id}
+                      orderId={id}
+                      unitPriceCents={item.unitPriceCents}
+                      currentDiscountCents={item.discountCents}
+                    />
+                  )}
                 </div>
 
                 <form
@@ -195,7 +213,7 @@ export default async function PedidoDetailPage({ params }: Props) {
           {keptItems.length > 0 && (
             <div className="flex justify-between font-body text-sm text-ink-soft">
               <span>Peças escolhidas ({keptItems.length})</span>
-              <span>{formatBRL(keptItems.reduce((a, i) => a + i.unitPriceCents * i.quantity, 0))}</span>
+              <span>{formatBRL(keptItems.reduce((a, i) => a + (i.unitPriceCents - i.discountCents) * i.quantity, 0))}</span>
             </div>
           )}
           {returnedItems.length > 0 && (
@@ -214,10 +232,26 @@ export default async function PedidoDetailPage({ params }: Props) {
               <span>Desconto</span><span>− {formatBRL(order.discountCents)}</span>
             </div>
           )}
+          {order.creditAppliedCents > 0 && (
+            <div className="flex justify-between font-body text-sm text-sage-deep">
+              <span>Crédito de fidelidade</span><span>− {formatBRL(order.creditAppliedCents)}</span>
+            </div>
+          )}
           <div className="flex justify-between font-body text-sm font-medium text-ink border-t border-ink/10 pt-2">
             <span>Total a cobrar</span>
             <span className="text-terracotta">{formatBRL(order.total)}</span>
           </div>
+        </div>
+
+        {/* Crédito de Fidelidade */}
+        <div className="mt-3">
+          <LoyaltyCreditPanel
+            orderId={id}
+            customerId={order.customer.id}
+            balanceCents={creditBalance}
+            creditAppliedCents={order.creditAppliedCents}
+            orderStatus={order.status}
+          />
         </div>
       </section>
 

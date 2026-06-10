@@ -1,6 +1,8 @@
 import { getPaymentFeeConfigs, getMetaConfig, getWaApiConfig, getBusinessConfig } from "@/server/queries/settings";
 import { savePaymentFeeConfigs, saveMetaConfig, saveWaApiConfig, saveAnalyticsConfig, saveBusinessConfig } from "@/server/actions/settings";
 import { getSiteConfig } from "@/server/queries/site-config";
+import { getLoyaltyConfig } from "@/server/queries/loyalty";
+import { saveLoyaltyConfig } from "@/server/actions/loyalty";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { FormWithToast } from "@/components/admin/FormWithToast";
@@ -20,12 +22,13 @@ const METHOD_LABELS: Record<string, string> = {
 const METHODS = ["pix", "credit_card", "debit_card", "cash", "transfer"];
 
 export default async function ConfiguracoesPage() {
-  const [feeConfigs, metaConfig, waConfig, siteConfig, bizConfig] = await Promise.all([
+  const [feeConfigs, metaConfig, waConfig, siteConfig, bizConfig, loyaltyConfig] = await Promise.all([
     getPaymentFeeConfigs(),
     getMetaConfig(),
     getWaApiConfig(),
     getSiteConfig(),
     getBusinessConfig(),
+    getLoyaltyConfig(),
   ]);
 
   return (
@@ -34,6 +37,92 @@ export default async function ConfiguracoesPage() {
         <IconSettings size={22} className="text-terracotta" />
         <h1 className="font-display font-400 text-3xl text-ink">Configurações</h1>
       </div>
+
+      {/* Programa de Fidelidade */}
+      <section>
+        <h2 className="font-body text-xs uppercase tracking-widest text-ink-soft mb-1">
+          Programa de Fidelidade
+        </h2>
+        <p className="font-body text-xs text-ink-soft mb-4">
+          A cada compra paga, o cliente acumula crédito em loja. Itens com desconto por peça não geram crédito.
+        </p>
+
+        <FormWithToast action={saveLoyaltyConfig} successMessage="Configurações de fidelidade salvas" className="space-y-4">
+          <div className="bg-cream rounded-card border border-ink/10 divide-y divide-ink/5">
+            <div className="flex items-center justify-between px-4 py-3">
+              <label htmlFor="loyalty_enabled" className="font-body text-sm text-ink">
+                Programa ativo
+              </label>
+              <input
+                id="loyalty_enabled"
+                name="loyalty_enabled"
+                type="checkbox"
+                defaultChecked={loyaltyConfig.enabled}
+                className="w-4 h-4 rounded border-ink/20 accent-terracotta"
+              />
+            </div>
+            <div className="flex items-center justify-between px-4 py-3">
+              <label htmlFor="loyalty_percent" className="font-body text-sm text-ink">
+                % de crédito por compra
+              </label>
+              <div className="flex items-center gap-2">
+                <input
+                  id="loyalty_percent"
+                  name="loyalty_percent"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="100"
+                  defaultValue={loyaltyConfig.percent}
+                  className="w-20 border border-ink/20 rounded bg-cream-soft px-2 py-1 font-body text-sm text-ink text-right focus:outline-none focus:border-ink"
+                />
+                <span className="font-body text-sm text-ink-soft">%</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between px-4 py-3">
+              <div>
+                <label htmlFor="loyalty_validity_days" className="font-body text-sm text-ink">
+                  Validade do crédito
+                </label>
+                <p className="font-body text-[10px] text-ink-soft mt-0.5">Dias a partir da data da compra</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  id="loyalty_validity_days"
+                  name="loyalty_validity_days"
+                  type="number"
+                  step="1"
+                  min="1"
+                  defaultValue={loyaltyConfig.validityDays}
+                  className="w-20 border border-ink/20 rounded bg-cream-soft px-2 py-1 font-body text-sm text-ink text-right focus:outline-none focus:border-ink"
+                />
+                <span className="font-body text-sm text-ink-soft">dias</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between px-4 py-3">
+              <div>
+                <label htmlFor="loyalty_min_order_reais" className="font-body text-sm text-ink">
+                  Pedido mínimo para gerar crédito
+                </label>
+                <p className="font-body text-[10px] text-ink-soft mt-0.5">Deixe 0 para não ter mínimo</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-body text-sm text-ink-soft">R$</span>
+                <input
+                  id="loyalty_min_order_reais"
+                  name="loyalty_min_order_reais"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  defaultValue={(loyaltyConfig.minOrderCents / 100).toFixed(2)}
+                  className="w-24 border border-ink/20 rounded bg-cream-soft px-2 py-1 font-body text-sm text-ink text-right focus:outline-none focus:border-ink"
+                />
+              </div>
+            </div>
+          </div>
+          <Button type="submit">Salvar fidelidade</Button>
+        </FormWithToast>
+      </section>
 
       {/* Taxas de pagamento */}
       <section>

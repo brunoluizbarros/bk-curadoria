@@ -89,6 +89,7 @@ export async function createOrder(data: unknown) {
       orderId: order.id,
       productId: item.productId,
       unitPriceCents: item.unitPriceCents,
+      discountCents: item.discountCents ?? 0,
       quantity: item.quantity,
     }))
   );

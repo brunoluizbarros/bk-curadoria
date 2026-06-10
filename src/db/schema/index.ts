@@ -11,3 +11,4 @@ export * from "./payments";
 export * from "./expenses";
 export * from "./settings";
 export * from "./leads";
+export * from "./loyalty";

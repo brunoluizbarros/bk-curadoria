@@ -137,6 +137,7 @@ export type AddressInput = z.infer<typeof addressSchema>;
 export const orderItemSchema = z.object({
   productId: z.string().uuid("Produto inválido"),
   unitPriceCents: z.number().int().positive("Preço inválido"),
+  discountCents: z.number().int().min(0),
   quantity: z.number().int().positive(),
 });
 
@@ -152,6 +153,17 @@ export const orderSchema = z.object({
 
 export type OrderInput = z.infer<typeof orderSchema>;
 export type OrderItemInput = z.infer<typeof orderItemSchema>;
+
+// ─── Loyalty / Fidelidade ─────────────────────────────────────────────────────
+
+export const loyaltyConfigSchema = z.object({
+  enabled: z.boolean(),
+  percent: z.number().min(0).max(100),
+  validityDays: z.number().int().min(1),
+  minOrderCents: z.number().int().min(0),
+});
+
+export type LoyaltyConfigInput = z.infer<typeof loyaltyConfigSchema>;
 
 // ─── Payments ────────────────────────────────────────────────────────────────
 

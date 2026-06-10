@@ -1,9 +1,11 @@
 import { getCustomerById } from "@/server/queries/customers";
 import { deleteCustomer } from "@/server/actions/customers";
 import { deleteAddress, setDefaultAddress } from "@/server/actions/addresses";
-import { formatPhone, formatDate, formatCEP } from "@/lib/format";
+import { getCustomerCreditBalance, getCustomerCreditHistory } from "@/server/queries/loyalty";
+import { formatPhone, formatDate, formatCEP, formatBRL } from "@/lib/format";
 import { Button } from "@/components/ui/Button";
 import { IconUsers, IconMapPin, IconReceipt, IconPlus } from "@/components/ui/icons";
+import { LoyaltyAdjustForm } from "@/components/admin/LoyaltyAdjustForm";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
@@ -24,7 +26,11 @@ interface Props {
 
 export default async function ClienteDetailPage({ params }: Props) {
   const { id } = await params;
-  const customer = await getCustomerById(id);
+  const [customer, creditBalance, creditHistory] = await Promise.all([
+    getCustomerById(id),
+    getCustomerCreditBalance(id),
+    getCustomerCreditHistory(id),
+  ]);
   if (!customer) notFound();
 
   return (
@@ -158,6 +164,59 @@ export default async function ClienteDetailPage({ params }: Props) {
             ))}
           </div>
         )}
+      </section>
+
+      {/* Crédito de Fidelidade */}
+      <section className="mb-8">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-body text-xs uppercase tracking-widest text-ink-soft">
+            Crédito de Fidelidade
+          </h2>
+          <span className={`font-body text-sm font-medium ${creditBalance > 0 ? "text-sage-deep" : "text-ink-soft"}`}>
+            {formatBRL(creditBalance)} disponível
+          </span>
+        </div>
+
+        {creditHistory.length > 0 ? (
+          <div className="bg-cream rounded-card border border-ink/10 overflow-hidden mb-3">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-ink/10">
+                  <th className="font-body text-[10px] uppercase tracking-widest text-ink-soft px-4 py-2">Data</th>
+                  <th className="font-body text-[10px] uppercase tracking-widest text-ink-soft px-4 py-2">Tipo</th>
+                  <th className="font-body text-[10px] uppercase tracking-widest text-ink-soft px-4 py-2 text-right">Valor</th>
+                  <th className="font-body text-[10px] uppercase tracking-widest text-ink-soft px-4 py-2">Validade</th>
+                </tr>
+              </thead>
+              <tbody>
+                {creditHistory.map((row) => (
+                  <tr key={row.id} className="border-b border-ink/5 last:border-0">
+                    <td className="font-body text-xs text-ink-soft px-4 py-2">{formatDate(row.createdAt)}</td>
+                    <td className="font-body text-xs px-4 py-2">
+                      {row.kind === "earn" && (
+                        <span className={row.isExpired ? "text-ink-soft/50 line-through" : "text-sage-deep"}>
+                          {row.isExpired ? "Expirado" : "Ganho"}
+                        </span>
+                      )}
+                      {row.kind === "redeem" && <span className="text-terracotta">Usado</span>}
+                      {row.kind === "adjust" && <span className="text-gold">Ajuste</span>}
+                    </td>
+                    <td className={`font-body text-xs px-4 py-2 text-right font-medium ${row.amountCents > 0 ? "text-sage-deep" : "text-terracotta"}`}>
+                      {row.amountCents > 0 ? "+" : ""}{formatBRL(row.amountCents)}
+                    </td>
+                    <td className="font-body text-xs text-ink-soft px-4 py-2">
+                      {row.expiresAt ? formatDate(row.expiresAt) : "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="font-body text-xs text-ink-soft mb-3">Nenhuma transação de crédito.</p>
+        )}
+
+        <LoyaltyAdjustForm customerId={id} />
       </section>
 
       {/* Pedidos recentes */}

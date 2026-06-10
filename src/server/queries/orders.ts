@@ -5,14 +5,15 @@ import { and, asc, desc, eq, gte, inArray, lte } from "drizzle-orm";
 export type OrderStatus = "draft" | "sent" | "returned" | "paid" | "cancelled";
 
 export function computeOrderItemTotal(
-  items: { unitPriceCents: number; quantity: number; status: string }[],
+  items: { unitPriceCents: number; discountCents?: number; quantity: number; status: string }[],
   discountCents: number,
-  shippingCents: number
+  shippingCents: number,
+  creditAppliedCents = 0
 ): number {
   const keptTotal = items
     .filter((i) => i.status === "kept")
-    .reduce((acc, i) => acc + i.unitPriceCents * i.quantity, 0);
-  return Math.max(0, keptTotal + shippingCents - discountCents);
+    .reduce((acc, i) => acc + (i.unitPriceCents - (i.discountCents ?? 0)) * i.quantity, 0);
+  return Math.max(0, keptTotal + shippingCents - discountCents - creditAppliedCents);
 }
 
 export async function getAllOrders(filters?: {
@@ -44,6 +45,7 @@ export async function getAllOrders(filters?: {
       orderId: orderItems.orderId,
       status: orderItems.status,
       unitPriceCents: orderItems.unitPriceCents,
+      discountCents: orderItems.discountCents,
       quantity: orderItems.quantity,
     })
     .from(orderItems)
@@ -55,7 +57,8 @@ export async function getAllOrders(filters?: {
     total: computeOrderItemTotal(
       allItems.filter((i) => i.orderId === r.order.id),
       r.order.discountCents,
-      r.order.shippingCents
+      r.order.shippingCents,
+      r.order.creditAppliedCents
     ),
     itemCount: allItems.filter((i) => i.orderId === r.order.id).length,
   }));
@@ -117,7 +120,8 @@ export async function getOrderById(id: string) {
     total: computeOrderItemTotal(
       enrichedItems,
       row.order.discountCents,
-      row.order.shippingCents
+      row.order.shippingCents,
+      row.order.creditAppliedCents
     ),
   };
 }

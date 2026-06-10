@@ -102,6 +102,7 @@ export function OrderForm({
     setValue("items", updated.map((i) => ({
       productId: i.product.id,
       unitPriceCents: i.product.priceCents,
+      discountCents: 0,
       quantity: i.quantity,
     })));
   }
@@ -112,6 +113,7 @@ export function OrderForm({
     setValue("items", updated.map((i) => ({
       productId: i.product.id,
       unitPriceCents: i.product.priceCents,
+      discountCents: 0,
       quantity: i.quantity,
     })));
   }
@@ -124,6 +126,7 @@ export function OrderForm({
     setValue("items", updated.map((i) => ({
       productId: i.product.id,
       unitPriceCents: i.product.priceCents,
+      discountCents: 0,
       quantity: i.quantity,
     })));
   }

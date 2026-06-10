@@ -38,6 +38,7 @@ export const orders = pgTable(
     paidAt: timestamp("paid_at", { withTimezone: true }),
     discountCents: integer("discount_cents").default(0).notNull(),
     shippingCents: integer("shipping_cents").default(0).notNull(),
+    creditAppliedCents: integer("credit_applied_cents").default(0).notNull(),
     notes: text("notes"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
@@ -60,6 +61,7 @@ export const orderItems = pgTable(
       .notNull()
       .references(() => products.id),
     unitPriceCents: integer("unit_price_cents").notNull(),
+    discountCents: integer("discount_cents").default(0).notNull(),
     quantity: integer("quantity").default(1).notNull(),
     status: orderItemStatusEnum("status").default("kept").notNull(),
     notes: text("notes"),
