@@ -13,6 +13,8 @@ import { ServicesList } from "@/components/site/ServicesList";
 import { FinalCTA } from "@/components/site/FinalCTA";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://bkcuradoria.com.br";
 
 export const metadata: Metadata = {

@@ -7,7 +7,7 @@ import { buildLocalBusinessSchema } from "@/lib/jsonld";
 import { getSiteConfig } from "@/server/queries/site-config";
 import { getBusinessConfig } from "@/server/queries/settings";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const [config, biz] = await Promise.all([

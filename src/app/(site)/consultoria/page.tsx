@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getActiveServices } from "@/server/queries/services";
 import { getSiteConfig } from "@/server/queries/site-config";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";

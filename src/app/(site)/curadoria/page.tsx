@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getCuradoriaContent } from "@/server/queries/curadoria";
 import { getSiteConfig } from "@/server/queries/site-config";
 import { HeroSection } from "@/components/site/HeroSection";
