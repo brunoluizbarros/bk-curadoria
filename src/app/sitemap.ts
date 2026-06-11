@@ -1,4 +1,4 @@
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 import { getActiveProducts } from "@/server/queries/products";
 import { getActiveServices } from "@/server/queries/services";
