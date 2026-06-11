@@ -12,6 +12,7 @@ import { IconArrowRight } from "@tabler/icons-react";
 import type { Metadata } from "next";
 
 export const revalidate = 3600;
+export const dynamicParams = true;
 
 const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://bkcuradoria.com.br";
 
@@ -20,8 +21,12 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  const services = await getActiveServices();
-  return services.map((s) => ({ slug: s.slug }));
+  try {
+    const services = await getActiveServices();
+    return services.map((s) => ({ slug: s.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

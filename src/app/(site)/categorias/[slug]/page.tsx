@@ -9,6 +9,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 export const revalidate = 3600;
+export const dynamicParams = true;
 
 const BASE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://bkcuradoria.com.br";
 
@@ -17,8 +18,12 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  const categories = await getActiveCategories();
-  return categories.map((c) => ({ slug: c.slug }));
+  try {
+    const categories = await getActiveCategories();
+    return categories.map((c) => ({ slug: c.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
