@@ -3,10 +3,23 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ExpenseForm } from "@/components/admin/ExpenseForm";
-import { createExpense, deleteExpense, deleteExpenseGroup } from "@/server/actions/expenses";
+import {
+  createExpense,
+  updateExpense,
+  updateExpenseGroup,
+  deleteExpense,
+  deleteExpenseGroup,
+} from "@/server/actions/expenses";
 import { formatBRL, formatDate } from "@/lib/format";
 import { Button } from "@/components/ui/Button";
-import { IconPlus, IconTrash, IconChevronDown, IconChevronLeft, IconChevronRight } from "@/components/ui/icons";
+import {
+  IconPlus,
+  IconTrash,
+  IconEdit,
+  IconChevronDown,
+  IconChevronLeft,
+  IconChevronRight,
+} from "@/components/ui/icons";
 import Link from "next/link";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -124,6 +137,7 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
   const [expenses, setExpenses] = useState<ExpenseRow[]>(initialExpenses);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
+  const [editingKey, setEditingKey] = useState<string | null>(null);
   const [filterMonth, setFilterMonth] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
   const [page, setPage] = useState(1);
@@ -183,6 +197,28 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
     router.refresh();
   }
 
+  async function handleSaveSingle(id: string, data: ExpenseInput) {
+    const result = await updateExpense(id, data);
+    if (result && "error" in result) {
+      toast.error("Erro ao atualizar despesa");
+      return result;
+    }
+    toast.success("Despesa atualizada");
+    setEditingKey(null);
+    router.refresh();
+  }
+
+  async function handleSaveGroup(groupId: string, data: ExpenseInput) {
+    const result = await updateExpenseGroup(groupId, data);
+    if (result && "error" in result) {
+      toast.error("Erro ao atualizar despesas");
+      return result;
+    }
+    toast.success("Parcelas atualizadas");
+    setEditingKey(null);
+    router.refresh();
+  }
+
   async function handleDeleteSingle(exp: ExpenseRow) {
     if (!confirm(`Excluir "${exp.description}"?`)) return;
     setDeleting(exp.id);
@@ -224,9 +260,11 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
   const selectCls =
     "rounded border border-ink/20 bg-cream px-3 py-2 font-body text-sm text-ink focus:outline-none focus:border-ink";
 
+  const iconBtnCls = "transition-colors shrink-0 disabled:opacity-40";
+
   return (
     <>
-      {/* New expense button */}
+      {/* Nova despesa */}
       <div className="flex justify-end mb-4">
         <Button size="sm" onClick={() => setShowForm((v) => !v)}>
           <IconPlus size={12} />
@@ -255,7 +293,7 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
         </div>
       )}
 
-      {/* Filters */}
+      {/* Filtros */}
       <div className="flex flex-wrap items-center gap-3 mb-4">
         <select
           value={filterMonth}
@@ -293,7 +331,7 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
         </span>
       </div>
 
-      {/* List */}
+      {/* Lista */}
       {pageItems.length === 0 ? (
         <p className="font-body text-sm text-ink-soft">
           {allItems.length === 0 && expenses.length > 0
@@ -303,8 +341,32 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
       ) : (
         <div className="space-y-2">
           {pageItems.map((item) => {
+            /* ── SINGLE ── */
             if (item.type === "single") {
               const exp = item.expense;
+
+              if (editingKey === item.key) {
+                return (
+                  <div key={exp.id} className="bg-cream rounded-card border border-terracotta/30 px-4 py-4">
+                    <p className="font-body text-xs uppercase tracking-widest text-ink-soft mb-4">Editar despesa</p>
+                    <ExpenseForm
+                      categories={categories}
+                      defaultValues={{
+                        description: exp.description,
+                        categoryId: exp.category.id,
+                        amountCents: exp.amountCents,
+                        paidAt: new Date(exp.paidAt).toISOString().slice(0, 10),
+                        notes: exp.notes ?? undefined,
+                        installments: 1,
+                      }}
+                      onSubmit={(data) => handleSaveSingle(exp.id, data)}
+                      submitLabel="Salvar alterações"
+                      onCancel={() => setEditingKey(null)}
+                    />
+                  </div>
+                );
+              }
+
               return (
                 <div
                   key={exp.id}
@@ -323,9 +385,15 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
                     {formatBRL(exp.amountCents)}
                   </span>
                   <button
+                    onClick={() => setEditingKey(item.key)}
+                    className={cn(iconBtnCls, "text-ink-soft hover:text-ink")}
+                  >
+                    <IconEdit size={14} />
+                  </button>
+                  <button
                     onClick={() => handleDeleteSingle(exp)}
                     disabled={deleting === exp.id}
-                    className="text-red-300 hover:text-red-500 transition-colors shrink-0 disabled:opacity-40"
+                    className={cn(iconBtnCls, "text-red-300 hover:text-red-500")}
                   >
                     <IconTrash size={14} />
                   </button>
@@ -333,13 +401,40 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
               );
             }
 
-            // Group (installments)
+            /* ── GROUP ── */
             const isOpen = openGroups.has(item.groupId);
             const isFilteredByMonth = filterMonth !== "";
 
+            if (editingKey === item.key) {
+              return (
+                <div key={item.groupId} className="bg-cream rounded-card border border-terracotta/30 px-4 py-4">
+                  <p className="font-body text-xs uppercase tracking-widest text-ink-soft mb-1">
+                    Editar grupo de parcelas
+                  </p>
+                  <p className="font-body text-xs text-ink-soft mb-4">
+                    {item.installments.length} parcelas · alterações aplicadas a todas
+                  </p>
+                  <ExpenseForm
+                    categories={categories}
+                    defaultValues={{
+                      description: item.description,
+                      categoryId: item.category.id,
+                      amountCents: item.totalAmountCents,
+                      paidAt: new Date(item.installments[0].paidAt).toISOString().slice(0, 10),
+                      notes: item.installments[0].notes ?? undefined,
+                      installments: item.installments.length,
+                    }}
+                    onSubmit={(data) => handleSaveGroup(item.groupId, data)}
+                    submitLabel="Salvar alterações"
+                    onCancel={() => setEditingKey(null)}
+                  />
+                </div>
+              );
+            }
+
             return (
               <div key={item.groupId} className="bg-cream rounded-card border border-ink/10 overflow-hidden">
-                {/* Group header */}
+                {/* Header */}
                 <div
                   className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-ink/5 transition-colors select-none"
                   onClick={() => toggleGroup(item.groupId)}
@@ -362,7 +457,7 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
                       </span>
                       {isFilteredByMonth && item.visibleInstallmentIds.size < item.installments.length && (
                         <span className="font-body text-xs text-ink-soft">
-                          {item.visibleInstallmentIds.size}/{item.installments.length} parcelas neste mês
+                          {item.visibleInstallmentIds.size}/{item.installments.length} neste mês
                         </span>
                       )}
                     </div>
@@ -384,18 +479,21 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
                     )}
                   </div>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteGroup(item);
-                    }}
+                    onClick={(e) => { e.stopPropagation(); setEditingKey(item.key); }}
+                    className={cn(iconBtnCls, "text-ink-soft hover:text-ink ml-1")}
+                  >
+                    <IconEdit size={14} />
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleDeleteGroup(item); }}
                     disabled={deleting === item.groupId}
-                    className="text-red-300 hover:text-red-500 transition-colors shrink-0 disabled:opacity-40 ml-1"
+                    className={cn(iconBtnCls, "text-red-300 hover:text-red-500")}
                   >
                     <IconTrash size={14} />
                   </button>
                 </div>
 
-                {/* Installments accordion */}
+                {/* Parcelas */}
                 {isOpen && (
                   <div className="border-t border-ink/10 divide-y divide-ink/5">
                     {item.installments.map((inst) => {
@@ -420,7 +518,7 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
                           <button
                             onClick={() => handleDeleteInstallment(inst)}
                             disabled={deleting === inst.id}
-                            className="text-red-200 hover:text-red-500 transition-colors shrink-0 disabled:opacity-40"
+                            className={cn(iconBtnCls, "text-red-200 hover:text-red-500")}
                           >
                             <IconTrash size={12} />
                           </button>
@@ -435,7 +533,7 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
         </div>
       )}
 
-      {/* Pagination */}
+      {/* Paginação */}
       {allItems.length > 0 && (
         <div className="mt-6 flex items-center justify-between">
           <button

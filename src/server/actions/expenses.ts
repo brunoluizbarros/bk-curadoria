@@ -89,3 +89,32 @@ export async function deleteExpenseGroup(groupId: string) {
   revalidatePath("/admin/dre");
   return { success: true };
 }
+
+export async function updateExpenseGroup(groupId: string, data: unknown) {
+  await requireAdmin();
+  const parsed = expenseSchema.safeParse(data);
+  if (!parsed.success) return { error: parsed.error.flatten() };
+
+  const { installments = 1, amountCents, paidAt, ...rest } = parsed.data;
+  const baseDate = new Date(paidAt);
+
+  await db.delete(expenses).where(eq(expenses.installmentGroupId, groupId));
+
+  const perInstallmentCents = Math.floor(amountCents / installments);
+  const remainder = amountCents - perInstallmentCents * installments;
+
+  const rows = Array.from({ length: installments }, (_, i) => ({
+    ...rest,
+    amountCents: i === installments - 1 ? perInstallmentCents + remainder : perInstallmentCents,
+    paidAt: addMonths(baseDate, i),
+    installmentGroupId: groupId,
+    installmentNumber: i + 1,
+    totalInstallments: installments,
+  }));
+
+  await db.insert(expenses).values(rows);
+
+  revalidatePath("/admin/despesas");
+  revalidatePath("/admin/dre");
+  return { success: true };
+}
