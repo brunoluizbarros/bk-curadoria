@@ -37,6 +37,17 @@ export default async function DREPage({ searchParams }: Props) {
   const yearExpenses = yearSummary.reduce((acc, m) => acc + m.expenses.totalCents, 0);
   const yearResult = yearRevenue - yearExpenses;
 
+  // Coleta todas as categorias que aparecem no ano, ordenadas pelo total anual desc
+  const categoryTotalsMap = new Map<string, number>();
+  for (const m of yearSummary) {
+    for (const c of m.expenses.byCategory) {
+      categoryTotalsMap.set(c.name, (categoryTotalsMap.get(c.name) ?? 0) + c.totalCents);
+    }
+  }
+  const allCategories = Array.from(categoryTotalsMap.entries())
+    .sort((a, b) => b[1] - a[1])
+    .map(([name]) => name);
+
   return (
     <div>
       <div className="flex items-center gap-3 mb-6">
@@ -87,20 +98,28 @@ export default async function DREPage({ searchParams }: Props) {
           <table className="w-full font-body text-sm">
             <thead>
               <tr className="border-b border-ink/10">
-                <th className="text-left py-2 pr-4 text-xs uppercase tracking-widest text-ink-soft font-normal">Mês</th>
-                <th className="text-right py-2 px-4 text-xs uppercase tracking-widest text-ink-soft font-normal">Receita</th>
-                <th className="text-right py-2 px-4 text-xs uppercase tracking-widest text-ink-soft font-normal">Despesa</th>
-                <th className="text-right py-2 pl-4 text-xs uppercase tracking-widest text-ink-soft font-normal">Resultado</th>
+                <th className="text-left py-2 pr-4 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">Mês</th>
+                <th className="text-right py-2 px-3 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">Receita</th>
+                {allCategories.map((cat) => (
+                  <th key={cat} className="text-right py-2 px-3 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">
+                    {cat}
+                  </th>
+                ))}
+                <th className="text-right py-2 px-3 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">Total desp.</th>
+                <th className="text-right py-2 pl-3 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">Resultado</th>
               </tr>
             </thead>
             <tbody>
               {yearSummary.map((m) => {
                 const result = m.revenue.totalNetCents - m.expenses.totalCents;
                 const isSelected = m.month === selectedMonth;
+                const catByName = Object.fromEntries(
+                  m.expenses.byCategory.map((c) => [c.name, c.totalCents])
+                );
                 return (
                   <tr
                     key={m.month}
-                    className={`border-b border-ink/5 transition-colors cursor-pointer hover:bg-ink/3 ${isSelected ? "bg-terracotta/5" : ""}`}
+                    className={`border-b border-ink/5 transition-colors ${isSelected ? "bg-terracotta/5" : "hover:bg-ink/[0.02]"}`}
                   >
                     <td className="py-2.5 pr-4">
                       <a
@@ -110,19 +129,50 @@ export default async function DREPage({ searchParams }: Props) {
                         {MONTHS[m.month - 1]}
                       </a>
                     </td>
-                    <td className="text-right px-4 text-terracotta">
+                    <td className="text-right px-3 text-terracotta tabular-nums">
                       {m.revenue.totalNetCents > 0 ? formatBRL(m.revenue.totalNetCents) : "—"}
                     </td>
-                    <td className="text-right px-4 text-ink-soft">
+                    {allCategories.map((cat) => {
+                      const val = catByName[cat] ?? 0;
+                      return (
+                        <td key={cat} className="text-right px-3 text-ink-soft tabular-nums">
+                          {val > 0 ? formatBRL(val) : "—"}
+                        </td>
+                      );
+                    })}
+                    <td className="text-right px-3 text-ink tabular-nums">
                       {m.expenses.totalCents > 0 ? formatBRL(m.expenses.totalCents) : "—"}
                     </td>
-                    <td className={`text-right pl-4 font-medium ${result > 0 ? "text-sage-deep" : result < 0 ? "text-red-600" : "text-ink-soft"}`}>
+                    <td className={`text-right pl-3 font-medium tabular-nums ${result > 0 ? "text-sage-deep" : result < 0 ? "text-red-600" : "text-ink-soft"}`}>
                       {result !== 0 ? formatBRL(result) : "—"}
                     </td>
                   </tr>
                 );
               })}
             </tbody>
+            {/* Totais anuais */}
+            <tfoot>
+              <tr className="border-t-2 border-ink/20">
+                <td className="py-2.5 pr-4 font-body text-xs uppercase tracking-widest text-ink-soft">Total</td>
+                <td className="text-right px-3 text-terracotta font-medium tabular-nums">
+                  {formatBRL(yearRevenue)}
+                </td>
+                {allCategories.map((cat) => {
+                  const total = categoryTotalsMap.get(cat) ?? 0;
+                  return (
+                    <td key={cat} className="text-right px-3 text-ink-soft font-medium tabular-nums">
+                      {total > 0 ? formatBRL(total) : "—"}
+                    </td>
+                  );
+                })}
+                <td className="text-right px-3 text-ink font-medium tabular-nums">
+                  {formatBRL(yearExpenses)}
+                </td>
+                <td className={`text-right pl-3 font-medium tabular-nums ${yearResult >= 0 ? "text-sage-deep" : "text-red-600"}`}>
+                  {formatBRL(yearResult)}
+                </td>
+              </tr>
+            </tfoot>
           </table>
         </div>
       </section>
@@ -165,7 +215,7 @@ export default async function DREPage({ searchParams }: Props) {
 
           {/* Despesas */}
           <div>
-            <p className="font-body text-[10px] uppercase tracking-widest text-ink-soft mb-2">Despesas</p>
+            <p className="font-body text-[10px] uppercase tracking-widest text-ink-soft mb-2">Despesas por categoria</p>
             <div className="bg-cream rounded-card px-4 py-4 border border-ink/10 space-y-2">
               {monthDetail.expenses.byCategory.length === 0 ? (
                 <p className="font-body text-sm text-ink-soft">Nenhuma despesa no mês.</p>
