@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
 import { wishlists, wishlistItems, products, productImages } from "@/db/schema";
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray } from "drizzle-orm";
 
 export async function getWishlistByToken(token: string) {
   const [list] = await db
@@ -34,20 +34,35 @@ export async function getWishlistByToken(token: string) {
   };
 }
 
-export async function getAllWishlistsAdmin() {
-  const rows = await db
-    .select()
-    .from(wishlists)
-    .orderBy(desc(wishlists.createdAt));
+export async function getAllWishlistsAdmin(pagination?: { page: number; limit: number }) {
+  const limit = pagination?.limit ?? 1000;
+  const offset = pagination ? (pagination.page - 1) * pagination.limit : 0;
 
+  const [[countRow], rows] = await Promise.all([
+    db.select({ total: count() }).from(wishlists),
+    db
+      .select()
+      .from(wishlists)
+      .orderBy(desc(wishlists.createdAt))
+      .limit(limit)
+      .offset(offset),
+  ]);
+
+  if (!rows.length) return { items: [], total: countRow.total };
+
+  const wishlistIds = rows.map((w) => w.id);
   const itemCounts = await db
     .select({ wishlistId: wishlistItems.wishlistId })
-    .from(wishlistItems);
+    .from(wishlistItems)
+    .where(inArray(wishlistItems.wishlistId, wishlistIds));
 
-  return rows.map((w) => ({
-    ...w,
-    itemCount: itemCounts.filter((c) => c.wishlistId === w.id).length,
-  }));
+  return {
+    items: rows.map((w) => ({
+      ...w,
+      itemCount: itemCounts.filter((c) => c.wishlistId === w.id).length,
+    })),
+    total: countRow.total,
+  };
 }
 
 export async function getWishlistByIdAdmin(id: string) {

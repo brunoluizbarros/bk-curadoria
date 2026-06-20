@@ -2,6 +2,7 @@ import { getAllOrders } from "@/server/queries/orders";
 import Link from "next/link";
 import { IconReceipt, IconPlus } from "@/components/ui/icons";
 import { formatBRL, formatDate } from "@/lib/format";
+import { Pagination } from "@/components/admin/Pagination";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: { absolute: "Pedidos · BK Admin" } };
@@ -16,15 +17,22 @@ const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
 
 type OrderStatus = "draft" | "sent" | "returned" | "paid" | "cancelled";
 
+const LIMIT = 20;
+
 export default async function PedidosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; page?: string }>;
 }) {
-  const { status } = await searchParams;
-  const orders = await getAllOrders(
-    status ? { status: status as OrderStatus } : undefined
+  const { status, page: pageStr } = await searchParams;
+  const page = Math.max(1, parseInt(pageStr ?? "1", 10));
+
+  const { items: orders, total } = await getAllOrders(
+    status ? { status: status as OrderStatus } : undefined,
+    { page, limit: LIMIT }
   );
+  const totalPages = Math.ceil(total / LIMIT);
+  const currentParams: Record<string, string> = status ? { status } : {};
 
   return (
     <div>
@@ -65,33 +73,37 @@ export default async function PedidosPage({
       {orders.length === 0 ? (
         <p className="font-body text-sm text-ink-soft">Nenhum pedido encontrado.</p>
       ) : (
-        <div className="space-y-2">
-          {orders.map((order) => {
-            const s = STATUS_LABELS[order.status] ?? STATUS_LABELS.draft;
-            return (
-              <Link
-                key={order.id}
-                href={`/admin/pedidos/${order.id}`}
-                className="flex items-center gap-4 bg-cream rounded-card px-4 py-3 border border-ink/10 hover:border-ink/30 transition-colors"
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="font-display font-400 text-sm text-ink truncate">{order.customer.name}</p>
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className="font-body text-xs text-ink-soft">{formatDate(order.soldAt)}</span>
-                    <span className="font-body text-xs text-ink-soft">·</span>
-                    <span className="font-body text-xs text-ink-soft">
-                      {order.itemCount} {order.itemCount === 1 ? "peça" : "peças"}
-                    </span>
+        <>
+          <div className="space-y-2">
+            {orders.map((order) => {
+              const s = STATUS_LABELS[order.status] ?? STATUS_LABELS.draft;
+              return (
+                <Link
+                  key={order.id}
+                  href={`/admin/pedidos/${order.id}`}
+                  className="flex items-center gap-4 bg-cream rounded-card px-4 py-3 border border-ink/10 hover:border-ink/30 transition-colors"
+                >
+                  <div className="flex-1 min-w-0">
+                    <p className="font-display font-400 text-sm text-ink truncate">{order.customer.name}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="font-body text-xs text-ink-soft">{formatDate(order.soldAt)}</span>
+                      <span className="font-body text-xs text-ink-soft">·</span>
+                      <span className="font-body text-xs text-ink-soft">
+                        {order.itemCount} {order.itemCount === 1 ? "peça" : "peças"}
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <span className="font-body text-sm text-terracotta font-medium">{formatBRL(order.total)}</span>
-                <span className={`font-body text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-sm ${s.cls}`}>
-                  {s.label}
-                </span>
-              </Link>
-            );
-          })}
-        </div>
+                  <span className="font-body text-sm text-terracotta font-medium">{formatBRL(order.total)}</span>
+                  <span className={`font-body text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-sm ${s.cls}`}>
+                    {s.label}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+
+          <Pagination page={page} totalPages={totalPages} baseHref="/admin/pedidos" params={currentParams} />
+        </>
       )}
     </div>
   );

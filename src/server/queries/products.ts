@@ -5,7 +5,7 @@ import {
   productCategories,
   categories,
 } from "@/db/schema";
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, asc, count, eq, inArray } from "drizzle-orm";
 
 export async function getActiveProducts(categorySlug?: string) {
   let productIds: string[] | undefined;
@@ -94,6 +94,46 @@ export async function getAllProductsAdmin() {
     firstImage: images.find((img) => img.productId === p.id) ?? null,
     categoryLabels: catLinks.filter((c) => c.productId === p.id).map((c) => c.label),
   }));
+}
+
+export async function getProductsAdminPaginated(page: number, limit: number) {
+  const offset = (page - 1) * limit;
+
+  const [[countRow], rows] = await Promise.all([
+    db.select({ total: count() }).from(products),
+    db
+      .select()
+      .from(products)
+      .orderBy(asc(products.sortOrder), asc(products.createdAt))
+      .limit(limit)
+      .offset(offset),
+  ]);
+
+  const productIds = rows.map((p) => p.id);
+
+  if (!productIds.length) return { items: [], total: countRow.total };
+
+  const [images, catLinks] = await Promise.all([
+    db
+      .select()
+      .from(productImages)
+      .where(inArray(productImages.productId, productIds))
+      .orderBy(asc(productImages.sortOrder)),
+    db
+      .select({ productId: productCategories.productId, label: categories.label })
+      .from(productCategories)
+      .innerJoin(categories, eq(productCategories.categoryId, categories.id))
+      .where(inArray(productCategories.productId, productIds)),
+  ]);
+
+  return {
+    items: rows.map((p) => ({
+      ...p,
+      firstImage: images.find((img) => img.productId === p.id) ?? null,
+      categoryLabels: catLinks.filter((c) => c.productId === p.id).map((c) => c.label),
+    })),
+    total: countRow.total,
+  };
 }
 
 export async function getProductByIdAdmin(id: string) {

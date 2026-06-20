@@ -2,17 +2,24 @@ import { getAllCustomers } from "@/server/queries/customers";
 import Link from "next/link";
 import { IconUsers, IconPlus, IconSearch } from "@/components/ui/icons";
 import { formatPhone } from "@/lib/format";
+import { Pagination } from "@/components/admin/Pagination";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: { absolute: "Clientes · BK Admin" } };
 
+const LIMIT = 20;
+
 export default async function ClientesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; page?: string }>;
 }) {
-  const { q } = await searchParams;
-  const customers = await getAllCustomers(q);
+  const { q, page: pageStr } = await searchParams;
+  const page = Math.max(1, parseInt(pageStr ?? "1", 10));
+
+  const { items: customers, total } = await getAllCustomers(q, { page, limit: LIMIT });
+  const totalPages = Math.ceil(total / LIMIT);
+  const currentParams: Record<string, string> = q ? { q } : {};
 
   return (
     <div>
@@ -53,28 +60,32 @@ export default async function ClientesPage({
           {q ? "Nenhum cliente encontrado." : "Nenhum cliente cadastrado ainda."}
         </p>
       ) : (
-        <div className="space-y-2">
-          {customers.map((c) => (
-            <Link
-              key={c.id}
-              href={`/admin/clientes/${c.id}`}
-              className="flex items-center gap-4 bg-cream rounded-card px-4 py-3 border border-ink/10 hover:border-ink/30 transition-colors"
-            >
-              <div className="flex-1 min-w-0">
-                <p className="font-display font-400 text-sm text-ink truncate">{c.name}</p>
-                <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                  <span className="font-body text-xs text-ink-soft">{formatPhone(c.phone)}</span>
-                  {c.email && (
-                    <>
-                      <span className="font-body text-xs text-ink-soft">·</span>
-                      <span className="font-body text-xs text-ink-soft">{c.email}</span>
-                    </>
-                  )}
+        <>
+          <div className="space-y-2">
+            {customers.map((c) => (
+              <Link
+                key={c.id}
+                href={`/admin/clientes/${c.id}`}
+                className="flex items-center gap-4 bg-cream rounded-card px-4 py-3 border border-ink/10 hover:border-ink/30 transition-colors"
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="font-display font-400 text-sm text-ink truncate">{c.name}</p>
+                  <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                    <span className="font-body text-xs text-ink-soft">{formatPhone(c.phone)}</span>
+                    {c.email && (
+                      <>
+                        <span className="font-body text-xs text-ink-soft">·</span>
+                        <span className="font-body text-xs text-ink-soft">{c.email}</span>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
+
+          <Pagination page={page} totalPages={totalPages} baseHref="/admin/clientes" params={currentParams} />
+        </>
       )}
     </div>
   );

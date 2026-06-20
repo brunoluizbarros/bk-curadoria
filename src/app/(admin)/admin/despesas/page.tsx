@@ -1,17 +1,28 @@
 import { getAllExpenses, getExpenseCategories } from "@/server/queries/expenses";
-import { deleteExpense } from "@/server/actions/expenses";
 import { DespesasClient } from "@/components/admin/DespesasClient";
+import { Pagination } from "@/components/admin/Pagination";
 import { IconCoin } from "@/components/ui/icons";
 import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: { absolute: "Despesas · BK Admin" } };
 
-export default async function DespesasPage() {
-  const [categories, expensesList] = await Promise.all([
+const LIMIT = 20;
+
+export default async function DespesasPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const sp = await searchParams;
+  const page = Math.max(1, parseInt(sp.page ?? "1", 10));
+
+  const [categories, { items: expensesList, total }] = await Promise.all([
     getExpenseCategories(),
-    getAllExpenses(),
+    getAllExpenses(undefined, { page, limit: LIMIT }),
   ]);
+
+  const totalPages = Math.ceil(total / LIMIT);
 
   return (
     <div>
@@ -32,6 +43,8 @@ export default async function DespesasPage() {
         categories={categories}
         initialExpenses={expensesList}
       />
+
+      <Pagination page={page} totalPages={totalPages} baseHref="/admin/despesas" />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
 import { orders, orderItems, customers, addresses, products, productImages, payments } from "@/db/schema";
-import { and, asc, desc, eq, gte, inArray, lte } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, inArray, lte } from "drizzle-orm";
 
 export type OrderStatus = "draft" | "sent" | "returned" | "paid" | "cancelled";
 
@@ -16,29 +16,37 @@ export function computeOrderItemTotal(
   return Math.max(0, keptTotal + shippingCents - discountCents - creditAppliedCents);
 }
 
-export async function getAllOrders(filters?: {
-  status?: OrderStatus;
-  from?: Date;
-  to?: Date;
-}) {
+export async function getAllOrders(
+  filters?: { status?: OrderStatus; from?: Date; to?: Date },
+  pagination?: { page: number; limit: number }
+) {
   const conditions = [];
   if (filters?.status) conditions.push(eq(orders.status, filters.status));
   if (filters?.from) conditions.push(gte(orders.soldAt, filters.from));
   if (filters?.to) conditions.push(lte(orders.soldAt, filters.to));
 
-  const rows = await db
-    .select({
-      order: orders,
-      customer: { id: customers.id, name: customers.name, phone: customers.phone },
-    })
-    .from(orders)
-    .innerJoin(customers, eq(orders.customerId, customers.id))
-    .where(conditions.length ? and(...conditions) : undefined)
-    .orderBy(desc(orders.soldAt));
+  const where = conditions.length ? and(...conditions) : undefined;
+  const limit = pagination?.limit ?? 1000;
+  const offset = pagination ? (pagination.page - 1) * pagination.limit : 0;
+
+  const [[countRow], rows] = await Promise.all([
+    db.select({ total: count() }).from(orders).where(where),
+    db
+      .select({
+        order: orders,
+        customer: { id: customers.id, name: customers.name, phone: customers.phone },
+      })
+      .from(orders)
+      .innerJoin(customers, eq(orders.customerId, customers.id))
+      .where(where)
+      .orderBy(desc(orders.soldAt))
+      .limit(limit)
+      .offset(offset),
+  ]);
 
   const orderIds = rows.map((r) => r.order.id);
 
-  if (!orderIds.length) return [];
+  if (!orderIds.length) return { items: [], total: countRow.total };
 
   const allItems = await db
     .select({
@@ -51,17 +59,20 @@ export async function getAllOrders(filters?: {
     .from(orderItems)
     .where(inArray(orderItems.orderId, orderIds));
 
-  return rows.map((r) => ({
-    ...r.order,
-    customer: r.customer,
-    total: computeOrderItemTotal(
-      allItems.filter((i) => i.orderId === r.order.id),
-      r.order.discountCents,
-      r.order.shippingCents,
-      r.order.creditAppliedCents
-    ),
-    itemCount: allItems.filter((i) => i.orderId === r.order.id).length,
-  }));
+  return {
+    items: rows.map((r) => ({
+      ...r.order,
+      customer: r.customer,
+      total: computeOrderItemTotal(
+        allItems.filter((i) => i.orderId === r.order.id),
+        r.order.discountCents,
+        r.order.shippingCents,
+        r.order.creditAppliedCents
+      ),
+      itemCount: allItems.filter((i) => i.orderId === r.order.id).length,
+    })),
+    total: countRow.total,
+  };
 }
 
 export async function getOrderById(id: string) {
