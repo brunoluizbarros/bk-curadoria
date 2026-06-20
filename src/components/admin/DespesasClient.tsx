@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import type { ExpenseInput } from "@/lib/validations";
 import type { ExpenseCategory } from "@/db/schema";
 
-const PAGE_SIZE = 50;
+const PAGE_SIZE = 15;
 
 interface ExpenseRow {
   id: string;
@@ -436,7 +436,7 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
       )}
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {allItems.length > 0 && (
         <div className="mt-6 flex items-center justify-between">
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
