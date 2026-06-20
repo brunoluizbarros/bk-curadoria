@@ -17,8 +17,6 @@ import {
   IconTrash,
   IconEdit,
   IconChevronDown,
-  IconChevronLeft,
-  IconChevronRight,
 } from "@/components/ui/icons";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -534,26 +532,24 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
       )}
 
       {/* Paginação */}
-      {allItems.length > 0 && (
-        <div className="mt-6 flex items-center justify-between">
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-4 mt-6">
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            className="flex items-center gap-1 font-body text-xs text-ink-soft hover:text-ink disabled:opacity-40 transition-colors"
+            className="font-body text-xs uppercase tracking-widest px-3 py-1.5 rounded-btn border transition-colors border-ink/20 text-ink-soft hover:border-ink hover:text-ink disabled:border-ink/10 disabled:text-ink/30 disabled:cursor-not-allowed"
           >
-            <IconChevronLeft size={14} />
-            Anterior
+            ← Anterior
           </button>
           <span className="font-body text-xs text-ink-soft">
-            Página {currentPage} de {totalPages}
+            {currentPage} / {totalPages}
           </span>
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
-            className="flex items-center gap-1 font-body text-xs text-ink-soft hover:text-ink disabled:opacity-40 transition-colors"
+            className="font-body text-xs uppercase tracking-widest px-3 py-1.5 rounded-btn border transition-colors border-ink/20 text-ink-soft hover:border-ink hover:text-ink disabled:border-ink/10 disabled:text-ink/30 disabled:cursor-not-allowed"
           >
-            Próxima
-            <IconChevronRight size={14} />
+            Próxima →
           </button>
         </div>
       )}
