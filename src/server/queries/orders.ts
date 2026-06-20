@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
 import { orders, orderItems, customers, addresses, products, productImages, payments } from "@/db/schema";
-import { and, asc, count, desc, eq, gte, inArray, lte } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, ilike, inArray, lte } from "drizzle-orm";
 
 export type OrderStatus = "draft" | "sent" | "returned" | "paid" | "cancelled";
 
@@ -17,20 +17,26 @@ export function computeOrderItemTotal(
 }
 
 export async function getAllOrders(
-  filters?: { status?: OrderStatus; from?: Date; to?: Date },
+  filters?: { status?: OrderStatus; from?: Date; to?: Date; search?: string },
   pagination?: { page: number; limit: number }
 ) {
   const conditions = [];
   if (filters?.status) conditions.push(eq(orders.status, filters.status));
   if (filters?.from) conditions.push(gte(orders.soldAt, filters.from));
   if (filters?.to) conditions.push(lte(orders.soldAt, filters.to));
+  if (filters?.search) conditions.push(ilike(customers.name, `%${filters.search}%`));
 
   const where = conditions.length ? and(...conditions) : undefined;
   const limit = pagination?.limit ?? 1000;
   const offset = pagination ? (pagination.page - 1) * pagination.limit : 0;
 
+  const countBase = db.select({ total: count() }).from(orders);
+  const countQuery = filters?.search
+    ? countBase.innerJoin(customers, eq(orders.customerId, customers.id)).where(where)
+    : countBase.where(where);
+
   const [[countRow], rows] = await Promise.all([
-    db.select({ total: count() }).from(orders).where(where),
+    countQuery,
     db
       .select({
         order: orders,

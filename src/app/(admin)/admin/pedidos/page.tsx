@@ -1,6 +1,6 @@
 import { getAllOrders } from "@/server/queries/orders";
 import Link from "next/link";
-import { IconReceipt, IconPlus } from "@/components/ui/icons";
+import { IconReceipt, IconPlus, IconSearch } from "@/components/ui/icons";
 import { formatBRL, formatDate } from "@/lib/format";
 import { Pagination } from "@/components/admin/Pagination";
 import type { Metadata } from "next";
@@ -22,17 +22,19 @@ const LIMIT = 20;
 export default async function PedidosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; page?: string }>;
+  searchParams: Promise<{ status?: string; page?: string; q?: string }>;
 }) {
-  const { status, page: pageStr } = await searchParams;
+  const { status, page: pageStr, q } = await searchParams;
   const page = Math.max(1, parseInt(pageStr ?? "1", 10));
 
   const { items: orders, total } = await getAllOrders(
-    status ? { status: status as OrderStatus } : undefined,
+    { status: status as OrderStatus | undefined, search: q || undefined },
     { page, limit: LIMIT }
   );
   const totalPages = Math.ceil(total / LIMIT);
-  const currentParams: Record<string, string> = status ? { status } : {};
+  const currentParams: Record<string, string> = {};
+  if (status) currentParams.status = status;
+  if (q) currentParams.q = q;
 
   return (
     <div>
@@ -50,28 +52,56 @@ export default async function PedidosPage({
         </Link>
       </div>
 
+      {/* Busca por cliente */}
+      <form method="get" className="mb-4 flex gap-2">
+        {status && <input type="hidden" name="status" value={status} />}
+        <div className="relative flex-1 max-w-sm">
+          <IconSearch size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
+          <input
+            name="q"
+            defaultValue={q}
+            placeholder="Buscar por nome do cliente..."
+            className="w-full pl-8 pr-3 py-2 rounded border border-ink/20 bg-cream font-body text-sm text-ink focus:outline-none focus:border-ink"
+          />
+        </div>
+        <button
+          type="submit"
+          className="px-4 py-2 rounded border border-ink/20 font-body text-sm text-ink hover:bg-ink/5 transition-colors"
+        >
+          Buscar
+        </button>
+      </form>
+
       {/* Filtro status */}
       <div className="flex gap-2 flex-wrap mb-4">
         {[
           { value: "", label: "Todos" },
           ...Object.entries(STATUS_LABELS).map(([value, { label }]) => ({ value, label })),
-        ].map(({ value, label }) => (
-          <Link
-            key={value}
-            href={value ? `/admin/pedidos?status=${value}` : "/admin/pedidos"}
-            className={`font-body text-xs uppercase tracking-widest px-3 py-1.5 rounded-btn border transition-colors ${
-              (status ?? "") === value
-                ? "bg-ink text-cream border-ink"
-                : "border-ink/20 text-ink-soft hover:border-ink hover:text-ink"
-            }`}
-          >
-            {label}
-          </Link>
-        ))}
+        ].map(({ value, label }) => {
+          const params = new URLSearchParams();
+          if (value) params.set("status", value);
+          if (q) params.set("q", q);
+          const href = `/admin/pedidos${params.size ? `?${params}` : ""}`;
+          return (
+            <Link
+              key={value}
+              href={href}
+              className={`font-body text-xs uppercase tracking-widest px-3 py-1.5 rounded-btn border transition-colors ${
+                (status ?? "") === value
+                  ? "bg-ink text-cream border-ink"
+                  : "border-ink/20 text-ink-soft hover:border-ink hover:text-ink"
+              }`}
+            >
+              {label}
+            </Link>
+          );
+        })}
       </div>
 
       {orders.length === 0 ? (
-        <p className="font-body text-sm text-ink-soft">Nenhum pedido encontrado.</p>
+        <p className="font-body text-sm text-ink-soft">
+          {q || status ? "Nenhum pedido encontrado para os filtros aplicados." : "Nenhum pedido cadastrado ainda."}
+        </p>
       ) : (
         <>
           <div className="space-y-2">
