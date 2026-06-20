@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
 import { payments, expenses, expenseCategories } from "@/db/schema";
-import { and, eq, gte, isNull, lte, sum } from "drizzle-orm";
+import { and, eq, gte, isNull, lt, lte, sum } from "drizzle-orm";
 
 export interface DREMonth {
   year: number;
@@ -33,7 +33,7 @@ export async function getDREByMonth(year: number, month: number): Promise<DREMon
       netCents: payments.netCents,
     })
     .from(payments)
-    .where(and(gte(payments.settledAt, from), lte(payments.settledAt, to)));
+    .where(and(gte(payments.settledAt, from), lt(payments.settledAt, to)));
 
   // Pendente: payments com paid_at no mês mas settledAt nulo
   const [pendingRow] = await db
@@ -42,7 +42,7 @@ export async function getDREByMonth(year: number, month: number): Promise<DREMon
     .where(
       and(
         gte(payments.paidAt, from),
-        lte(payments.paidAt, to),
+        lt(payments.paidAt, to),
         isNull(payments.settledAt)
       )
     );
@@ -54,7 +54,7 @@ export async function getDREByMonth(year: number, month: number): Promise<DREMon
     totalNetCents += p.netCents;
   }
 
-  // Despesas: paidAt no mês
+  // Despesas: paidAt no mês (lt no limite superior evita dupla contagem no dia 1)
   const expenseRows = await db
     .select({
       amountCents: expenses.amountCents,
@@ -63,7 +63,7 @@ export async function getDREByMonth(year: number, month: number): Promise<DREMon
     })
     .from(expenses)
     .innerJoin(expenseCategories, eq(expenses.categoryId, expenseCategories.id))
-    .where(and(gte(expenses.paidAt, from), lte(expenses.paidAt, to)));
+    .where(and(gte(expenses.paidAt, from), lt(expenses.paidAt, to)));
 
   const categoryMap: Record<string, number> = {};
   let totalExpCents = 0;
