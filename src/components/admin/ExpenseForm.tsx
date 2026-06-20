@@ -1,11 +1,12 @@
 "use client";
 
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { expenseSchema, type ExpenseInput } from "@/lib/validations";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
+import { formatBRL } from "@/lib/format";
 import type { ExpenseCategory } from "@/db/schema";
 
 interface ExpenseFormProps {
@@ -26,9 +27,16 @@ export function ExpenseForm({ categories, defaultValues, onSubmit, submitLabel =
     resolver: zodResolver(expenseSchema),
     defaultValues: {
       paidAt: new Date().toISOString().slice(0, 10),
+      installments: 1,
       ...defaultValues,
     },
   });
+
+  const amountCents = useWatch({ control, name: "amountCents" });
+  const installments = useWatch({ control, name: "installments" });
+  const perInstallmentCents = installments > 1 && amountCents > 0
+    ? Math.floor(amountCents / installments)
+    : null;
 
   async function onValid(data: ExpenseInput) {
     await onSubmit(data);
@@ -61,7 +69,7 @@ export function ExpenseForm({ categories, defaultValues, onSubmit, submitLabel =
           render={({ field }) => (
             <Input
               id="amountCents"
-              label="Valor"
+              label="Valor total"
               placeholder="R$ 0,00"
               inputMode="numeric"
               value={
@@ -87,13 +95,36 @@ export function ExpenseForm({ categories, defaultValues, onSubmit, submitLabel =
         error={errors.description?.message}
       />
 
-      <Input
-        id="paidAt"
-        label="Data do pagamento"
-        type="date"
-        {...register("paidAt")}
-        error={errors.paidAt?.message}
-      />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Input
+          id="paidAt"
+          label="Data da 1ª parcela"
+          type="date"
+          {...register("paidAt")}
+          error={errors.paidAt?.message}
+        />
+
+        <div>
+          <label className="block font-body text-xs uppercase tracking-widest text-ink-soft mb-1">
+            Parcelas
+          </label>
+          <select
+            {...register("installments", { valueAsNumber: true })}
+            className="w-full rounded border border-ink/20 bg-cream px-3 py-2 font-body text-sm text-ink focus:outline-none focus:border-ink"
+          >
+            {Array.from({ length: 24 }, (_, i) => i + 1).map((n) => (
+              <option key={n} value={n}>
+                {n === 1 ? "À vista (1x)" : `${n}x`}
+              </option>
+            ))}
+          </select>
+          {perInstallmentCents !== null && (
+            <p className="font-body text-xs text-ink-soft mt-1">
+              {formatBRL(perInstallmentCents)} por parcela
+            </p>
+          )}
+        </div>
+      </div>
 
       <Textarea
         id="notes"
@@ -104,7 +135,7 @@ export function ExpenseForm({ categories, defaultValues, onSubmit, submitLabel =
 
       <div className="flex gap-3">
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Salvando..." : submitLabel}
+          {isSubmitting ? "Salvando..." : (installments > 1 ? `Registrar em ${installments}x` : submitLabel)}
         </Button>
         {onCancel && (
           <Button type="button" variant="ghost" onClick={onCancel}>

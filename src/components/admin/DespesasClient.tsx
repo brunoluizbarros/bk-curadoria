@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ExpenseForm } from "@/components/admin/ExpenseForm";
-import { createExpense, deleteExpense } from "@/server/actions/expenses";
+import { createExpense, deleteExpense, deleteExpenseGroup } from "@/server/actions/expenses";
 import { formatBRL, formatDate } from "@/lib/format";
 import { Button } from "@/components/ui/Button";
 import { IconPlus, IconTrash } from "@/components/ui/icons";
@@ -18,6 +18,9 @@ interface ExpenseRow {
   amountCents: number;
   paidAt: Date;
   notes: string | null;
+  installmentGroupId: string | null;
+  installmentNumber: number | null;
+  totalInstallments: number | null;
   category: ExpenseCategory;
 }
 
@@ -41,18 +44,41 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
       toast.error(typeof err === "string" ? err : "Erro ao salvar despesa");
       return result;
     }
-    toast.success("Despesa registrada");
+    toast.success(
+      data.installments > 1
+        ? `${data.installments} parcelas registradas`
+        : "Despesa registrada"
+    );
     setShowForm(false);
     router.refresh();
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Excluir esta despesa?")) return;
-    setDeleting(id);
-    await deleteExpense(id);
-    setExpenses((prev) => prev.filter((e) => e.id !== id));
+  async function handleDelete(exp: ExpenseRow) {
+    if (!exp.installmentGroupId) {
+      if (!confirm("Excluir esta despesa?")) return;
+      setDeleting(exp.id);
+      await deleteExpense(exp.id);
+      setExpenses((prev) => prev.filter((e) => e.id !== exp.id));
+      setDeleting(null);
+      toast.success("Despesa excluída");
+      return;
+    }
+
+    const deleteAll = confirm(
+      `Esta despesa é a parcela ${exp.installmentNumber}/${exp.totalInstallments}.\n\nExcluir todas as ${exp.totalInstallments} parcelas do grupo?`
+    );
+
+    setDeleting(exp.id);
+    if (deleteAll) {
+      await deleteExpenseGroup(exp.installmentGroupId);
+      setExpenses((prev) => prev.filter((e) => e.installmentGroupId !== exp.installmentGroupId));
+      toast.success(`${exp.totalInstallments} parcelas excluídas`);
+    } else {
+      await deleteExpense(exp.id);
+      setExpenses((prev) => prev.filter((e) => e.id !== exp.id));
+      toast.success("Parcela excluída");
+    }
     setDeleting(null);
-    toast.success("Despesa excluída");
   }
 
   return (
@@ -95,16 +121,21 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
               >
                 <div className="flex-1 min-w-0">
                   <p className="font-body text-sm text-ink truncate">{exp.description}</p>
-                  <div className="flex items-center gap-2 mt-0.5">
+                  <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                     <span className="font-body text-xs text-ink-soft bg-ink/5 px-2 py-0.5 rounded-sm">
                       {exp.category.name}
                     </span>
                     <span className="font-body text-xs text-ink-soft">{formatDate(exp.paidAt)}</span>
+                    {exp.totalInstallments && exp.totalInstallments > 1 && (
+                      <span className="font-body text-xs text-ink-soft bg-amber-100 text-amber-700 px-2 py-0.5 rounded-sm">
+                        {exp.installmentNumber}/{exp.totalInstallments}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <span className="font-body text-sm text-ink font-medium shrink-0">{formatBRL(exp.amountCents)}</span>
                 <button
-                  onClick={() => handleDelete(exp.id)}
+                  onClick={() => handleDelete(exp)}
                   disabled={deleting === exp.id}
                   className="text-red-300 hover:text-red-500 transition-colors shrink-0 disabled:opacity-40"
                 >

@@ -204,6 +204,7 @@ export const expenseSchema = z.object({
   amountCents: z.number().int().positive("Valor obrigatório"),
   paidAt: z.string().min(1, "Data obrigatória"),
   notes: z.string().optional(),
+  installments: z.number().int().min(1).max(24),
 });
 
 export type ExpenseCategoryInput = z.infer<typeof expenseCategorySchema>;

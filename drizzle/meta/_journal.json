@@ -43,6 +43,13 @@
       "when": 1780801150452,
       "tag": "0005_cute_junta",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1781932834948,
+      "tag": "0006_orange_ultimo",
+      "breakpoints": true
     }
   ]
 }
