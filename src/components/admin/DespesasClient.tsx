@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 import type { ExpenseInput } from "@/lib/validations";
 import type { ExpenseCategory } from "@/db/schema";
 
-const PAGE_SIZE = 15;
+const PAGE_SIZE = 50;
 
 interface ExpenseRow {
   id: string;
