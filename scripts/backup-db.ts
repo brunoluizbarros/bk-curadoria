@@ -176,7 +176,22 @@ async function main() {
   process.exit(0);
 }
 
-main().catch((err) => {
-  console.error("[Backup] Erro fatal:", err instanceof Error ? err.message : err);
+async function withRetry(fn: () => Promise<void>, attempts = 3): Promise<void> {
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      await fn();
+      return;
+    } catch (err) {
+      console.error(`[Backup] Tentativa ${i}/${attempts} falhou:`, err instanceof Error ? err.message : err);
+      if (i < attempts) {
+        const delay = i * 10_000;
+        console.log(`[Backup] Aguardando ${delay / 1000}s antes de tentar novamente...`);
+        await new Promise((r) => setTimeout(r, delay));
+      }
+    }
+  }
+  console.error("[Backup] Todas as tentativas falharam.");
   process.exit(1);
-});
+}
+
+withRetry(main);
