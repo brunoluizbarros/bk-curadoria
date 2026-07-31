@@ -273,8 +273,8 @@ export default async function PedidoDetailPage({ params }: Props) {
                     <div className="flex items-center gap-2">
                       <span className="font-body text-sm text-ink font-medium">{formatBRL(p.grossCents)}</span>
                       <span className="font-body text-xs text-ink-soft">via {METHOD_LABELS[p.method] ?? p.method}</span>
-                      {p.brand && <span className="font-body text-xs text-ink-soft">({p.brand})</span>}
-                      {p.installments > 1 && (
+                      {(p.method === "credit_card" || p.method === "debit_card") && p.brand && <span className="font-body text-xs text-ink-soft">({p.brand})</span>}
+                      {(p.method === "credit_card" || p.method === "debit_card") && p.installments > 1 && (
                         <span className="font-body text-xs text-ink-soft">{p.installments}×</span>
                       )}
                     </div>

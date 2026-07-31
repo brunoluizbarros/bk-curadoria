@@ -5,7 +5,7 @@ import { db } from "@/db/client";
 import { payments, orders, orderItems, loyaltyCredits } from "@/db/schema";
 import { paymentSchema } from "@/lib/validations";
 import { calcFeeCents, calcNetCents } from "@/lib/fees";
-import { and, eq, sum } from "drizzle-orm";
+import { and, eq, gte, sum } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getLoyaltyConfig, hasEarnedCreditForOrder } from "@/server/queries/loyalty";
 import { computeOrderItemTotal } from "@/server/queries/orders";
@@ -22,16 +22,39 @@ export async function createPayment(orderId: string, data: unknown) {
 
   const { paidAt, settledAt, ...rest } = parsed.data;
 
-  const feeCents = rest.feeCents || calcFeeCents(rest.grossCents, rest.feePercent);
-  const netCents = rest.netCents || calcNetCents(rest.grossCents, rest.feePercent);
+  const isCard = rest.method === "credit_card" || rest.method === "debit_card";
+  const feePercent = isCard ? rest.feePercent : 0;
+  const feeCents = isCard ? (rest.feeCents || calcFeeCents(rest.grossCents, feePercent)) : 0;
+  const netCents = isCard ? (rest.netCents || calcNetCents(rest.grossCents, feePercent)) : rest.grossCents;
+
+  // ponytail: 10s window on (orderId,grossCents,method,paidAt) dedupes double-submit
+  const tenSecondsAgo = new Date(Date.now() - 10_000);
+  const [existing] = await db
+    .select({ id: payments.id })
+    .from(payments)
+    .where(
+      and(
+        eq(payments.orderId, orderId),
+        eq(payments.grossCents, rest.grossCents),
+        eq(payments.method, rest.method),
+        eq(payments.paidAt, new Date(paidAt)),
+        gte(payments.createdAt, tenSecondsAgo)
+      )
+    )
+    .limit(1);
+
+  if (existing) return { id: existing.id };
 
   const [payment] = await db
     .insert(payments)
     .values({
       ...rest,
-      orderId,
+      brand: isCard ? (rest.brand ?? null) : null,
+      installments: isCard ? (rest.installments ?? 1) : 1,
+      feePercent,
       feeCents,
       netCents,
+      orderId,
       paidAt: new Date(paidAt),
       settledAt: settledAt ? new Date(settledAt) : null,
     })
@@ -52,13 +75,18 @@ export async function updatePayment(id: string, orderId: string, data: unknown) 
 
   const { paidAt, settledAt, ...rest } = parsed.data;
 
-  const feeCents = rest.feeCents || calcFeeCents(rest.grossCents, rest.feePercent);
-  const netCents = rest.netCents || calcNetCents(rest.grossCents, rest.feePercent);
+  const isCard = rest.method === "credit_card" || rest.method === "debit_card";
+  const feePercent = isCard ? rest.feePercent : 0;
+  const feeCents = isCard ? (rest.feeCents || calcFeeCents(rest.grossCents, feePercent)) : 0;
+  const netCents = isCard ? (rest.netCents || calcNetCents(rest.grossCents, feePercent)) : rest.grossCents;
 
   await db
     .update(payments)
     .set({
       ...rest,
+      brand: isCard ? (rest.brand ?? null) : null,
+      installments: isCard ? (rest.installments ?? 1) : 1,
+      feePercent,
       feeCents,
       netCents,
       paidAt: new Date(paidAt),

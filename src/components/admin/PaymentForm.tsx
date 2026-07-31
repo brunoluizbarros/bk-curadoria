@@ -56,10 +56,16 @@ export function PaymentForm({ defaultValues, feeConfigs = {}, onSubmit, submitLa
   const feePercent = watch("feePercent");
   const method = watch("method");
 
-  // Auto-fill fee % when method changes
+  // Auto-fill fee % when method changes; reset card-only fields for non-card methods
   useEffect(() => {
-    if (feeConfigs[method] !== undefined) {
-      setValue("feePercent", feeConfigs[method]);
+    if (method === "credit_card" || method === "debit_card") {
+      if (feeConfigs[method] !== undefined) {
+        setValue("feePercent", feeConfigs[method]);
+      }
+    } else {
+      setValue("feePercent", 0);
+      setValue("brand", "");
+      setValue("installments", 1);
     }
   }, [method, feeConfigs, setValue]);
 

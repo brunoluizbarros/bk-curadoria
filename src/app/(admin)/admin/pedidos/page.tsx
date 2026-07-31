@@ -7,6 +7,11 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: { absolute: "Pedidos · BK Admin" } };
 
+const MONTHS = [
+  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
+];
+
 const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
   draft: { label: "Rascunho", cls: "bg-ink/10 text-ink-soft" },
   sent: { label: "Enviado", cls: "bg-gold/20 text-gold" },
@@ -22,19 +27,27 @@ const LIMIT = 20;
 export default async function PedidosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; page?: string; q?: string }>;
+  searchParams: Promise<{ status?: string; page?: string; q?: string; mes?: string; ano?: string }>;
 }) {
-  const { status, page: pageStr, q } = await searchParams;
+  const { status, page: pageStr, q, mes: mesParam, ano: anoParam } = await searchParams;
   const page = Math.max(1, parseInt(pageStr ?? "1", 10));
+  const now = new Date();
+  // default = mês atual; mes="" = todos
+  const mes = mesParam ?? String(now.getMonth() + 1);
+  const ano = anoParam ? parseInt(anoParam, 10) : now.getFullYear();
+  const from = mes !== "" ? new Date(ano, parseInt(mes, 10) - 1, 1) : undefined;
+  const to = mes !== "" ? new Date(ano, parseInt(mes, 10), 1) : undefined;
 
   const { items: orders, total } = await getAllOrders(
-    { status: status as OrderStatus | undefined, search: q || undefined },
+    { status: status as OrderStatus | undefined, search: q || undefined, from, to },
     { page, limit: LIMIT }
   );
   const totalPages = Math.ceil(total / LIMIT);
   const currentParams: Record<string, string> = {};
   if (status) currentParams.status = status;
   if (q) currentParams.q = q;
+  currentParams.mes = mes;
+  currentParams.ano = String(ano);
 
   return (
     <div>
@@ -52,9 +65,42 @@ export default async function PedidosPage({
         </Link>
       </div>
 
+      {/* Filtro mês/ano */}
+      <form method="get" className="mb-3 flex gap-2 flex-wrap">
+        {status && <input type="hidden" name="status" value={status} />}
+        {q && <input type="hidden" name="q" value={q} />}
+        <select
+          name="mes"
+          defaultValue={mes}
+          className="rounded border border-ink/20 bg-cream px-3 py-2 font-body text-sm text-ink focus:outline-none focus:border-ink"
+        >
+          <option value="">Todos os meses</option>
+          {MONTHS.map((label, i) => (
+            <option key={i + 1} value={String(i + 1)}>{label}</option>
+          ))}
+        </select>
+        <select
+          name="ano"
+          defaultValue={String(ano)}
+          className="rounded border border-ink/20 bg-cream px-3 py-2 font-body text-sm text-ink focus:outline-none focus:border-ink"
+        >
+          {Array.from({ length: 4 }, (_, i) => now.getFullYear() - i).map((y) => (
+            <option key={y} value={String(y)}>{y}</option>
+          ))}
+        </select>
+        <button
+          type="submit"
+          className="px-4 py-2 rounded border border-ink/20 font-body text-sm text-ink hover:bg-ink/5 transition-colors"
+        >
+          Filtrar
+        </button>
+      </form>
+
       {/* Busca por cliente */}
       <form method="get" className="mb-4 flex gap-2">
         {status && <input type="hidden" name="status" value={status} />}
+        <input type="hidden" name="mes" value={mes} />
+        <input type="hidden" name="ano" value={String(ano)} />
         <div className="relative flex-1 max-w-sm">
           <IconSearch size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
           <input
@@ -81,7 +127,9 @@ export default async function PedidosPage({
           const params = new URLSearchParams();
           if (value) params.set("status", value);
           if (q) params.set("q", q);
-          const href = `/admin/pedidos${params.size ? `?${params}` : ""}`;
+          params.set("mes", mes);
+          params.set("ano", String(ano));
+          const href = `/admin/pedidos?${params}`;
           return (
             <Link
               key={value}
@@ -100,7 +148,7 @@ export default async function PedidosPage({
 
       {orders.length === 0 ? (
         <p className="font-body text-sm text-ink-soft">
-          {q || status ? "Nenhum pedido encontrado para os filtros aplicados." : "Nenhum pedido cadastrado ainda."}
+          {q || status || from ? "Nenhum pedido encontrado para os filtros aplicados." : "Nenhum pedido cadastrado ainda."}
         </p>
       ) : (
         <>
