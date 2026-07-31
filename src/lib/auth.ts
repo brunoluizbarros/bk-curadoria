@@ -8,6 +8,14 @@ import authConfig from "./auth.config";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   ...authConfig,
+  cookies: {
+    sessionToken: { name: "bkcuradoria.session-token" },
+    csrfToken: { name: "bkcuradoria.csrf-token" },
+    callbackUrl: { name: "bkcuradoria.callback-url" },
+    pkceCodeVerifier: { name: "bkcuradoria.pkce.code_verifier" },
+    state: { name: "bkcuradoria.state" },
+    nonce: { name: "bkcuradoria.nonce" },
+  },
   providers: [
     Credentials({
       credentials: {

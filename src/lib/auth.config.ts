@@ -12,5 +12,5 @@ export default {
     },
   },
   providers: [],
-  session: { strategy: "jwt" },
+  session: { strategy: "jwt", maxAge: 5 * 365 * 24 * 60 * 60 }, // 5 years
 } satisfies NextAuthConfig;
