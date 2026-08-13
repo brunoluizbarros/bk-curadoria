@@ -136,17 +136,20 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
   const [editingKey, setEditingKey] = useState<string | null>(null);
-  const [filterMonth, setFilterMonth] = useState("");
+  const [filterMonth, setFilterMonth] = useState(() => new Date().toISOString().slice(0, 7));
   const [filterCategory, setFilterCategory] = useState("");
   const [page, setPage] = useState(1);
 
+  const currentMonth = useMemo(() => new Date().toISOString().slice(0, 7), []);
+
   const monthOptions = useMemo(() => {
     const months = new Set<string>();
+    months.add(currentMonth);
     for (const e of expenses) {
       months.add(new Date(e.paidAt).toISOString().slice(0, 7));
     }
     return Array.from(months).sort((a, b) => b.localeCompare(a));
-  }, [expenses]);
+  }, [expenses, currentMonth]);
 
   const allItems = useMemo(
     () => buildDisplayItems(expenses, filterMonth, filterCategory),
@@ -291,19 +294,37 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
         </div>
       )}
 
+      {/* Abas de mês */}
+      <div className="flex gap-1 overflow-x-auto mb-4 pb-px">
+        <button
+          onClick={() => { setFilterMonth(""); setPage(1); }}
+          className={cn(
+            "shrink-0 px-3 py-1.5 rounded-btn font-body text-xs transition-colors whitespace-nowrap",
+            filterMonth === ""
+              ? "bg-ink text-cream"
+              : "border border-ink/20 text-ink-soft hover:border-ink hover:text-ink"
+          )}
+        >
+          Todos
+        </button>
+        {monthOptions.map((m) => (
+          <button
+            key={m}
+            onClick={() => { setFilterMonth(m); setPage(1); }}
+            className={cn(
+              "shrink-0 px-3 py-1.5 rounded-btn font-body text-xs transition-colors whitespace-nowrap capitalize",
+              filterMonth === m
+                ? "bg-ink text-cream"
+                : "border border-ink/20 text-ink-soft hover:border-ink hover:text-ink"
+            )}
+          >
+            {formatMonthLabel(m)}
+          </button>
+        ))}
+      </div>
+
       {/* Filtros */}
       <div className="flex flex-wrap items-center gap-3 mb-4">
-        <select
-          value={filterMonth}
-          onChange={(e) => { setFilterMonth(e.target.value); setPage(1); }}
-          className={selectCls}
-        >
-          <option value="">Todos os meses</option>
-          {monthOptions.map((m) => (
-            <option key={m} value={m}>{formatMonthLabel(m)}</option>
-          ))}
-        </select>
-
         <select
           value={filterCategory}
           onChange={(e) => { setFilterCategory(e.target.value); setPage(1); }}
@@ -315,12 +336,12 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
           ))}
         </select>
 
-        {(filterMonth || filterCategory) && (
+        {filterCategory && (
           <button
-            onClick={() => { setFilterMonth(""); setFilterCategory(""); setPage(1); }}
+            onClick={() => { setFilterCategory(""); setPage(1); }}
             className="font-body text-xs text-ink-soft hover:text-ink underline"
           >
-            Limpar filtros
+            Limpar filtro
           </button>
         )}
 
