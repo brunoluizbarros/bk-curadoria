@@ -476,7 +476,11 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
                       </span>
                       {isFilteredByMonth && item.visibleInstallmentIds.size < item.installments.length && (
                         <span className="font-body text-xs text-ink-soft">
-                          {item.visibleInstallmentIds.size}/{item.installments.length} neste mês
+                          {item.installments
+                            .filter((i) => item.visibleInstallmentIds.has(i.id))
+                            .map((i) => `${i.installmentNumber}/${i.totalInstallments}`)
+                            .join(", ")}{" "}
+                          neste mês
                         </span>
                       )}
                     </div>
