@@ -167,6 +167,10 @@ export default async function PedidosPage({
                       <span className="font-body text-xs text-ink-soft">{formatDate(order.soldAt)}</span>
                       <span className="font-body text-xs text-ink-soft">·</span>
                       <span className="font-body text-xs text-ink-soft">
+                        {order.paidAt ? `finalizado ${formatDate(order.paidAt)}` : "em aberto"}
+                      </span>
+                      <span className="font-body text-xs text-ink-soft">·</span>
+                      <span className="font-body text-xs text-ink-soft">
                         {order.itemCount} {order.itemCount === 1 ? "peça" : "peças"}
                       </span>
                     </div>

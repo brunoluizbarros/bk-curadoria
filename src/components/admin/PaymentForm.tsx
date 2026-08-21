@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { paymentSchema, type PaymentInput } from "@/lib/validations";
@@ -76,12 +76,33 @@ export function PaymentForm({ defaultValues, feeConfigs = {}, onSubmit, submitLa
     }
   }, [grossCents, feePercent, setValue]);
 
+  const busy = useRef(false);
+
   async function onValid(data: PaymentInput) {
-    await onSubmit(data);
+    // ponytail: disabled={isSubmitting} depende de re-render; um duplo clique rápido
+    // ou o submit implícito do Enter escapa. Ref bloqueia sincronamente.
+    if (busy.current) return;
+    busy.current = true;
+    try {
+      await onSubmit(data);
+    } finally {
+      busy.current = false;
+    }
   }
 
   return (
-    <form onSubmit={handleSubmit(onValid)} className="space-y-4">
+    <form
+      onSubmit={handleSubmit(onValid)}
+      onKeyDown={(e) => {
+        // ponytail: Enter em input de texto/data não deve registrar o pagamento —
+        // só o clique no botão "Registrar pagamento" deve submeter o form.
+        const el = e.target as HTMLElement;
+        if (e.key === "Enter" && el.tagName !== "TEXTAREA" && (el as HTMLButtonElement).type !== "submit") {
+          e.preventDefault();
+        }
+      }}
+      className="space-y-4"
+    >
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block font-body text-xs uppercase tracking-widest text-ink-soft mb-1">

@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
 import { orders, orderItems, customers, addresses, products, productImages, payments } from "@/db/schema";
-import { and, asc, count, desc, eq, gte, ilike, inArray, lte } from "drizzle-orm";
+import { and, asc, count, eq, gte, ilike, inArray, lt } from "drizzle-orm";
 
 export type OrderStatus = "draft" | "sent" | "returned" | "paid" | "cancelled";
 
@@ -23,7 +23,7 @@ export async function getAllOrders(
   const conditions = [];
   if (filters?.status) conditions.push(eq(orders.status, filters.status));
   if (filters?.from) conditions.push(gte(orders.soldAt, filters.from));
-  if (filters?.to) conditions.push(lte(orders.soldAt, filters.to));
+  if (filters?.to) conditions.push(lt(orders.soldAt, filters.to));
   if (filters?.search) conditions.push(ilike(customers.name, `%${filters.search}%`));
 
   const where = conditions.length ? and(...conditions) : undefined;
@@ -45,7 +45,7 @@ export async function getAllOrders(
       .from(orders)
       .innerJoin(customers, eq(orders.customerId, customers.id))
       .where(where)
-      .orderBy(desc(orders.soldAt))
+      .orderBy(asc(orders.soldAt), asc(orders.createdAt))
       .limit(limit)
       .offset(offset),
   ]);
