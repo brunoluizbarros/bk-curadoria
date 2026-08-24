@@ -50,6 +50,13 @@
       "when": 1781932834948,
       "tag": "0006_orange_ultimo",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1787602892775,
+      "tag": "0007_unusual_freak",
+      "breakpoints": true
     }
   ]
 }

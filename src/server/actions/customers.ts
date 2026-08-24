@@ -48,13 +48,9 @@ export async function updateCustomer(id: string, data: unknown) {
 
 export async function deleteCustomer(id: string) {
   await requireAdmin();
-  try {
-    await db.delete(customers).where(eq(customers.id, id));
-    revalidatePath("/admin/clientes");
-    return { success: true };
-  } catch {
-    return { error: "Cliente possui pedidos e não pode ser removido." };
-  }
+  await db.update(customers).set({ deletedAt: new Date() }).where(eq(customers.id, id));
+  revalidatePath("/admin/clientes");
+  return { success: true };
 }
 
 export async function searchCustomersAction(q: string) {

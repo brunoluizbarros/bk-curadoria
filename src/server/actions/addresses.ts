@@ -61,7 +61,7 @@ export async function updateAddress(id: string, customerId: string, data: unknow
 
 export async function deleteAddress(id: string, customerId: string) {
   await requireAdmin();
-  await db.delete(addresses).where(eq(addresses.id, id));
+  await db.update(addresses).set({ deletedAt: new Date() }).where(eq(addresses.id, id));
   revalidatePath(`/admin/clientes/${customerId}`);
   return { success: true };
 }

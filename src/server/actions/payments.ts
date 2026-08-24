@@ -5,7 +5,7 @@ import { db } from "@/db/client";
 import { payments, orders, orderItems, loyaltyCredits } from "@/db/schema";
 import { paymentSchema } from "@/lib/validations";
 import { calcFeeCents, calcNetCents } from "@/lib/fees";
-import { and, eq, gte, sum } from "drizzle-orm";
+import { and, eq, gte, isNull, sum } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getLoyaltyConfig, hasEarnedCreditForOrder } from "@/server/queries/loyalty";
 import { computeOrderItemTotal } from "@/server/queries/orders";
@@ -38,7 +38,8 @@ export async function createPayment(orderId: string, data: unknown) {
         eq(payments.grossCents, rest.grossCents),
         eq(payments.method, rest.method),
         eq(payments.paidAt, new Date(paidAt)),
-        gte(payments.createdAt, tenSecondsAgo)
+        gte(payments.createdAt, tenSecondsAgo),
+        isNull(payments.deletedAt)
       )
     )
     .limit(1);
@@ -112,7 +113,7 @@ export async function markPaymentSettled(id: string, orderId: string) {
 
 export async function deletePayment(id: string, orderId: string) {
   await requireAdmin();
-  await db.delete(payments).where(eq(payments.id, id));
+  await db.update(payments).set({ deletedAt: new Date() }).where(eq(payments.id, id));
   revalidatePath(`/admin/pedidos/${orderId}`);
   revalidatePath("/admin/recebimentos");
   return { success: true };
@@ -140,7 +141,7 @@ async function markOrderPaidIfNeeded(orderId: string) {
       status: orderItems.status,
     })
     .from(orderItems)
-    .where(eq(orderItems.orderId, orderId));
+    .where(and(eq(orderItems.orderId, orderId), isNull(orderItems.deletedAt)));
 
   const orderTotal = computeOrderItemTotal(
     items,
@@ -152,7 +153,7 @@ async function markOrderPaidIfNeeded(orderId: string) {
   const [{ totalPaid }] = await db
     .select({ totalPaid: sum(payments.grossCents) })
     .from(payments)
-    .where(eq(payments.orderId, orderId));
+    .where(and(eq(payments.orderId, orderId), isNull(payments.deletedAt)));
 
   if (Number(totalPaid ?? 0) >= orderTotal) {
     await db.transaction(async (tx) => {

@@ -31,6 +31,7 @@ export const expenses = pgTable(
     totalInstallments: integer("total_installments"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (t) => [
     index("expenses_category_id_idx").on(t.categoryId),

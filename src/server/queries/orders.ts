@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
 import { orders, orderItems, customers, addresses, products, productImages, payments } from "@/db/schema";
-import { and, asc, count, eq, gte, ilike, inArray, lt } from "drizzle-orm";
+import { and, asc, count, eq, gte, ilike, inArray, isNull, lt } from "drizzle-orm";
 
 export type OrderStatus = "draft" | "sent" | "returned" | "paid" | "cancelled";
 
@@ -20,7 +20,7 @@ export async function getAllOrders(
   filters?: { status?: OrderStatus; from?: Date; to?: Date; search?: string },
   pagination?: { page: number; limit: number }
 ) {
-  const conditions = [];
+  const conditions = [isNull(orders.deletedAt)];
   if (filters?.status) conditions.push(eq(orders.status, filters.status));
   if (filters?.from) conditions.push(gte(orders.soldAt, filters.from));
   if (filters?.to) conditions.push(lt(orders.soldAt, filters.to));
@@ -63,7 +63,7 @@ export async function getAllOrders(
       quantity: orderItems.quantity,
     })
     .from(orderItems)
-    .where(inArray(orderItems.orderId, orderIds));
+    .where(and(inArray(orderItems.orderId, orderIds), isNull(orderItems.deletedAt)));
 
   return {
     items: rows.map((r) => ({
@@ -102,7 +102,7 @@ export async function getOrderById(id: string) {
     })
     .from(orderItems)
     .innerJoin(products, eq(orderItems.productId, products.id))
-    .where(eq(orderItems.orderId, id))
+    .where(and(eq(orderItems.orderId, id), isNull(orderItems.deletedAt)))
     .orderBy(asc(orderItems.id));
 
   const productIds = items.map((i) => i.product.id);
@@ -117,7 +117,7 @@ export async function getOrderById(id: string) {
   const orderPayments = await db
     .select()
     .from(payments)
-    .where(eq(payments.orderId, id))
+    .where(and(eq(payments.orderId, id), isNull(payments.deletedAt)))
     .orderBy(asc(payments.paidAt));
 
   const enrichedItems = items.map((i) => ({

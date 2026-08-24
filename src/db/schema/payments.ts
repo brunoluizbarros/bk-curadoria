@@ -37,6 +37,7 @@ export const payments = pgTable(
     reference: text("reference"),
     notes: text("notes"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (t) => [
     index("payments_order_id_idx").on(t.orderId),

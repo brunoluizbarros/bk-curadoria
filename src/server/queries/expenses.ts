@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
 import { expenses, expenseCategories } from "@/db/schema";
-import { and, asc, count, desc, eq, gte, lte } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, isNull, lte } from "drizzle-orm";
 
 export async function getExpenseCategories() {
   return db
@@ -21,12 +21,12 @@ export async function getAllExpenses(
   filters?: { from?: Date; to?: Date; categoryId?: string },
   pagination?: { page: number; limit: number }
 ) {
-  const conditions = [];
+  const conditions = [isNull(expenses.deletedAt)];
   if (filters?.from) conditions.push(gte(expenses.paidAt, filters.from));
   if (filters?.to) conditions.push(lte(expenses.paidAt, filters.to));
   if (filters?.categoryId) conditions.push(eq(expenses.categoryId, filters.categoryId));
 
-  const where = conditions.length ? and(...conditions) : undefined;
+  const where = and(...conditions);
   const limit = pagination?.limit ?? 1000;
   const offset = pagination ? (pagination.page - 1) * pagination.limit : 0;
 

@@ -169,14 +169,14 @@ export async function updateOrderItemStatus(
 
 export async function removeOrderItem(itemId: string, orderId: string) {
   await requireAdmin();
-  await db.delete(orderItems).where(eq(orderItems.id, itemId));
+  await db.update(orderItems).set({ deletedAt: new Date() }).where(eq(orderItems.id, itemId));
   revalidatePath(`/admin/pedidos/${orderId}`);
   return { success: true };
 }
 
 export async function deleteOrder(id: string) {
   await requireAdmin();
-  await db.delete(orders).where(eq(orders.id, id));
+  await db.update(orders).set({ deletedAt: new Date() }).where(eq(orders.id, id));
   revalidatePath("/admin/pedidos");
   return { success: true };
 }

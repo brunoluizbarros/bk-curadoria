@@ -5,7 +5,7 @@ import {
   productCategories,
   categories,
 } from "@/db/schema";
-import { and, asc, count, eq, inArray } from "drizzle-orm";
+import { and, asc, count, eq, inArray, isNull } from "drizzle-orm";
 
 export async function getActiveProducts(categorySlug?: string) {
   let productIds: string[] | undefined;
@@ -27,8 +27,8 @@ export async function getActiveProducts(categorySlug?: string) {
   }
 
   const where = productIds
-    ? and(eq(products.active, true), inArray(products.id, productIds))
-    : eq(products.active, true);
+    ? and(eq(products.active, true), isNull(products.deletedAt), inArray(products.id, productIds))
+    : and(eq(products.active, true), isNull(products.deletedAt));
 
   const rows = await db
     .select()
@@ -52,7 +52,7 @@ export async function getProductBySlug(slug: string) {
   const [product] = await db
     .select()
     .from(products)
-    .where(and(eq(products.slug, slug), eq(products.active, true)));
+    .where(and(eq(products.slug, slug), eq(products.active, true), isNull(products.deletedAt)));
 
   if (!product) return null;
 
@@ -79,6 +79,7 @@ export async function getAllProductsAdmin() {
   const rows = await db
     .select()
     .from(products)
+    .where(isNull(products.deletedAt))
     .orderBy(asc(products.sortOrder), asc(products.createdAt));
 
   const [images, catLinks] = await Promise.all([
@@ -100,10 +101,11 @@ export async function getProductsAdminPaginated(page: number, limit: number) {
   const offset = (page - 1) * limit;
 
   const [[countRow], rows] = await Promise.all([
-    db.select({ total: count() }).from(products),
+    db.select({ total: count() }).from(products).where(isNull(products.deletedAt)),
     db
       .select()
       .from(products)
+      .where(isNull(products.deletedAt))
       .orderBy(asc(products.sortOrder), asc(products.createdAt))
       .limit(limit)
       .offset(offset),

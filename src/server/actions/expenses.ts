@@ -76,7 +76,7 @@ export async function updateExpense(id: string, data: unknown) {
 
 export async function deleteExpense(id: string) {
   await requireAdmin();
-  await db.delete(expenses).where(eq(expenses.id, id));
+  await db.update(expenses).set({ deletedAt: new Date() }).where(eq(expenses.id, id));
   revalidatePath("/admin/despesas");
   revalidatePath("/admin/dre");
   return { success: true };
@@ -84,7 +84,7 @@ export async function deleteExpense(id: string) {
 
 export async function deleteExpenseGroup(groupId: string) {
   await requireAdmin();
-  await db.delete(expenses).where(eq(expenses.installmentGroupId, groupId));
+  await db.update(expenses).set({ deletedAt: new Date() }).where(eq(expenses.installmentGroupId, groupId));
   revalidatePath("/admin/despesas");
   revalidatePath("/admin/dre");
   return { success: true };

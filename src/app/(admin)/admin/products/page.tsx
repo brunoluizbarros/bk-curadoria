@@ -2,7 +2,7 @@ import { getProductsAdminPaginated } from "@/server/queries/products";
 import { formatBRL } from "@/lib/format";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
-import { deleteProduct } from "@/server/actions/products";
+import { ProductDeleteButton } from "@/components/admin/ProductDeleteButton";
 import { Pagination } from "@/components/admin/Pagination";
 import type { Metadata } from "next";
 
@@ -81,14 +81,7 @@ export default async function ProductsPage({
                   <Link href={`/admin/products/${p.id}/edit`}>
                     <Button variant="ghost" size="sm">Editar</Button>
                   </Link>
-                  <form
-                    action={async () => {
-                      "use server";
-                      await deleteProduct(p.id);
-                    }}
-                  >
-                    <Button variant="danger" size="sm" type="submit">Deletar</Button>
-                  </form>
+                  <ProductDeleteButton productId={p.id} productName={p.name} />
                 </div>
               </div>
             ))}

@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
 import { wishlists, wishlistItems, products, productImages } from "@/db/schema";
-import { and, asc, count, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, isNull } from "drizzle-orm";
 
 export async function getWishlistByToken(token: string) {
   const [list] = await db
@@ -14,7 +14,7 @@ export async function getWishlistByToken(token: string) {
     .select({ product: products })
     .from(wishlistItems)
     .innerJoin(products, eq(wishlistItems.productId, products.id))
-    .where(eq(wishlistItems.wishlistId, list.id));
+    .where(and(eq(wishlistItems.wishlistId, list.id), isNull(products.deletedAt)));
 
   const productIds = items.map((i) => i.product.id);
   const allImages = productIds.length
@@ -77,7 +77,7 @@ export async function getWishlistByIdAdmin(id: string) {
     .select({ product: products })
     .from(wishlistItems)
     .innerJoin(products, eq(wishlistItems.productId, products.id))
-    .where(eq(wishlistItems.wishlistId, id));
+    .where(and(eq(wishlistItems.wishlistId, id), isNull(products.deletedAt)));
 
   const productIds = items.map((i) => i.product.id);
   const allImages = productIds.length

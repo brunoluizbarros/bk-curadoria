@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
 import { products } from "@/db/schema";
-import { eq, count } from "drizzle-orm";
+import { and, eq, count, isNull } from "drizzle-orm";
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import type { Metadata } from "next";
@@ -8,8 +8,11 @@ import type { Metadata } from "next";
 export const metadata: Metadata = { title: { absolute: "Dashboard · BK Admin" } };
 
 export default async function AdminDashboard() {
-  const [total] = await db.select({ count: count() }).from(products);
-  const [active] = await db.select({ count: count() }).from(products).where(eq(products.active, true));
+  const [total] = await db.select({ count: count() }).from(products).where(isNull(products.deletedAt));
+  const [active] = await db
+    .select({ count: count() })
+    .from(products)
+    .where(and(eq(products.active, true), isNull(products.deletedAt)));
 
   return (
     <div>

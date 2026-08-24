@@ -33,7 +33,13 @@ export async function getDREByMonth(year: number, month: number): Promise<DREMon
       netCents: payments.netCents,
     })
     .from(payments)
-    .where(and(gte(payments.settledAt, from), lt(payments.settledAt, to)));
+    .where(
+      and(
+        gte(payments.settledAt, from),
+        lt(payments.settledAt, to),
+        isNull(payments.deletedAt)
+      )
+    );
 
   // Pendente: payments com paid_at no mês mas settledAt nulo
   const [pendingRow] = await db
@@ -43,7 +49,8 @@ export async function getDREByMonth(year: number, month: number): Promise<DREMon
       and(
         gte(payments.paidAt, from),
         lt(payments.paidAt, to),
-        isNull(payments.settledAt)
+        isNull(payments.settledAt),
+        isNull(payments.deletedAt)
       )
     );
 
@@ -63,7 +70,13 @@ export async function getDREByMonth(year: number, month: number): Promise<DREMon
     })
     .from(expenses)
     .innerJoin(expenseCategories, eq(expenses.categoryId, expenseCategories.id))
-    .where(and(gte(expenses.paidAt, from), lt(expenses.paidAt, to)));
+    .where(
+      and(
+        gte(expenses.paidAt, from),
+        lt(expenses.paidAt, to),
+        isNull(expenses.deletedAt)
+      )
+    );
 
   const categoryMap: Record<string, number> = {};
   let totalExpCents = 0;

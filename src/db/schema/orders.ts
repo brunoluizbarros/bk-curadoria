@@ -42,6 +42,7 @@ export const orders = pgTable(
     notes: text("notes"),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (t) => [
     index("orders_customer_id_idx").on(t.customerId),
@@ -65,6 +66,7 @@ export const orderItems = pgTable(
     quantity: integer("quantity").default(1).notNull(),
     status: orderItemStatusEnum("status").default("kept").notNull(),
     notes: text("notes"),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (t) => [index("order_items_order_id_idx").on(t.orderId)]
 );

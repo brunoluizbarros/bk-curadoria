@@ -95,14 +95,9 @@ export async function updateProduct(id: string, data: unknown) {
 export async function deleteProduct(id: string) {
   await requireAdmin();
 
-  const images = await db
-    .select()
-    .from(productImages)
-    .where(eq(productImages.productId, id));
+  // soft delete: mantém a linha (e as fotos) para pedidos antigos continuarem exibindo o produto
+  await db.update(products).set({ deletedAt: new Date() }).where(eq(products.id, id));
 
-  await Promise.all(images.map((img) => deleteStorageObject(img.storageKey)));
-
-  await db.delete(products).where(eq(products.id, id));
   revalidatePath("/");
   revalidatePath("/admin/products");
   return { success: true };

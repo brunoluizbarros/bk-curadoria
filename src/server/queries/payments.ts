@@ -6,7 +6,7 @@ export async function getPaymentsByOrder(orderId: string) {
   return db
     .select()
     .from(payments)
-    .where(eq(payments.orderId, orderId))
+    .where(and(eq(payments.orderId, orderId), isNull(payments.deletedAt)))
     .orderBy(asc(payments.paidAt));
 }
 
@@ -20,7 +20,13 @@ export async function getPendingSettlements() {
     .from(payments)
     .innerJoin(orders, eq(payments.orderId, orders.id))
     .innerJoin(customers, eq(orders.customerId, customers.id))
-    .where(isNull(payments.settledAt))
+    .where(
+      and(
+        isNull(payments.settledAt),
+        isNull(payments.deletedAt),
+        isNull(orders.deletedAt)
+      )
+    )
     .orderBy(asc(payments.paidAt));
 
   return rows.map((r) => ({
@@ -43,7 +49,13 @@ export async function getRecentSettlements(days = 30) {
     .from(payments)
     .innerJoin(orders, eq(payments.orderId, orders.id))
     .innerJoin(customers, eq(orders.customerId, customers.id))
-    .where(and(gte(payments.settledAt, since)))
+    .where(
+      and(
+        gte(payments.settledAt, since),
+        isNull(payments.deletedAt),
+        isNull(orders.deletedAt)
+      )
+    )
     .orderBy(desc(payments.settledAt));
 
   return rows.map((r) => ({
