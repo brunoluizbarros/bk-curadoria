@@ -37,7 +37,7 @@ export default async function ProductsPage({
             {products.map((p) => (
               <div
                 key={p.id}
-                className="flex items-center gap-4 bg-cream rounded-card px-4 py-3 border border-ink/10"
+                className="flex items-center gap-4 flex-wrap bg-cream rounded-card px-4 py-3 border border-ink/10"
               >
                 <div
                   className="w-10 h-12 rounded shrink-0"
@@ -70,14 +70,14 @@ export default async function ProductsPage({
                 </div>
 
                 <span
-                  className={`font-body text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-sm ${
+                  className={`shrink-0 font-body text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-sm ${
                     p.active ? "bg-sage/20 text-sage-deep" : "bg-ink/10 text-ink-soft"
                   }`}
                 >
                   {p.active ? "Ativo" : "Inativo"}
                 </span>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 shrink-0">
                   <Link href={`/admin/products/${p.id}/edit`}>
                     <Button variant="ghost" size="sm">Editar</Button>
                   </Link>
