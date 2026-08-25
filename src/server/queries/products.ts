@@ -5,7 +5,10 @@ import {
   productCategories,
   categories,
 } from "@/db/schema";
-import { and, asc, count, eq, inArray, isNull } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, inArray, isNull } from "drizzle-orm";
+
+export type ProductAdminSort = "name" | "created" | "order";
+export type SortDir = "asc" | "desc";
 
 export async function getActiveProducts(categorySlug?: string) {
   let productIds: string[] | undefined;
@@ -42,10 +45,12 @@ export async function getActiveProducts(categorySlug?: string) {
     .from(productImages)
     .orderBy(asc(productImages.sortOrder));
 
-  return rows.map((p) => ({
-    ...p,
-    firstImage: allImages.find((img) => img.productId === p.id) ?? null,
-  }));
+  return rows
+    .map((p) => ({
+      ...p,
+      firstImage: allImages.find((img) => img.productId === p.id) ?? null,
+    }))
+    .filter((p) => p.firstImage !== null);
 }
 
 export async function getProductBySlug(slug: string) {
@@ -97,16 +102,40 @@ export async function getAllProductsAdmin() {
   }));
 }
 
-export async function getProductsAdminPaginated(page: number, limit: number) {
+export async function getProductsAdminPaginated(
+  page: number,
+  limit: number,
+  filters?: { search?: string; categoryId?: string; sort?: ProductAdminSort; dir?: SortDir }
+) {
   const offset = (page - 1) * limit;
 
+  const conditions = [isNull(products.deletedAt)];
+  if (filters?.search) conditions.push(ilike(products.name, `%${filters.search}%`));
+
+  if (filters?.categoryId) {
+    const links = await db
+      .select({ productId: productCategories.productId })
+      .from(productCategories)
+      .where(eq(productCategories.categoryId, filters.categoryId));
+    const ids = links.map((l) => l.productId);
+    if (ids.length === 0) return { items: [], total: 0 };
+    conditions.push(inArray(products.id, ids));
+  }
+
+  const where = and(...conditions);
+  const dir = filters?.dir === "desc" ? desc : asc;
+  const orderColumn =
+    filters?.sort === "name" ? products.name
+    : filters?.sort === "created" ? products.createdAt
+    : products.sortOrder;
+
   const [[countRow], rows] = await Promise.all([
-    db.select({ total: count() }).from(products).where(isNull(products.deletedAt)),
+    db.select({ total: count() }).from(products).where(where),
     db
       .select()
       .from(products)
-      .where(isNull(products.deletedAt))
-      .orderBy(asc(products.sortOrder), asc(products.createdAt))
+      .where(where)
+      .orderBy(dir(orderColumn), asc(products.id))
       .limit(limit)
       .offset(offset),
   ]);

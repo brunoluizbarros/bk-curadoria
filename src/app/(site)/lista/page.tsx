@@ -5,6 +5,7 @@ import { WishlistForm } from "@/components/site/WishlistForm";
 import { BackOrHome } from "@/components/site/BackOrHome";
 import { formatBRL } from "@/lib/format";
 import { IconHeart, IconX } from "@/components/ui/icons";
+import { pickFallbackGradient } from "@/lib/gradients";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -47,7 +48,7 @@ export default function ListaPage() {
               >
                 <div
                   className="w-12 h-14 rounded shrink-0 overflow-hidden"
-                  style={{ background: item.firstImageUrl ? undefined : item.fallbackGradient ?? "linear-gradient(135deg,#6A7256,#4F5841)" }}
+                  style={{ background: item.firstImageUrl ? undefined : item.fallbackGradient ?? pickFallbackGradient(item.id) }}
                 >
                   {item.firstImageUrl && (
                     <Image

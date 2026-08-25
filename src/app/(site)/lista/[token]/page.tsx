@@ -3,6 +3,7 @@ import { getSiteConfig } from "@/server/queries/site-config";
 import { WishlistShareActions } from "@/components/site/WishlistShareActions";
 import { formatBRL } from "@/lib/format";
 import { buildWhatsAppLink } from "@/lib/whatsapp";
+import { pickFallbackGradient } from "@/lib/gradients";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { IconHeart, IconBrandWhatsapp } from "@/components/ui/icons";
@@ -71,7 +72,7 @@ export default async function WishlistTokenPage({ params }: Props) {
           >
             <div
               className="w-12 h-14 rounded shrink-0 overflow-hidden"
-              style={{ background: item.firstImage ? undefined : item.fallbackGradient ?? "linear-gradient(135deg,#6A7256,#4F5841)" }}
+              style={{ background: item.firstImage ? undefined : item.fallbackGradient ?? pickFallbackGradient(item.id) }}
             >
               {item.firstImage && (
                 <Image

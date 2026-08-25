@@ -5,6 +5,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { IconChevronLeft, IconChevronRight, IconX } from "@tabler/icons-react";
 import { ProductImage } from "@/db/schema";
+import { pickFallbackGradient } from "@/lib/gradients";
 
 interface ProductCarouselProps {
   images: ProductImage[];
@@ -77,7 +78,7 @@ export function ProductCarousel({ images, fallbackGradient, productName, classNa
           {total === 0 ? (
             <div
               className="w-full h-full"
-              style={{ background: fallbackGradient ?? "linear-gradient(135deg,#6A7256,#4F5841)" }}
+              style={{ background: fallbackGradient ?? pickFallbackGradient(productName) }}
             />
           ) : (
             <div

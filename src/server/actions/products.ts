@@ -11,8 +11,8 @@ import { productSchema } from "@/lib/validations";
 import { publicUrl, s3, BUCKET } from "@/lib/upload";
 import { eq, asc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { DeleteObjectCommand } from "@aws-sdk/client-s3";
-import { unlink } from "fs/promises";
+import { DeleteObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
+import { unlink, stat } from "fs/promises";
 import { join } from "path";
 
 async function requireAdmin() {
@@ -26,6 +26,24 @@ async function deleteStorageObject(storageKey: string) {
   } else {
     // desenvolvimento: remove arquivo local
     await unlink(join(process.cwd(), "public", "uploads", storageKey)).catch(() => null);
+  }
+}
+
+// Confirma que o arquivo realmente chegou no storage antes de cadastrar a imagem
+async function storageObjectExists(storageKey: string): Promise<boolean> {
+  if (s3) {
+    try {
+      const head = await s3.send(new HeadObjectCommand({ Bucket: BUCKET, Key: storageKey }));
+      return (head.ContentLength ?? 0) > 0;
+    } catch {
+      return false;
+    }
+  }
+  try {
+    const info = await stat(join(process.cwd(), "public", "uploads", storageKey));
+    return info.size > 0;
+  } catch {
+    return false;
   }
 }
 
@@ -111,6 +129,11 @@ export async function addProductImage(data: {
   alt?: string;
 }) {
   await requireAdmin();
+
+  const ok = await storageObjectExists(data.storageKey);
+  if (!ok) {
+    return { error: "Não foi possível confirmar o upload da imagem no storage. Tente novamente." };
+  }
 
   const existing = await db
     .select()

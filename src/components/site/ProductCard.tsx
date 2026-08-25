@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Product, ProductImage } from "@/db/schema";
@@ -9,29 +12,27 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, firstImage }: ProductCardProps) {
+  const [broken, setBroken] = useState(false);
+
+  // imagem quebrada (URL não carrega) = mesmo tratamento de "sem foto": não exibe o produto
+  if (!firstImage || broken) return null;
+
   return (
     <article>
     <Link href={`/produtos/${product.slug}`} className="block group">
-      {/* Imagem / placeholder gradiente */}
       <div
         className="relative w-full rounded-card overflow-hidden mb-3"
         style={{ aspectRatio: "3/4" }}
       >
-        {firstImage ? (
-          <Image
-            src={firstImage.url}
-            alt={firstImage.alt ?? product.name}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-103"
-            sizes="(min-width: 1280px) 22vw, (min-width: 1024px) 25vw, (min-width: 768px) 33vw, 48vw"
-            quality={85}
-          />
-        ) : (
-          <div
-            className="w-full h-full"
-            style={{ background: product.fallbackGradient ?? "linear-gradient(135deg,#6A7256,#4F5841)" }}
-          />
-        )}
+        <Image
+          src={firstImage.url}
+          alt={firstImage.alt ?? product.name}
+          fill
+          className="object-cover transition-transform duration-500 group-hover:scale-103"
+          sizes="(min-width: 1280px) 22vw, (min-width: 1024px) 25vw, (min-width: 768px) 33vw, 48vw"
+          quality={85}
+          onError={() => setBroken(true)}
+        />
 
         {product.tag && (
           <span className="absolute top-3 left-3 bg-ink/70 text-cream text-[9px] tracking-widest uppercase px-2 py-1 rounded-sm">
