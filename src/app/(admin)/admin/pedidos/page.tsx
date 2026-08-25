@@ -1,4 +1,4 @@
-import { getAllOrders } from "@/server/queries/orders";
+import { getAllOrders, getOrderMonths } from "@/server/queries/orders";
 import Link from "next/link";
 import { IconReceipt, IconPlus, IconSearch } from "@/components/ui/icons";
 import { formatBRL, formatDate } from "@/lib/format";
@@ -7,10 +7,10 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: { absolute: "Pedidos · BK Admin" } };
 
-const MONTHS = [
-  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
-];
+function formatMonthLabel(ym: string) {
+  const [year, month] = ym.split("-").map(Number);
+  return new Date(year, month - 1, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+}
 
 const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
   draft: { label: "Rascunho", cls: "bg-ink/10 text-ink-soft" },
@@ -27,27 +27,32 @@ const LIMIT = 20;
 export default async function PedidosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; page?: string; q?: string; mes?: string; ano?: string }>;
+  searchParams: Promise<{ status?: string; page?: string; q?: string; ym?: string }>;
 }) {
-  const { status, page: pageStr, q, mes: mesParam, ano: anoParam } = await searchParams;
+  const { status, page: pageStr, q, ym: ymParam } = await searchParams;
   const page = Math.max(1, parseInt(pageStr ?? "1", 10));
-  const now = new Date();
-  // default = mês atual; mes="" = todos
-  const mes = mesParam ?? String(now.getMonth() + 1);
-  const ano = anoParam ? parseInt(anoParam, 10) : now.getFullYear();
-  const from = mes !== "" ? new Date(ano, parseInt(mes, 10) - 1, 1) : undefined;
-  const to = mes !== "" ? new Date(ano, parseInt(mes, 10), 1) : undefined;
+  // default = mês atual; ym="" = todos
+  const ym = ymParam ?? new Date().toISOString().slice(0, 7);
+  let from: Date | undefined;
+  let to: Date | undefined;
+  if (ym !== "") {
+    const [year, month] = ym.split("-").map(Number);
+    from = new Date(year, month - 1, 1);
+    to = new Date(year, month, 1);
+  }
 
-  const { items: orders, total } = await getAllOrders(
-    { status: status as OrderStatus | undefined, search: q || undefined, from, to },
-    { page, limit: LIMIT }
-  );
+  const [{ items: orders, total }, months] = await Promise.all([
+    getAllOrders(
+      { status: status as OrderStatus | undefined, search: q || undefined, from, to },
+      { page, limit: LIMIT }
+    ),
+    getOrderMonths(),
+  ]);
   const totalPages = Math.ceil(total / LIMIT);
   const currentParams: Record<string, string> = {};
   if (status) currentParams.status = status;
   if (q) currentParams.q = q;
-  currentParams.mes = mes;
-  currentParams.ano = String(ano);
+  currentParams.ym = ym;
 
   return (
     <div>
@@ -65,42 +70,34 @@ export default async function PedidosPage({
         </Link>
       </div>
 
-      {/* Filtro mês/ano */}
-      <form method="get" className="mb-3 flex gap-2 flex-wrap">
-        {status && <input type="hidden" name="status" value={status} />}
-        {q && <input type="hidden" name="q" value={q} />}
-        <select
-          name="mes"
-          defaultValue={mes}
-          className="rounded border border-ink/20 bg-cream px-3 py-2 font-body text-sm text-ink focus:outline-none focus:border-ink"
-        >
-          <option value="">Todos os meses</option>
-          {MONTHS.map((label, i) => (
-            <option key={i + 1} value={String(i + 1)}>{label}</option>
-          ))}
-        </select>
-        <select
-          name="ano"
-          defaultValue={String(ano)}
-          className="rounded border border-ink/20 bg-cream px-3 py-2 font-body text-sm text-ink focus:outline-none focus:border-ink"
-        >
-          {Array.from({ length: 4 }, (_, i) => now.getFullYear() - i).map((y) => (
-            <option key={y} value={String(y)}>{y}</option>
-          ))}
-        </select>
-        <button
-          type="submit"
-          className="px-4 py-2 rounded border border-ink/20 font-body text-sm text-ink hover:bg-ink/5 transition-colors"
-        >
-          Filtrar
-        </button>
-      </form>
+      {/* Abas de mês */}
+      <div className="flex gap-1 overflow-x-auto mb-4 pb-px">
+        {[{ value: "", label: "Todos" }, ...months.map((m) => ({ value: m, label: formatMonthLabel(m) }))].map(
+          ({ value, label }) => {
+            const params = new URLSearchParams();
+            if (status) params.set("status", status);
+            if (q) params.set("q", q);
+            if (value) params.set("ym", value);
+            const href = `/admin/pedidos${params.toString() ? `?${params}` : ""}`;
+            return (
+              <Link
+                key={value || "todos"}
+                href={href}
+                className={`shrink-0 px-3 py-1.5 rounded-btn font-body text-xs transition-colors whitespace-nowrap capitalize ${
+                  ym === value ? "bg-ink text-cream" : "border border-ink/20 text-ink-soft hover:border-ink hover:text-ink"
+                }`}
+              >
+                {label}
+              </Link>
+            );
+          }
+        )}
+      </div>
 
       {/* Busca por cliente */}
       <form method="get" className="mb-4 flex gap-2">
         {status && <input type="hidden" name="status" value={status} />}
-        <input type="hidden" name="mes" value={mes} />
-        <input type="hidden" name="ano" value={String(ano)} />
+        <input type="hidden" name="ym" value={ym} />
         <div className="relative flex-1 max-w-sm">
           <IconSearch size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft" />
           <input
@@ -127,8 +124,7 @@ export default async function PedidosPage({
           const params = new URLSearchParams();
           if (value) params.set("status", value);
           if (q) params.set("q", q);
-          params.set("mes", mes);
-          params.set("ano", String(ano));
+          if (ym) params.set("ym", ym);
           const href = `/admin/pedidos?${params}`;
           return (
             <Link

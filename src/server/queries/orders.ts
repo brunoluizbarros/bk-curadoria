@@ -1,8 +1,20 @@
 import { db } from "@/db/client";
 import { orders, orderItems, customers, addresses, products, productImages, payments } from "@/db/schema";
-import { and, asc, count, eq, gte, ilike, inArray, isNull, lt } from "drizzle-orm";
+import { and, asc, count, eq, gte, ilike, inArray, isNull, lt, sql } from "drizzle-orm";
 
 export type OrderStatus = "draft" | "sent" | "returned" | "paid" | "cancelled";
+
+// Meses (YYYY-MM) com pelo menos um pedido — usado nas abas de filtro da listagem
+export async function getOrderMonths(): Promise<string[]> {
+  const rows = await db
+    .selectDistinct({ ym: sql<string>`to_char(${orders.soldAt}, 'YYYY-MM')` })
+    .from(orders)
+    .where(isNull(orders.deletedAt));
+
+  const months = new Set(rows.map((r) => r.ym));
+  months.add(new Date().toISOString().slice(0, 7));
+  return Array.from(months).sort((a, b) => b.localeCompare(a));
+}
 
 export function computeOrderItemTotal(
   items: { unitPriceCents: number; discountCents?: number; quantity: number; status: string }[],
