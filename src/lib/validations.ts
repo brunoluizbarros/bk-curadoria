@@ -143,7 +143,8 @@ export const orderItemSchema = z.object({
 
 export const orderSchema = z.object({
   customerId: z.string().uuid("Cliente obrigatório"),
-  addressId: z.string().uuid().optional().nullable(),
+  // select nativo manda "" quando não há endereço selecionado — trata como ausência
+  addressId: z.union([z.literal(""), z.string().uuid()]).optional().nullable(),
   soldAt: z.string().min(1, "Data da venda obrigatória"),
   discountCents: z.number().int().min(0),
   shippingCents: z.number().int().min(0),

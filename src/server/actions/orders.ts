@@ -79,7 +79,7 @@ export async function createOrder(data: unknown) {
     .insert(orders)
     .values({
       ...orderData,
-      addressId: orderData.addressId ?? null,
+      addressId: orderData.addressId || null,
       soldAt: new Date(soldAt),
     })
     .returning({ id: orders.id });
@@ -108,7 +108,7 @@ export async function updateOrder(id: string, data: unknown) {
   const { soldAt, ...rest } = parsed.data;
   await db
     .update(orders)
-    .set({ ...rest, soldAt: new Date(soldAt), updatedAt: new Date() })
+    .set({ ...rest, addressId: rest.addressId || null, soldAt: new Date(soldAt), updatedAt: new Date() })
     .where(eq(orders.id, id));
 
   revalidatePath("/admin/pedidos");
