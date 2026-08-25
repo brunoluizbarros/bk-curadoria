@@ -5,7 +5,7 @@ import { db } from "@/db/client";
 import { addresses } from "@/db/schema";
 import { addressSchema } from "@/lib/validations";
 import { lookupCep } from "@/lib/viacep";
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 async function requireAdmin() {
@@ -53,7 +53,7 @@ export async function updateAddress(id: string, customerId: string, data: unknow
   await db
     .update(addresses)
     .set({ ...parsed.data, updatedAt: new Date() })
-    .where(eq(addresses.id, id));
+    .where(and(eq(addresses.id, id), isNull(addresses.deletedAt)));
 
   revalidatePath(`/admin/clientes/${customerId}`);
   return { success: true };

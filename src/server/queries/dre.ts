@@ -1,5 +1,5 @@
 import { db } from "@/db/client";
-import { payments, expenses, expenseCategories } from "@/db/schema";
+import { payments, expenses, expenseCategories, orders } from "@/db/schema";
 import { and, eq, gte, isNull, lt, lte, sum } from "drizzle-orm";
 
 export interface DREMonth {
@@ -27,17 +27,20 @@ export async function getDREByMonth(year: number, month: number): Promise<DREMon
   const { from, to } = monthBounds(year, month);
 
   // Receita: payments com settledAt no mês (regime de caixa)
+  // pedido apagado (soft delete) não deve continuar contando como receita
   const settledPayments = await db
     .select({
       method: payments.method,
       netCents: payments.netCents,
     })
     .from(payments)
+    .innerJoin(orders, eq(payments.orderId, orders.id))
     .where(
       and(
         gte(payments.settledAt, from),
         lt(payments.settledAt, to),
-        isNull(payments.deletedAt)
+        isNull(payments.deletedAt),
+        isNull(orders.deletedAt)
       )
     );
 
@@ -45,12 +48,14 @@ export async function getDREByMonth(year: number, month: number): Promise<DREMon
   const [pendingRow] = await db
     .select({ total: sum(payments.grossCents) })
     .from(payments)
+    .innerJoin(orders, eq(payments.orderId, orders.id))
     .where(
       and(
         gte(payments.paidAt, from),
         lt(payments.paidAt, to),
         isNull(payments.settledAt),
-        isNull(payments.deletedAt)
+        isNull(payments.deletedAt),
+        isNull(orders.deletedAt)
       )
     );
 

@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
 import { addresses } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { EditarEnderecoClient } from "./EditarEnderecoClient";
 import { IconMapPin } from "@/components/ui/icons";
@@ -19,7 +19,7 @@ export default async function EditarEnderecoPage({ params }: Props) {
   const [addr] = await db
     .select()
     .from(addresses)
-    .where(eq(addresses.id, addrId));
+    .where(and(eq(addresses.id, addrId), isNull(addresses.deletedAt)));
 
   if (!addr) notFound();
 

@@ -7,28 +7,37 @@ import {
   boolean,
   timestamp,
   index,
+  uniqueIndex,
   primaryKey,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { categories } from "./categories";
 
-export const products = pgTable("products", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  slug: text("slug").notNull().unique(),
-  name: text("name").notNull(),
-  color: text("color").notNull(),
-  priceCents: integer("price_cents").notNull(),
-  tag: text("tag"),
-  description: text("description").notNull(),
-  composition: text("composition"),
-  origin: text("origin"),
-  fallbackGradient: text("fallback_gradient"),
-  featured: boolean("featured").notNull().default(false),
-  active: boolean("active").notNull().default(true),
-  sortOrder: real("sort_order").notNull().default(0),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-  deletedAt: timestamp("deleted_at", { withTimezone: true }),
-});
+export const products = pgTable(
+  "products",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    slug: text("slug").notNull(),
+    name: text("name").notNull(),
+    color: text("color").notNull(),
+    priceCents: integer("price_cents").notNull(),
+    tag: text("tag"),
+    description: text("description").notNull(),
+    composition: text("composition"),
+    origin: text("origin"),
+    fallbackGradient: text("fallback_gradient"),
+    featured: boolean("featured").notNull().default(false),
+    active: boolean("active").notNull().default(true),
+    sortOrder: real("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+    deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  },
+  (t) => [
+    // slug único só entre produtos ativos — um produto soft-deletado libera o slug para reuso
+    uniqueIndex("products_slug_unique").on(t.slug).where(sql`${t.deletedAt} is null`),
+  ]
+);
 
 export const productImages = pgTable(
   "product_images",

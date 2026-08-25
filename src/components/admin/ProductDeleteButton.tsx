@@ -13,10 +13,15 @@ export function ProductDeleteButton({ productId, productName }: { productId: str
   async function handleDelete() {
     if (!confirm(`Excluir "${productName}"?`)) return;
     setPending(true);
-    await deleteProduct(productId);
-    setPending(false);
-    toast.success("Produto excluído");
-    router.refresh();
+    try {
+      await deleteProduct(productId);
+      toast.success("Produto excluído");
+      router.refresh();
+    } catch {
+      toast.error("Erro ao excluir produto. Tente novamente.");
+    } finally {
+      setPending(false);
+    }
   }
 
   return (

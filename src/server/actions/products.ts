@@ -9,7 +9,7 @@ import {
 } from "@/db/schema";
 import { productSchema } from "@/lib/validations";
 import { publicUrl, s3, BUCKET } from "@/lib/upload";
-import { eq, asc } from "drizzle-orm";
+import { and, eq, asc, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { DeleteObjectCommand, HeadObjectCommand } from "@aws-sdk/client-s3";
 import { unlink, stat } from "fs/promises";
@@ -29,21 +29,25 @@ async function deleteStorageObject(storageKey: string) {
   }
 }
 
-// Confirma que o arquivo realmente chegou no storage antes de cadastrar a imagem
+// Confirma que o arquivo realmente chegou no storage antes de cadastrar a imagem.
+// Só retorna false quando o arquivo de fato não existe — um erro transitório
+// (rede, permissão) é relançado, para não rejeitar um upload que na verdade deu certo.
 async function storageObjectExists(storageKey: string): Promise<boolean> {
   if (s3) {
     try {
       const head = await s3.send(new HeadObjectCommand({ Bucket: BUCKET, Key: storageKey }));
       return (head.ContentLength ?? 0) > 0;
-    } catch {
-      return false;
+    } catch (err) {
+      if ((err as { name?: string })?.name === "NotFound") return false;
+      throw err;
     }
   }
   try {
     const info = await stat(join(process.cwd(), "public", "uploads", storageKey));
     return info.size > 0;
-  } catch {
-    return false;
+  } catch (err) {
+    if ((err as { code?: string })?.code === "ENOENT") return false;
+    throw err;
   }
 }
 
@@ -87,7 +91,7 @@ export async function updateProduct(id: string, data: unknown) {
     await db
       .update(products)
       .set({ ...productData, updatedAt: new Date() })
-      .where(eq(products.id, id));
+      .where(and(eq(products.id, id), isNull(products.deletedAt)));
   } catch (err) {
     const cause = (err as { cause?: { code?: string; constraint_name?: string } })?.cause;
     if (cause?.code === "23505" && cause?.constraint_name === "products_slug_unique") {

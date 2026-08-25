@@ -20,6 +20,9 @@ export async function createPayment(orderId: string, data: unknown) {
   const parsed = paymentSchema.safeParse(data);
   if (!parsed.success) return { error: parsed.error.flatten() };
 
+  const [order] = await db.select({ deletedAt: orders.deletedAt }).from(orders).where(eq(orders.id, orderId));
+  if (!order || order.deletedAt) return { error: "Pedido não encontrado ou excluído." };
+
   const { paidAt, settledAt, ...rest } = parsed.data;
 
   const isCard = rest.method === "credit_card" || rest.method === "debit_card";

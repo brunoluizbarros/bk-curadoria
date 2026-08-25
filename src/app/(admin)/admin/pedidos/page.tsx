@@ -77,8 +77,9 @@ export default async function PedidosPage({
             const params = new URLSearchParams();
             if (status) params.set("status", status);
             if (q) params.set("q", q);
-            if (value) params.set("ym", value);
-            const href = `/admin/pedidos${params.toString() ? `?${params}` : ""}`;
+            // sempre grava ym (mesmo vazio) — "Todos" precisa distinguir de "não informado" (que cairia no mês atual)
+            params.set("ym", value);
+            const href = `/admin/pedidos?${params}`;
             return (
               <Link
                 key={value || "todos"}
@@ -124,7 +125,7 @@ export default async function PedidosPage({
           const params = new URLSearchParams();
           if (value) params.set("status", value);
           if (q) params.set("q", q);
-          if (ym) params.set("ym", ym);
+          params.set("ym", ym);
           const href = `/admin/pedidos?${params}`;
           return (
             <Link

@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/db/client";
 import { orders, orderItems, products } from "@/db/schema";
 import { orderSchema } from "@/lib/validations";
-import { eq } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getOrderById } from "@/server/queries/orders";
 import { getWaApiConfig } from "@/server/queries/settings";
@@ -109,7 +109,7 @@ export async function updateOrder(id: string, data: unknown) {
   await db
     .update(orders)
     .set({ ...rest, addressId: rest.addressId || null, soldAt: new Date(soldAt), updatedAt: new Date() })
-    .where(eq(orders.id, id));
+    .where(and(eq(orders.id, id), isNull(orders.deletedAt)));
 
   revalidatePath("/admin/pedidos");
   revalidatePath(`/admin/pedidos/${id}`);
@@ -124,7 +124,7 @@ export async function setOrderStatus(
   await db
     .update(orders)
     .set({ status, updatedAt: new Date() })
-    .where(eq(orders.id, id));
+    .where(and(eq(orders.id, id), isNull(orders.deletedAt)));
   revalidatePath("/admin/pedidos");
   revalidatePath(`/admin/pedidos/${id}`);
 
@@ -140,10 +140,16 @@ export async function setOrderStatus(
 
 export async function addOrderItem(orderId: string, productId: string, quantity = 1) {
   await requireAdmin();
+  const [order] = await db
+    .select({ deletedAt: orders.deletedAt })
+    .from(orders)
+    .where(eq(orders.id, orderId));
+  if (!order || order.deletedAt) return { error: "Pedido não encontrado ou excluído" };
+
   const [product] = await db
     .select({ priceCents: products.priceCents })
     .from(products)
-    .where(eq(products.id, productId));
+    .where(and(eq(products.id, productId), isNull(products.deletedAt)));
 
   if (!product) return { error: "Produto não encontrado" };
 
