@@ -85,10 +85,10 @@ export function ProductImagesUploader({ productId, images: initialImages }: Prod
         if (!uploadRes.ok) throw new Error("Falha no upload");
 
         // 4. Salvar no banco (confirma no servidor que o arquivo existe no storage)
+        // ponytail: sem alt aqui — deixa null para o front-end cair no fallback (nome do produto) em vez do nome do arquivo
         const result = await addProductImage({
           productId,
           storageKey: key,
-          alt: file.name.replace(/\.[^.]+$/, ""),
         });
         if (result && "error" in result) throw new Error(result.error);
 

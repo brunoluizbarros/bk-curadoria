@@ -7,7 +7,8 @@ import { buildLocalBusinessSchema } from "@/lib/jsonld";
 import { getSiteConfig } from "@/server/queries/site-config";
 import { getBusinessConfig } from "@/server/queries/settings";
 
-export const dynamic = "force-dynamic";
+// ponytail: force-dynamic aqui matava o cache (e o ISR) do site inteiro e tornava
+// os revalidatePath("/", "layout") em saveBusinessConfig/etc um no-op. Sem cache, nada pra invalidar.
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const [config, biz] = await Promise.all([
@@ -63,7 +64,12 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <main className="min-h-screen">
         {children}
       </main>
-      <Footer signature={config.footer_sig} bizPhone={biz?.business_phone} bizAddress={biz?.business_address_street} />
+      <Footer
+        signature={config.footer_sig}
+        bizPhone={biz?.business_phone}
+        bizAddress={biz?.business_address_street}
+        bizInstagramUrl={biz?.business_instagram_url}
+      />
       <WishlistFloatingButton />
     </>
   );

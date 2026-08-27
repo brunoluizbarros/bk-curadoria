@@ -22,6 +22,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `Lista de desejos de ${list.wisherName} · BK Curadoria`,
     description: `${list.wisherName} montou uma lista especial com ${list.items.length} peça${list.items.length !== 1 ? "s" : ""} na BK Curadoria.`,
+    // ponytail: noindex — página pessoal com nome de cliente, sem intenção de busca associada
+    robots: { index: false, follow: false },
   };
 }
 

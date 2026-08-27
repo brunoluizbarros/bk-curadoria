@@ -48,6 +48,8 @@ export async function getActiveProducts(categorySlug?: string) {
   return rows
     .map((p) => ({
       ...p,
+      // ponytail: trim aqui cobre dados antigos já salvos com espaço; validations.ts trata as próximas gravações
+      name: p.name.trim(),
       firstImage: allImages.find((img) => img.productId === p.id) ?? null,
     }))
     .filter((p) => p.firstImage !== null);
@@ -75,6 +77,7 @@ export async function getProductBySlug(slug: string) {
 
   return {
     ...product,
+    name: product.name.trim(),
     images,
     categories: catLinks.map((l) => l.category),
   };

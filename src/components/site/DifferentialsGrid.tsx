@@ -21,7 +21,7 @@ export function DifferentialsGrid({ items }: DifferentialsGridProps) {
             <div className="w-9 h-9 rounded-full bg-ink flex items-center justify-center text-cream mb-3">
               {iconMap[item.iconName] ?? <IconStar size={20} />}
             </div>
-            <h3 className="font-display font-400 text-base text-ink mb-1">{item.title}</h3>
+            <h2 className="font-display font-400 text-base text-ink mb-1">{item.title}</h2>
             <p className="font-body font-200 text-xs text-ink-soft leading-relaxed">{item.description}</p>
           </div>
         ))}

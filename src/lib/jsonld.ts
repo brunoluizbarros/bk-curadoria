@@ -97,7 +97,7 @@ export function buildProductSchema(p: ProductSchemaInput): WithContext<JsonLdObj
     ...(p.description ? { description: p.description } : {}),
     sku: p.id,
     brand: { "@type": "Brand", name: "BK Curadoria" } as JsonLdObject,
-    ...(p.imageUrl ? { image: [p.imageUrl] } : {}),
+    ...(p.imageUrl ? { image: [p.imageUrl.startsWith("http") ? p.imageUrl : `${BASE}${p.imageUrl}`] } : {}),
     offers: {
       "@type": "Offer",
       priceCurrency: "BRL",

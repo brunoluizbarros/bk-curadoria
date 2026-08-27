@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { wishlistSubmitSchema } from "@/lib/validations";
 import type { z } from "zod";
 import { submitWishlist } from "@/server/actions/wishlists";
+import { trackPixelEvent } from "@/lib/pixel";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
@@ -93,6 +94,7 @@ export function WishlistForm({ items, onSubmitSuccess }: WishlistFormProps) {
       setServerError("Ocorreu um erro ao enviar sua lista. Tente novamente.");
       return;
     }
+    trackPixelEvent("Lead", { content_name: "wishlist" });
     onSubmitSuccess();
     router.push(`/lista/${result.token}`);
   }

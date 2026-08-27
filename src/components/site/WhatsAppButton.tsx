@@ -1,5 +1,8 @@
+"use client";
+
 import { buildWhatsAppLink } from "@/lib/whatsapp";
 import { cn } from "@/lib/utils";
+import { trackPixelEvent } from "@/lib/pixel";
 import { IconBrandWhatsapp } from "@tabler/icons-react";
 
 type WaCtx =
@@ -36,6 +39,7 @@ export function WhatsAppButton({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
+      onClick={() => trackPixelEvent("Contact")}
       className={cn(
         "inline-flex items-center justify-center gap-2 px-6 py-3 rounded-btn",
         "font-body text-xs tracking-[0.2em] uppercase transition-colors",

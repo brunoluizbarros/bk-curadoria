@@ -64,6 +64,7 @@ export async function saveAnalyticsConfig(data: FormData) {
     .onConflictDoUpdate({ target: siteConfig.key, set: { value, updatedAt: new Date() } });
 
   revalidatePath("/admin/configuracoes");
+  revalidatePath("/", "layout");
   return { success: true };
 }
 
@@ -86,6 +87,7 @@ export async function saveMetaConfig(data: FormData) {
   }
 
   revalidatePath("/admin/configuracoes");
+  revalidatePath("/", "layout");
   return { success: true };
 }
 

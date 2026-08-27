@@ -3,6 +3,7 @@ import { getSiteConfig } from "@/server/queries/site-config";
 import { ProductCarousel } from "@/components/site/ProductCarousel";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 import { AddToWishlistButton } from "@/components/site/AddToWishlistButton";
+import { TrackViewContent } from "@/components/site/TrackViewContent";
 import { ShareButton } from "@/components/site/ShareButton";
 import { BackOrHome } from "@/components/site/BackOrHome";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
@@ -81,6 +82,7 @@ export default async function ProdutoPage({ params }: Props) {
     <>
       <JsonLd data={productSchema} />
       <JsonLd data={buildBreadcrumbSchema(breadcrumbs)} />
+      <TrackViewContent id={product.id} name={product.name} priceCents={product.priceCents} />
 
       <div className="max-w-[480px] md:max-w-2xl lg:max-w-4xl mx-auto px-0 md:px-6 py-6 md:py-10">
 

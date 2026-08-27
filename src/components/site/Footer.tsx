@@ -4,6 +4,7 @@ interface FooterProps {
   signature?: string;
   bizPhone?: string;
   bizAddress?: string;
+  bizInstagramUrl?: string;
 }
 
 const NAV_LINKS = [
@@ -14,7 +15,7 @@ const NAV_LINKS = [
   { href: "/lista", label: "Minha lista" },
 ];
 
-export function Footer({ signature = "rebeka fragoso · recife · 2026", bizPhone, bizAddress }: FooterProps) {
+export function Footer({ signature = "rebeka fragoso · recife · 2026", bizPhone, bizAddress, bizInstagramUrl }: FooterProps) {
   return (
     <footer className="bg-ink text-cream pt-10 pb-8" style={{ paddingBottom: "calc(2rem + env(safe-area-inset-bottom))" }}>
       <div className="max-w-[480px] md:max-w-screen-xl mx-auto px-5">
@@ -38,6 +39,16 @@ export function Footer({ signature = "rebeka fragoso · recife · 2026", bizPhon
                 rel="noopener noreferrer"
               >
                 {bizPhone}
+              </a>
+            )}
+            {bizInstagramUrl && (
+              <a
+                href={bizInstagramUrl}
+                className="font-body text-xs text-cream/50 hover:text-cream transition-colors mt-1 block"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Instagram
               </a>
             )}
           </div>

@@ -2,13 +2,14 @@
 
 import { auth } from "@/lib/auth";
 import { db } from "@/db/client";
-import { payments, orders, orderItems, loyaltyCredits } from "@/db/schema";
+import { payments, orders, orderItems, loyaltyCredits, customers, leads } from "@/db/schema";
 import { paymentSchema } from "@/lib/validations";
 import { calcFeeCents, calcNetCents } from "@/lib/fees";
-import { and, eq, gte, isNull, sum } from "drizzle-orm";
+import { and, desc, eq, gte, isNull, sum } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getLoyaltyConfig, hasEarnedCreditForOrder } from "@/server/queries/loyalty";
 import { computeOrderItemTotal } from "@/server/queries/orders";
+import { sendPurchaseEvent } from "@/lib/meta-capi";
 
 async function requireAdmin() {
   const session = await auth();
@@ -189,5 +190,24 @@ async function markOrderPaidIfNeeded(orderId: string) {
         }
       }
     });
+
+    // ponytail: no FK between leads and customers/orders, so correlate by normalized phone (same digits-only format on both)
+    const [customer] = await db
+      .select({ phone: customers.phone })
+      .from(customers)
+      .where(eq(customers.id, order.customerId));
+
+    if (customer?.phone) {
+      const [lead] = await db
+        .select({ id: leads.id })
+        .from(leads)
+        .where(and(eq(leads.phone, customer.phone), eq(leads.converted, false)))
+        .orderBy(desc(leads.createdAt))
+        .limit(1);
+
+      if (lead) {
+        await sendPurchaseEvent(lead.id, orderTotal);
+      }
+    }
   }
 }
