@@ -147,6 +147,14 @@ async function main() {
 
   const dumpStream = await createDumpStream(sql);
   const gzip = createGzip();
+
+  // .pipe() não propaga 'error' entre streams — sem isso, um erro aqui (ex: falha de
+  // conexão) derruba o processo direto (unhandled 'error' event) e pula o withRetry.
+  const streamError = new Promise<never>((_, reject) => {
+    dumpStream.once("error", reject);
+    gzip.once("error", reject);
+  });
+
   dumpStream.pipe(gzip);
 
   let uploadedBytes = 0;
@@ -163,7 +171,7 @@ async function main() {
     }
   });
 
-  await upload.done();
+  await Promise.race([upload.done(), streamError]);
   process.stdout.write("\n");
 
   await sql.end();
