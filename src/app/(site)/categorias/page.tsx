@@ -3,7 +3,8 @@ import { buildMetadata } from "@/lib/seo";
 import Link from "next/link";
 import type { Metadata } from "next";
 
-export const revalidate = 3600;
+// force-dynamic: build do Railway não alcança postgres.railway.internal (só em runtime)
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = buildMetadata({
   title: "Categorias",

@@ -7,8 +7,10 @@ import { buildLocalBusinessSchema } from "@/lib/jsonld";
 import { getSiteConfig } from "@/server/queries/site-config";
 import { getBusinessConfig } from "@/server/queries/settings";
 
-// ponytail: force-dynamic aqui matava o cache (e o ISR) do site inteiro e tornava
-// os revalidatePath("/", "layout") em saveBusinessConfig/etc um no-op. Sem cache, nada pra invalidar.
+// force-dynamic: DATABASE_URL no build do Railway aponta pro host interno
+// (postgres.railway.internal), que só resolve em runtime — prerender estático
+// aqui quebra o build. Sem isso, o site cai no deploy.
+export const dynamic = "force-dynamic";
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const [config, biz] = await Promise.all([

@@ -1,4 +1,5 @@
-export const revalidate = 3600;
+// force-dynamic: build do Railway não alcança postgres.railway.internal (só em runtime)
+export const dynamic = "force-dynamic";
 
 import { getCuradoriaContent } from "@/server/queries/curadoria";
 import { getSiteConfig } from "@/server/queries/site-config";
