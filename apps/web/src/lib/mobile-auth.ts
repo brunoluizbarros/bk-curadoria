@@ -35,18 +35,34 @@ export async function verifyMobileToken(token: string): Promise<{ sub: string } 
 // container, precisa virar Redis (ou algo compartilhado) pra continuar valendo.
 const LOGIN_WINDOW_MS = 5 * 60 * 1000;
 const LOGIN_MAX_ATTEMPTS = 10;
+// teto duro no tamanho do Map: sem isso, um atacante variando a chave (ex: forjando
+// X-Forwarded-For a cada request) cresce a memória do processo indefinidamente
+const LOGIN_MAP_MAX_ENTRIES = 5000;
 const loginAttempts = new Map<string, { count: number; resetAt: number }>();
 
-export function checkLoginRateLimit(ip: string): boolean {
+export function checkLoginRateLimit(key: string): boolean {
   const now = Date.now();
-  const entry = loginAttempts.get(ip);
+  if (loginAttempts.size >= LOGIN_MAP_MAX_ENTRIES && !loginAttempts.has(key)) {
+    loginAttempts.clear();
+  }
+
+  const entry = loginAttempts.get(key);
   if (!entry || entry.resetAt < now) {
-    loginAttempts.set(ip, { count: 1, resetAt: now + LOGIN_WINDOW_MS });
+    loginAttempts.set(key, { count: 1, resetAt: now + LOGIN_WINDOW_MS });
     return true;
   }
   if (entry.count >= LOGIN_MAX_ATTEMPTS) return false;
   entry.count++;
   return true;
+}
+
+// Extrai o IP mais confiável de X-Forwarded-For: o ÚLTIMO salto é o que o proxy da
+// Railway anexou de fato; qualquer valor à esquerda pode ter sido forjado pelo cliente.
+export function clientIpFromRequest(req: { headers: { get(name: string): string | null } }): string {
+  const xff = req.headers.get("x-forwarded-for");
+  if (!xff) return "unknown";
+  const parts = xff.split(",").map((p) => p.trim()).filter(Boolean);
+  return parts[parts.length - 1] ?? "unknown";
 }
 
 type RouteHandler<T> = (req: NextRequest, ctx: T, userId: string) => Promise<Response>;

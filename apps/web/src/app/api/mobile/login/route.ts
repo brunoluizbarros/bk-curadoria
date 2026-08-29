@@ -4,10 +4,15 @@ import { db } from "@/db/client";
 import { users } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { loginSchema } from "@/lib/validations";
-import { signMobileToken, checkLoginRateLimit } from "@/lib/mobile-auth";
+import { signMobileToken, checkLoginRateLimit, clientIpFromRequest } from "@/lib/mobile-auth";
+
+// hash bcrypt "decoy" sem senha correspondente — comparado quando o email não existe,
+// pra manter o tempo de resposta igual ao de uma senha errada e não vazar quais emails
+// têm conta via timing (bcrypt.compare é a parte lenta do endpoint)
+const DECOY_HASH = "$2b$10$fl9Yu1F8vNeFwg3J5YZ36.0Ez464RWIH7dVPT8lPCliXMhriyf0i2";
 
 export async function POST(req: NextRequest) {
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  const ip = clientIpFromRequest(req);
   if (!checkLoginRateLimit(ip)) {
     return NextResponse.json({ error: "Muitas tentativas — tente novamente em alguns minutos" }, { status: 429 });
   }
@@ -19,12 +24,8 @@ export async function POST(req: NextRequest) {
   }
 
   const [user] = await db.select().from(users).where(eq(users.email, parsed.data.email));
-  if (!user) {
-    return NextResponse.json({ error: "Credenciais inválidas" }, { status: 401 });
-  }
-
-  const valid = await bcrypt.compare(parsed.data.password, user.passwordHash);
-  if (!valid) {
+  const valid = await bcrypt.compare(parsed.data.password, user?.passwordHash ?? DECOY_HASH);
+  if (!user || !valid) {
     return NextResponse.json({ error: "Credenciais inválidas" }, { status: 401 });
   }
 
