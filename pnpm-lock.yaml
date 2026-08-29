@@ -8,6 +8,8 @@ importers:
 
   .: {}
 
+  apps/mobile: {}
+
   apps/web:
     dependencies:
       '@aws-sdk/client-s3':
