@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "BK Curadoria Admin",
+    "slug": "bk-curadoria-admin",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "bkcuradoria-admin",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "br.com.bkcuradoria.admin"
+    },
+    "android": {
+      "package": "br.com.bkcuradoria.admin"
+    },
+    "plugins": ["expo-router", "expo-secure-store"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
