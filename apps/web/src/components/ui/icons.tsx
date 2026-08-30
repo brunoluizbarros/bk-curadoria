@@ -51,4 +51,5 @@ export {
   IconClock,
   IconSend,
   IconMessageCircle,
+  IconChartBar,
 } from "@tabler/icons-react";

@@ -21,12 +21,14 @@ import {
   IconCashBanknote,
   IconCoin,
   IconReportMoney,
+  IconChartBar,
 } from "@/components/ui/icons";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: IconLayoutDashboard },
   { href: "/admin/pedidos", label: "Pedidos", icon: IconReceipt },
   { href: "/admin/clientes", label: "Clientes", icon: IconUsers },
+  { href: "/admin/analises", label: "Análises", icon: IconChartBar },
   { href: "/admin/recebimentos", label: "Recebimentos", icon: IconCashBanknote },
   { href: "/admin/despesas", label: "Despesas", icon: IconCoin },
   { href: "/admin/dre", label: "DRE", icon: IconReportMoney },
