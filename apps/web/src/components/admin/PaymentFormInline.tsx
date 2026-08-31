@@ -9,14 +9,16 @@ import { IconPlus } from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { PaymentInput } from "@/lib/validations";
+import type { CardMachine } from "@/db/schema";
 
 interface PaymentFormInlineProps {
   orderId: string;
   orderTotal: number;
   feeConfigs?: Record<string, number>;
+  machines?: CardMachine[];
 }
 
-export function PaymentFormInline({ orderId, orderTotal, feeConfigs }: PaymentFormInlineProps) {
+export function PaymentFormInline({ orderId, orderTotal, feeConfigs, machines }: PaymentFormInlineProps) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
@@ -53,9 +55,11 @@ export function PaymentFormInline({ orderId, orderTotal, feeConfigs }: PaymentFo
         onSubmit={handleSubmit}
         onCancel={() => setOpen(false)}
         feeConfigs={feeConfigs}
+        machines={machines}
         defaultValues={{
           grossCents: orderTotal,
           paidAt: new Date().toISOString().slice(0, 10),
+          anticipated: true,
         }}
       />
     </div>

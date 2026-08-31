@@ -52,4 +52,6 @@ export {
   IconSend,
   IconMessageCircle,
   IconChartBar,
+  IconCreditCard,
+  IconChartLine,
 } from "@tabler/icons-react";

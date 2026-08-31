@@ -2,18 +2,74 @@
 
 import { auth } from "@/lib/auth";
 import { db } from "@/db/client";
-import { payments, orders, orderItems, loyaltyCredits, customers, leads } from "@/db/schema";
+import {
+  payments,
+  paymentReceivables,
+  cardMachines,
+  orders,
+  orderItems,
+  loyaltyCredits,
+  customers,
+  leads,
+} from "@/db/schema";
 import { paymentSchema } from "@/lib/validations";
-import { calcFeeCents, calcNetCents } from "@/lib/fees";
+import { calcFeeCents, calcNetCents, resolveFeePercent, buildReceivableSchedule } from "@/lib/fees";
 import { and, desc, eq, gte, isNull, sum } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getLoyaltyConfig, hasEarnedCreditForOrder } from "@/server/queries/loyalty";
+import { getPaymentFeeConfigs } from "@/server/queries/settings";
 import { computeOrderItemTotal } from "@/server/queries/orders";
 import { sendPurchaseEvent } from "@/lib/meta-capi";
 
 async function requireAdmin() {
   const session = await auth();
   if (!session?.user) throw new Error("Não autorizado");
+}
+
+function revalidatePaymentPaths(orderId: string) {
+  revalidatePath(`/admin/pedidos/${orderId}`);
+  revalidatePath("/admin/recebimentos");
+  revalidatePath("/admin/dre");
+  revalidatePath("/admin/fluxo-caixa");
+}
+
+// Recalcula taxa, líquido e o cronograma de recebíveis sempre no servidor —
+// nunca confia em feePercent/feeCents/netCents/machineId que o cliente manda.
+async function resolvePaymentMoney(input: {
+  method: string;
+  grossCents: number;
+  installments: number;
+  anticipated: boolean;
+  machineId?: string | null;
+}) {
+  const isCard = input.method === "credit_card" || input.method === "debit_card";
+  const canDefer = input.method === "credit_card"; // débito não parcela/antecipa na prática
+  const anticipated = canDefer ? input.anticipated : true;
+  const installments = canDefer ? input.installments : 1; // débito e não-cartão nunca parcelam
+  const machineId = isCard && input.machineId ? input.machineId : null;
+
+  let machine: typeof cardMachines.$inferSelect | null = null;
+  if (machineId) {
+    const [m] = await db.select().from(cardMachines).where(eq(cardMachines.id, machineId));
+    if (!m) return { error: "Maquininha não encontrada." as const };
+    machine = m;
+  }
+
+  const feeConfigs = isCard ? await getPaymentFeeConfigs() : ({} as Record<string, number>);
+  const feePercent = resolveFeePercent(input.method, anticipated, machine, feeConfigs);
+  const feeCents = isCard ? calcFeeCents(input.grossCents, feePercent) : 0;
+  const netCents = isCard ? calcNetCents(input.grossCents, feePercent) : input.grossCents;
+
+  return {
+    anticipated,
+    installments,
+    machineId,
+    feePercent,
+    feeCents,
+    netCents,
+    anticipationDays: machine?.anticipationDays ?? 1,
+    installmentIntervalDays: machine?.installmentIntervalDays ?? 30,
+  } as const;
 }
 
 export async function createPayment(orderId: string, data: unknown) {
@@ -25,11 +81,10 @@ export async function createPayment(orderId: string, data: unknown) {
   if (!order || order.deletedAt) return { error: "Pedido não encontrado ou excluído." };
 
   const { paidAt, settledAt, ...rest } = parsed.data;
-
   const isCard = rest.method === "credit_card" || rest.method === "debit_card";
-  const feePercent = isCard ? rest.feePercent : 0;
-  const feeCents = isCard ? (rest.feeCents || calcFeeCents(rest.grossCents, feePercent)) : 0;
-  const netCents = isCard ? (rest.netCents || calcNetCents(rest.grossCents, feePercent)) : rest.grossCents;
+
+  const resolved = await resolvePaymentMoney(rest);
+  if ("error" in resolved) return resolved;
 
   // ponytail: 10s window on (orderId,grossCents,method,paidAt) dedupes double-submit
   const tenSecondsAgo = new Date(Date.now() - 10_000);
@@ -50,76 +105,120 @@ export async function createPayment(orderId: string, data: unknown) {
 
   if (existing) return { id: existing.id };
 
-  const [payment] = await db
-    .insert(payments)
-    .values({
-      ...rest,
-      brand: isCard ? (rest.brand ?? null) : null,
-      installments: isCard ? (rest.installments ?? 1) : 1,
-      feePercent,
-      feeCents,
-      netCents,
-      orderId,
-      paidAt: new Date(paidAt),
-      settledAt: settledAt ? new Date(settledAt) : null,
-    })
-    .returning({ id: payments.id });
+  const schedule = buildReceivableSchedule({
+    netCents: resolved.netCents,
+    paidAt: new Date(paidAt),
+    installments: resolved.installments,
+    anticipated: resolved.anticipated,
+    anticipationDays: resolved.anticipationDays,
+    installmentIntervalDays: resolved.installmentIntervalDays,
+  });
+  // Recebimento já liquidado na criação (única parcela) herda a data informada.
+  const settledAtDate = settledAt ? new Date(settledAt) : null;
+
+  const paymentId = await db.transaction(async (tx) => {
+    const [payment] = await tx
+      .insert(payments)
+      .values({
+        orderId,
+        method: rest.method,
+        brand: isCard ? (rest.brand ?? null) : null,
+        installments: resolved.installments,
+        grossCents: rest.grossCents,
+        feePercent: resolved.feePercent,
+        feeCents: resolved.feeCents,
+        netCents: resolved.netCents,
+        paidAt: new Date(paidAt),
+        settledAt: settledAtDate,
+        machineId: resolved.machineId,
+        anticipated: resolved.anticipated,
+        reference: rest.reference,
+        notes: rest.notes,
+      })
+      .returning({ id: payments.id });
+
+    await tx.insert(paymentReceivables).values(
+      schedule.map((s) => ({
+        paymentId: payment.id,
+        installmentNumber: s.installmentNumber,
+        netCents: s.netCents,
+        expectedAt: s.expectedAt,
+        settledAt: schedule.length === 1 ? settledAtDate : null,
+      }))
+    );
+
+    return payment.id;
+  });
 
   // Marca paid_at no pedido se ainda não tiver
   await markOrderPaidIfNeeded(orderId);
 
-  revalidatePath(`/admin/pedidos/${orderId}`);
-  revalidatePath("/admin/recebimentos");
-  return { id: payment.id };
+  revalidatePaymentPaths(orderId);
+  return { id: paymentId };
 }
 
-export async function updatePayment(id: string, orderId: string, data: unknown) {
-  await requireAdmin();
-  const parsed = paymentSchema.safeParse(data);
-  if (!parsed.success) return { error: parsed.error.flatten() };
+// ponytail: sem UI de edição de pagamento hoje — se precisar, escrever do
+// zero seguindo o padrão de createPayment (transação + resolvePaymentMoney +
+// recusar se alguma parcela já liquidou), não reaproveitar uma versão antiga.
 
-  const { paidAt, settledAt, ...rest } = parsed.data;
-
-  const isCard = rest.method === "credit_card" || rest.method === "debit_card";
-  const feePercent = isCard ? rest.feePercent : 0;
-  const feeCents = isCard ? (rest.feeCents || calcFeeCents(rest.grossCents, feePercent)) : 0;
-  const netCents = isCard ? (rest.netCents || calcNetCents(rest.grossCents, feePercent)) : rest.grossCents;
-
-  await db
-    .update(payments)
-    .set({
-      ...rest,
-      brand: isCard ? (rest.brand ?? null) : null,
-      installments: isCard ? (rest.installments ?? 1) : 1,
-      feePercent,
-      feeCents,
-      netCents,
-      paidAt: new Date(paidAt),
-      settledAt: settledAt ? new Date(settledAt) : null,
-    })
-    .where(eq(payments.id, id));
-
-  revalidatePath(`/admin/pedidos/${orderId}`);
-  revalidatePath("/admin/recebimentos");
-  return { success: true };
+// Confere que o recebível existe, pertence ao pedido informado, e que nem o
+// pagamento nem o pedido estão soft-deletados — usado pelas duas mutações
+// abaixo antes de tocar em qualquer coisa.
+async function findOwnedReceivable(receivableId: string, orderId: string) {
+  const [row] = await db
+    .select({ id: paymentReceivables.id })
+    .from(paymentReceivables)
+    .innerJoin(payments, eq(paymentReceivables.paymentId, payments.id))
+    .innerJoin(orders, eq(payments.orderId, orders.id))
+    .where(
+      and(
+        eq(paymentReceivables.id, receivableId),
+        eq(orders.id, orderId),
+        isNull(payments.deletedAt),
+        isNull(orders.deletedAt)
+      )
+    );
+  return row ?? null;
 }
 
-export async function markPaymentSettled(id: string, orderId: string) {
+// Idempotente: um segundo clique não move a data real de liquidação.
+export async function markReceivableSettled(receivableId: string, orderId: string) {
   await requireAdmin();
-  await db
-    .update(payments)
+  if (!(await findOwnedReceivable(receivableId, orderId))) {
+    return { error: "Recebível não encontrado." };
+  }
+  const [row] = await db
+    .update(paymentReceivables)
     .set({ settledAt: new Date() })
-    .where(eq(payments.id, id));
-  revalidatePath(`/admin/pedidos/${orderId}`);
-  revalidatePath("/admin/recebimentos");
-  return { success: true };
+    .where(and(eq(paymentReceivables.id, receivableId), isNull(paymentReceivables.settledAt)))
+    .returning({ id: paymentReceivables.id });
+  revalidatePaymentPaths(orderId);
+  return { success: !!row };
+}
+
+export async function updateReceivableExpectedAt(receivableId: string, orderId: string, dateStr: string) {
+  await requireAdmin();
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr ?? "");
+  if (!match) return { error: "Data inválida." };
+  if (!(await findOwnedReceivable(receivableId, orderId))) {
+    return { error: "Recebível não encontrado." };
+  }
+  const [year, month, day] = match.slice(1).map(Number);
+  // Meio-dia UTC, mesma âncora de buildReceivableSchedule — evita que o
+  // bucket de mês (Fluxo de Caixa/DRE) ou a exibição dependam do fuso do servidor.
+  const [row] = await db
+    .update(paymentReceivables)
+    .set({ expectedAt: new Date(Date.UTC(year, month - 1, day, 12)) })
+    .where(and(eq(paymentReceivables.id, receivableId), isNull(paymentReceivables.settledAt)))
+    .returning({ id: paymentReceivables.id });
+  revalidatePaymentPaths(orderId);
+  return { success: !!row };
 }
 
 export async function deletePayment(id: string, orderId: string) {
   await requireAdmin();
   await db.update(payments).set({ deletedAt: new Date() }).where(eq(payments.id, id));
-  revalidatePath(`/admin/pedidos/${orderId}`);
-  revalidatePath("/admin/recebimentos");
+  revalidatePaymentPaths(orderId);
   return { success: true };
 }
 

@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
-import { payments, expenses, expenseCategories, orders } from "@/db/schema";
-import { and, eq, gte, isNull, lt, lte, sum } from "drizzle-orm";
+import { payments, paymentReceivables, expenses, expenseCategories, orders } from "@/db/schema";
+import { and, eq, gte, isNull, lt, sum } from "drizzle-orm";
 
 export interface DREMonth {
   year: number;
@@ -17,7 +17,7 @@ export interface DREMonth {
   pendingSettlementCents: number;
 }
 
-function monthBounds(year: number, month: number): { from: Date; to: Date } {
+export function monthBounds(year: number, month: number): { from: Date; to: Date } {
   const from = new Date(year, month - 1, 1);
   const to = new Date(year, month, 1);
   return { from, to };
@@ -26,34 +26,37 @@ function monthBounds(year: number, month: number): { from: Date; to: Date } {
 export async function getDREByMonth(year: number, month: number): Promise<DREMonth> {
   const { from, to } = monthBounds(year, month);
 
-  // Receita: payments com settledAt no mês (regime de caixa)
-  // pedido apagado (soft delete) não deve continuar contando como receita
-  const settledPayments = await db
+  // Receita: recebíveis com settledAt no mês (regime de caixa). Fonte única
+  // com o Fluxo de Caixa — payment_receivables — pedido/pagamento apagado
+  // (soft delete) não deve continuar contando como receita.
+  const settledReceivables = await db
     .select({
       method: payments.method,
-      netCents: payments.netCents,
+      netCents: paymentReceivables.netCents,
     })
-    .from(payments)
+    .from(paymentReceivables)
+    .innerJoin(payments, eq(paymentReceivables.paymentId, payments.id))
     .innerJoin(orders, eq(payments.orderId, orders.id))
     .where(
       and(
-        gte(payments.settledAt, from),
-        lt(payments.settledAt, to),
+        gte(paymentReceivables.settledAt, from),
+        lt(paymentReceivables.settledAt, to),
         isNull(payments.deletedAt),
         isNull(orders.deletedAt)
       )
     );
 
-  // Pendente: payments com paid_at no mês mas settledAt nulo
+  // Pendente: recebíveis com expectedAt no mês mas ainda não liquidados
   const [pendingRow] = await db
-    .select({ total: sum(payments.grossCents) })
-    .from(payments)
+    .select({ total: sum(paymentReceivables.netCents) })
+    .from(paymentReceivables)
+    .innerJoin(payments, eq(paymentReceivables.paymentId, payments.id))
     .innerJoin(orders, eq(payments.orderId, orders.id))
     .where(
       and(
-        gte(payments.paidAt, from),
-        lt(payments.paidAt, to),
-        isNull(payments.settledAt),
+        gte(paymentReceivables.expectedAt, from),
+        lt(paymentReceivables.expectedAt, to),
+        isNull(paymentReceivables.settledAt),
         isNull(payments.deletedAt),
         isNull(orders.deletedAt)
       )
@@ -61,7 +64,7 @@ export async function getDREByMonth(year: number, month: number): Promise<DREMon
 
   const byMethod: Record<string, number> = {};
   let totalNetCents = 0;
-  for (const p of settledPayments) {
+  for (const p of settledReceivables) {
     byMethod[p.method] = (byMethod[p.method] ?? 0) + p.netCents;
     totalNetCents += p.netCents;
   }

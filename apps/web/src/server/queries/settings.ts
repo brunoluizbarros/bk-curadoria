@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
-import { paymentFeeConfigs, siteConfig } from "@/db/schema";
-import { inArray } from "drizzle-orm";
+import { paymentFeeConfigs, siteConfig, cardMachines } from "@/db/schema";
+import { asc, eq, inArray } from "drizzle-orm";
 
 const METHODS = ["pix", "credit_card", "debit_card", "cash", "transfer"] as const;
 
@@ -13,6 +13,16 @@ export async function getPaymentFeeConfigs(): Promise<FeeConfigMap> {
     map[row.method] = row.feePercent;
   }
   return map;
+}
+
+export async function getCardMachines(activeOnly = false) {
+  const where = activeOnly ? eq(cardMachines.active, true) : undefined;
+  return db.select().from(cardMachines).where(where).orderBy(asc(cardMachines.name));
+}
+
+export async function getCardMachineById(id: string) {
+  const [row] = await db.select().from(cardMachines).where(eq(cardMachines.id, id));
+  return row ?? null;
 }
 
 const META_KEYS = [

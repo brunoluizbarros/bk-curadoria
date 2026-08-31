@@ -7,8 +7,9 @@ import { paymentSchema, type PaymentInput } from "@/lib/validations";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
-import { calcFeeCents, calcNetCents } from "@/lib/fees";
+import { calcFeeCents, calcNetCents, resolveFeePercent } from "@/lib/fees";
 import { formatBRL } from "@/lib/format";
+import type { CardMachine } from "@/db/schema";
 
 const METHODS = [
   { value: "pix", label: "Pix" },
@@ -23,12 +24,13 @@ const BRANDS = ["Visa", "Mastercard", "Elo", "Hipercard", "Amex", "Outro"];
 interface PaymentFormProps {
   defaultValues?: Partial<PaymentInput>;
   feeConfigs?: Record<string, number>;
+  machines?: CardMachine[];
   onSubmit: (data: PaymentInput) => Promise<{ error?: unknown } | undefined>;
   submitLabel?: string;
   onCancel?: () => void;
 }
 
-export function PaymentForm({ defaultValues, feeConfigs = {}, onSubmit, submitLabel = "Registrar pagamento", onCancel }: PaymentFormProps) {
+export function PaymentForm({ defaultValues, feeConfigs = {}, machines = [], onSubmit, submitLabel = "Registrar pagamento", onCancel }: PaymentFormProps) {
   const initialMethod = (defaultValues?.method ?? "pix") as string;
 
   const {
@@ -48,6 +50,9 @@ export function PaymentForm({ defaultValues, feeConfigs = {}, onSubmit, submitLa
       netCents: 0,
       grossCents: 0,
       paidAt: new Date().toISOString().slice(0, 10),
+      // Maquininha marcada como padrão em /admin/maquininhas, pré-selecionada.
+      machineId: machines.find((m) => m.isDefault)?.id ?? "",
+      anticipated: true,
       ...defaultValues,
     },
   });
@@ -55,19 +60,33 @@ export function PaymentForm({ defaultValues, feeConfigs = {}, onSubmit, submitLa
   const grossCents = watch("grossCents");
   const feePercent = watch("feePercent");
   const method = watch("method");
+  const machineId = watch("machineId");
+  const anticipated = watch("anticipated");
+  const installments = watch("installments");
+  const isCard = method === "credit_card" || method === "debit_card";
+  const canDefer = method === "credit_card"; // débito não parcela/antecipa
+  const selectedMachine = machines.find((m) => m.id === machineId) ?? null;
 
-  // Auto-fill fee % when method changes; reset card-only fields for non-card methods
+  // Reset card-only fields for non-card methods. machineId NÃO é limpo aqui:
+  // o select só aparece quando isCard, e o servidor já força machineId=null
+  // para métodos não-cartão — limpar no cliente só apagaria a maquininha
+  // padrão pré-selecionada antes do usuário trocar para cartão.
   useEffect(() => {
-    if (method === "credit_card" || method === "debit_card") {
-      if (feeConfigs[method] !== undefined) {
-        setValue("feePercent", feeConfigs[method]);
-      }
-    } else {
-      setValue("feePercent", 0);
+    if (!isCard) {
       setValue("brand", "");
       setValue("installments", 1);
+      setValue("anticipated", true);
+    } else if (!canDefer) {
+      setValue("anticipated", true);
     }
-  }, [method, feeConfigs, setValue]);
+  }, [isCard, canDefer, setValue]);
+
+  // Taxa segue a mesma resolução usada no servidor: maquininha (antecipada
+  // ou não) > taxa padrão do método. É só preview — o servidor recalcula.
+  useEffect(() => {
+    const resolved = resolveFeePercent(method, canDefer ? anticipated : true, selectedMachine, feeConfigs);
+    setValue("feePercent", resolved);
+  }, [method, anticipated, canDefer, selectedMachine, feeConfigs, setValue]);
 
   useEffect(() => {
     if (grossCents && feePercent !== undefined) {
@@ -146,17 +165,24 @@ export function PaymentForm({ defaultValues, feeConfigs = {}, onSubmit, submitLa
       </div>
 
       <div className="grid grid-cols-3 gap-4">
-        <Input
-          id="feePercent"
-          label="Taxa (%)"
-          type="number"
-          step="0.01"
-          min="0"
-          max="100"
-          placeholder="0"
-          {...register("feePercent", { valueAsNumber: true })}
-          error={errors.feePercent?.message}
-        />
+        {selectedMachine ? (
+          <div>
+            <p className="font-body text-xs uppercase tracking-widest text-ink-soft mb-1">Taxa (%)</p>
+            <p className="font-body text-sm text-ink-soft py-2">{feePercent ?? 0}%</p>
+          </div>
+        ) : (
+          <Input
+            id="feePercent"
+            label="Taxa (%)"
+            type="number"
+            step="0.01"
+            min="0"
+            max="100"
+            placeholder="0"
+            {...register("feePercent", { valueAsNumber: true })}
+            error={errors.feePercent?.message}
+          />
+        )}
         <div>
           <p className="font-body text-xs uppercase tracking-widest text-ink-soft mb-1">Taxa (R$)</p>
           <p className="font-body text-sm text-ink-soft py-2">
@@ -195,6 +221,26 @@ export function PaymentForm({ defaultValues, feeConfigs = {}, onSubmit, submitLa
             max="24"
             {...register("installments", { valueAsNumber: true })}
           />
+          <div>
+            <label className="block font-body text-xs uppercase tracking-widest text-ink-soft mb-1">
+              Maquininha
+            </label>
+            <select
+              {...register("machineId")}
+              className="w-full rounded border border-ink/20 bg-cream px-3 py-2 font-body text-sm text-ink focus:outline-none focus:border-ink"
+            >
+              <option value="">Sem maquininha (taxa padrão)</option>
+              {machines.map((m) => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+            </select>
+          </div>
+          {canDefer && (
+            <label className="flex items-center gap-2 font-body text-sm text-ink pt-6">
+              <input type="checkbox" {...register("anticipated")} className="w-4 h-4 rounded border-ink/20 accent-terracotta" />
+              Antecipado
+            </label>
+          )}
         </div>
       )}
 
@@ -206,12 +252,14 @@ export function PaymentForm({ defaultValues, feeConfigs = {}, onSubmit, submitLa
           {...register("paidAt")}
           error={errors.paidAt?.message}
         />
-        <Input
-          id="settledAt"
-          label="Liquidação (caiu na conta)"
-          type="date"
-          {...register("settledAt")}
-        />
+        {!(canDefer && !anticipated && installments > 1) && (
+          <Input
+            id="settledAt"
+            label="Liquidação (caiu na conta)"
+            type="date"
+            {...register("settledAt")}
+          />
+        )}
       </div>
 
       <Input

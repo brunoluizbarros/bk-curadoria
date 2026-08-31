@@ -1,5 +1,6 @@
 import { getOrderById } from "@/server/queries/orders";
-import { getPaymentFeeConfigs } from "@/server/queries/settings";
+import { getPaymentFeeConfigs, getCardMachines } from "@/server/queries/settings";
+import { getReceivablesByOrder } from "@/server/queries/payments";
 import { getCustomerCreditBalance } from "@/server/queries/loyalty";
 import {
   setOrderStatus,
@@ -8,7 +9,7 @@ import {
   removeOrderItem,
   deleteOrder,
 } from "@/server/actions/orders";
-import { deletePayment, markPaymentSettled } from "@/server/actions/payments";
+import { deletePayment, markReceivableSettled, updateReceivableExpectedAt } from "@/server/actions/payments";
 import { getAllProductsAdmin } from "@/server/queries/products";
 import { formatBRL, formatDate, formatPhone, formatCEP } from "@/lib/format";
 import { Button } from "@/components/ui/Button";
@@ -53,20 +54,22 @@ interface Props {
 
 export default async function PedidoDetailPage({ params }: Props) {
   const { id } = await params;
-  const [order, allProducts, feeConfigs] = await Promise.all([
+  const [order, allProducts, feeConfigs, machines] = await Promise.all([
     getOrderById(id),
     getAllProductsAdmin(),
     getPaymentFeeConfigs(),
+    getCardMachines(true),
   ]);
   if (!order) notFound();
   const creditBalance = await getCustomerCreditBalance(order.customer.id);
+  const receivables = await getReceivablesByOrder(id);
 
   const s = STATUS_LABELS[order.status] ?? STATUS_LABELS.draft;
   const keptItems = order.items.filter((i) => i.status === "kept");
   const returnedItems = order.items.filter((i) => i.status === "returned");
   const totalPaid = order.payments.reduce((acc, p) => acc + p.grossCents, 0);
-  const totalPending = order.payments.reduce(
-    (acc, p) => (p.settledAt ? acc : acc + p.netCents),
+  const totalPending = receivables.reduce(
+    (acc, r) => (r.settledAt ? acc : acc + r.netCents),
     0
   );
 
@@ -285,28 +288,60 @@ export default async function PedidoDetailPage({ params }: Props) {
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="font-body text-xs text-ink-soft">pago em {formatDate(p.paidAt)}</span>
-                      {p.settledAt ? (
-                        <span className="inline-flex items-center gap-1 font-body text-[10px] text-sage-deep">
-                          <IconCircleCheck size={10} />
-                          liquidado em {formatDate(p.settledAt)}
-                        </span>
-                      ) : (
-                        <form action={async () => { "use server"; await markPaymentSettled(p.id, id); }}>
-                          <button
-                            type="submit"
-                            className="inline-flex items-center gap-1 font-body text-[10px] text-gold hover:text-ink transition-colors uppercase tracking-widest"
-                          >
-                            <IconClock size={10} />
-                            Marcar como liquidado
-                          </button>
-                        </form>
-                      )}
-                    </div>
+                    <p className="font-body text-xs text-ink-soft mt-0.5">pago em {formatDate(p.paidAt)}</p>
                     {p.reference && (
                       <p className="font-body text-[10px] text-ink-soft mt-0.5 truncate">{p.reference}</p>
                     )}
+                    <div className="mt-2 space-y-1.5">
+                      {receivables
+                        .filter((r) => r.paymentId === p.id)
+                        .map((r) => (
+                          <div key={r.id} className="flex items-center gap-2 flex-wrap">
+                            {p.installments > 1 && (
+                              <span className="font-body text-[10px] text-ink-soft">
+                                {r.installmentNumber}/{p.installments}
+                              </span>
+                            )}
+                            <span className="font-body text-[10px] text-ink-soft">{formatBRL(r.netCents)}</span>
+                            {r.settledAt ? (
+                              <span className="inline-flex items-center gap-1 font-body text-[10px] text-sage-deep">
+                                <IconCircleCheck size={10} />
+                                liquidado em {formatDate(r.settledAt)}
+                              </span>
+                            ) : (
+                              <>
+                                <form
+                                  action={async (fd: FormData) => {
+                                    "use server";
+                                    const dateStr = fd.get("expectedAt") as string;
+                                    await updateReceivableExpectedAt(r.id, id, dateStr);
+                                  }}
+                                  className="flex items-center gap-1"
+                                >
+                                  <input
+                                    type="date"
+                                    name="expectedAt"
+                                    defaultValue={new Date(r.expectedAt).toISOString().slice(0, 10)}
+                                    className="border border-ink/20 bg-cream px-1.5 py-0.5 rounded font-body text-[10px] text-ink focus:outline-none focus:border-ink"
+                                  />
+                                  <button type="submit" className="font-body text-[10px] text-ink-soft hover:text-ink transition-colors">
+                                    Salvar data
+                                  </button>
+                                </form>
+                                <form action={async () => { "use server"; await markReceivableSettled(r.id, id); }}>
+                                  <button
+                                    type="submit"
+                                    className="inline-flex items-center gap-1 font-body text-[10px] text-gold hover:text-ink transition-colors uppercase tracking-widest"
+                                  >
+                                    <IconClock size={10} />
+                                    Liquidar
+                                  </button>
+                                </form>
+                              </>
+                            )}
+                          </div>
+                        ))}
+                    </div>
                   </div>
                   <form action={async () => { "use server"; await deletePayment(p.id, id); }}>
                     <button type="submit" className="text-red-300 hover:text-red-500 transition-colors shrink-0">
@@ -333,7 +368,7 @@ export default async function PedidoDetailPage({ params }: Props) {
         )}
 
         {/* Formulário de novo pagamento */}
-        <PaymentFormInline orderId={id} orderTotal={order.total} feeConfigs={feeConfigs} />
+        <PaymentFormInline orderId={id} orderTotal={order.total} feeConfigs={feeConfigs} machines={machines} />
       </section>
 
       {/* Notificações WhatsApp */}

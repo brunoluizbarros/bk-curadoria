@@ -1,5 +1,5 @@
 import { getPendingSettlements, getRecentSettlements } from "@/server/queries/payments";
-import { markPaymentSettled } from "@/server/actions/payments";
+import { markReceivableSettled } from "@/server/actions/payments";
 import { Button } from "@/components/ui/Button";
 import { formatBRL, formatDate } from "@/lib/format";
 import { IconCashBanknote, IconCircleCheck, IconClock } from "@/components/ui/icons";
@@ -23,6 +23,8 @@ export default async function RecebimentosPage() {
   ]);
 
   const pendingTotal = pending.reduce((acc, p) => acc + p.netCents, 0);
+  const installmentLabel = (p: (typeof pending)[number]) =>
+    p.payment.installments > 1 ? `${p.installmentNumber}/${p.payment.installments}` : null;
 
   return (
     <div>
@@ -55,23 +57,20 @@ export default async function RecebimentosPage() {
                 <div className="flex-1 min-w-0">
                   <p className="font-body text-sm text-ink truncate">{p.customer.name}</p>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="font-body text-xs text-ink-soft">{METHOD_LABELS[p.method] ?? p.method}</span>
-                    {p.installments > 1 && (
-                      <span className="font-body text-xs text-ink-soft">· {p.installments}×</span>
+                    <span className="font-body text-xs text-ink-soft">{METHOD_LABELS[p.payment.method] ?? p.payment.method}</span>
+                    {installmentLabel(p) && (
+                      <span className="font-body text-xs text-ink-soft">· {installmentLabel(p)}</span>
                     )}
-                    <span className="font-body text-xs text-ink-soft">· pago em {formatDate(p.paidAt)}</span>
+                    <span className="font-body text-xs text-ink-soft">· previsto {formatDate(p.expectedAt)}</span>
                   </div>
-                  {p.reference && (
-                    <p className="font-body text-[10px] text-ink-soft mt-0.5 truncate">{p.reference}</p>
+                  {p.payment.reference && (
+                    <p className="font-body text-[10px] text-ink-soft mt-0.5 truncate">{p.payment.reference}</p>
                   )}
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="font-body text-sm text-terracotta font-medium">{formatBRL(p.grossCents)}</p>
-                  {p.feeCents > 0 && (
-                    <p className="font-body text-xs text-ink-soft">líq. {formatBRL(p.netCents)}</p>
-                  )}
+                  <p className="font-body text-sm text-terracotta font-medium">{formatBRL(p.netCents)}</p>
                 </div>
-                <form action={async () => { "use server"; await markPaymentSettled(p.id, p.order.id); }}>
+                <form action={async () => { "use server"; await markReceivableSettled(p.id, p.order.id); }}>
                   <Button type="submit" variant="ghost" size="sm">
                     <IconCircleCheck size={12} />
                     Liquidar
@@ -96,11 +95,11 @@ export default async function RecebimentosPage() {
           Liquidados (últimos 60 dias)
         </h2>
 
-        {recent.filter((p) => p.settledAt).length === 0 ? (
+        {recent.length === 0 ? (
           <p className="font-body text-sm text-ink-soft">Nenhum recebimento liquidado no período.</p>
         ) : (
           <div className="space-y-2">
-            {recent.filter((p) => p.settledAt).map((p) => (
+            {recent.map((p) => (
               <div
                 key={p.id}
                 className="flex items-center gap-4 bg-cream rounded-card px-4 py-3 border border-ink/10 opacity-80"
@@ -108,17 +107,17 @@ export default async function RecebimentosPage() {
                 <div className="flex-1 min-w-0">
                   <p className="font-body text-sm text-ink truncate">{p.customer.name}</p>
                   <div className="flex items-center gap-2 mt-0.5">
-                    <span className="font-body text-xs text-ink-soft">{METHOD_LABELS[p.method] ?? p.method}</span>
+                    <span className="font-body text-xs text-ink-soft">{METHOD_LABELS[p.payment.method] ?? p.payment.method}</span>
+                    {installmentLabel(p) && (
+                      <span className="font-body text-xs text-ink-soft">· {installmentLabel(p)}</span>
+                    )}
                     {p.settledAt && (
                       <span className="font-body text-xs text-ink-soft">· liquidado {formatDate(p.settledAt)}</span>
                     )}
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-body text-sm text-ink">{formatBRL(p.grossCents)}</p>
-                  {p.feeCents > 0 && (
-                    <p className="font-body text-xs text-ink-soft">líq. {formatBRL(p.netCents)}</p>
-                  )}
+                  <p className="font-body text-sm text-ink">{formatBRL(p.netCents)}</p>
                 </div>
                 <Link
                   href={`/admin/pedidos/${p.order.id}`}

@@ -25,8 +25,10 @@ interface Props {
 export default async function DREPage({ searchParams }: Props) {
   const params = await searchParams;
   const now = new Date();
-  const year = params.ano ? parseInt(params.ano, 10) : now.getFullYear();
-  const selectedMonth = params.mes ? parseInt(params.mes, 10) : now.getMonth() + 1;
+  const parsedYear = params.ano ? parseInt(params.ano, 10) : NaN;
+  const year = Number.isInteger(parsedYear) ? parsedYear : now.getFullYear();
+  const parsedMonth = params.mes ? parseInt(params.mes, 10) : NaN;
+  const selectedMonth = Number.isInteger(parsedMonth) && parsedMonth >= 1 && parsedMonth <= 12 ? parsedMonth : now.getMonth() + 1;
 
   const [yearSummary, monthDetail] = await Promise.all([
     getDREYearSummary(year),

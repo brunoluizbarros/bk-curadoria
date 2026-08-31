@@ -174,13 +174,17 @@ export const paymentSchema = z
       required_error: "Método obrigatório",
     }),
     brand: z.string().optional(),
-    installments: z.number().int().min(1),
+    installments: z.number().int().min(1).max(24),
     grossCents: z.number().int().positive("Valor bruto obrigatório"),
+    // feePercent/feeCents/netCents: só para preview no cliente — o servidor
+    // sempre recalcula a partir da maquininha + anticipated antes de gravar.
     feePercent: z.number().min(0).max(100),
     feeCents: z.number().int().min(0),
-    netCents: z.number().int().positive("Valor líquido obrigatório"),
+    netCents: z.number().int().min(0, "Valor líquido inválido"),
     paidAt: z.string().min(1, "Data do pagamento obrigatória"),
     settledAt: z.string().optional().nullable(),
+    machineId: z.union([z.literal(""), z.string().uuid()]).optional().nullable(),
+    anticipated: z.boolean(),
     reference: z.string().optional(),
     notes: z.string().optional(),
   })
@@ -190,6 +194,17 @@ export const paymentSchema = z
   });
 
 export type PaymentInput = z.infer<typeof paymentSchema>;
+
+export const cardMachineSchema = z.object({
+  name: z.string().min(1, "Nome obrigatório"),
+  anticipatedFeePercent: z.number().min(0).max(100),
+  nonAnticipatedFeePercent: z.number().min(0).max(100),
+  anticipationDays: z.number().int().min(0),
+  installmentIntervalDays: z.number().int().min(1),
+  active: z.boolean(),
+});
+
+export type CardMachineInput = z.infer<typeof cardMachineSchema>;
 
 // ─── Expenses ─────────────────────────────────────────────────────────────────
 
