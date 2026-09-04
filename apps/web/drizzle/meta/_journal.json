@@ -99,6 +99,20 @@
       "when": 1788175044336,
       "tag": "0013_set_default_card_machine",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1788485966772,
+      "tag": "0014_add_card_machine_rates",
+      "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1788485995301,
+      "tag": "0015_backfill_receivable_fees",
+      "breakpoints": true
     }
   ]
 }

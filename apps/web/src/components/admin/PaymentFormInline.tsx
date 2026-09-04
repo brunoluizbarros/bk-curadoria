@@ -9,13 +9,13 @@ import { IconPlus } from "@/components/ui/icons";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { PaymentInput } from "@/lib/validations";
-import type { CardMachine } from "@/db/schema";
+import type { CardMachineWithRates } from "@/server/queries/settings";
 
 interface PaymentFormInlineProps {
   orderId: string;
   orderTotal: number;
   feeConfigs?: Record<string, number>;
-  machines?: CardMachine[];
+  machines?: CardMachineWithRates[];
 }
 
 export function PaymentFormInline({ orderId, orderTotal, feeConfigs, machines }: PaymentFormInlineProps) {

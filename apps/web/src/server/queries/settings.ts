@@ -1,5 +1,5 @@
 import { db } from "@/db/client";
-import { paymentFeeConfigs, siteConfig, cardMachines } from "@/db/schema";
+import { paymentFeeConfigs, siteConfig, cardMachines, cardMachineRates } from "@/db/schema";
 import { asc, eq, inArray } from "drizzle-orm";
 
 const METHODS = ["pix", "credit_card", "debit_card", "cash", "transfer"] as const;
@@ -15,14 +15,38 @@ export async function getPaymentFeeConfigs(): Promise<FeeConfigMap> {
   return map;
 }
 
-export async function getCardMachines(activeOnly = false) {
-  const where = activeOnly ? eq(cardMachines.active, true) : undefined;
-  return db.select().from(cardMachines).where(where).orderBy(asc(cardMachines.name));
+export type CardMachineRateInput = { installments: number; feePercent: number };
+export type CardMachineWithRates = typeof cardMachines.$inferSelect & { rates: CardMachineRateInput[] };
+
+async function attachRates(
+  machines: (typeof cardMachines.$inferSelect)[]
+): Promise<CardMachineWithRates[]> {
+  if (machines.length === 0) return [];
+  const rateRows = await db
+    .select()
+    .from(cardMachineRates)
+    .where(inArray(cardMachineRates.machineId, machines.map((m) => m.id)))
+    .orderBy(asc(cardMachineRates.installments));
+
+  return machines.map((m) => ({
+    ...m,
+    rates: rateRows
+      .filter((r) => r.machineId === m.id)
+      .map((r) => ({ installments: r.installments, feePercent: r.feePercent })),
+  }));
 }
 
-export async function getCardMachineById(id: string) {
+export async function getCardMachines(activeOnly = false): Promise<CardMachineWithRates[]> {
+  const where = activeOnly ? eq(cardMachines.active, true) : undefined;
+  const machines = await db.select().from(cardMachines).where(where).orderBy(asc(cardMachines.name));
+  return attachRates(machines);
+}
+
+export async function getCardMachineById(id: string): Promise<CardMachineWithRates | null> {
   const [row] = await db.select().from(cardMachines).where(eq(cardMachines.id, id));
-  return row ?? null;
+  if (!row) return null;
+  const [withRates] = await attachRates([row]);
+  return withRates;
 }
 
 const META_KEYS = [

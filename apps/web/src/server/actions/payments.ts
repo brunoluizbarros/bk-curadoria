@@ -5,7 +5,6 @@ import { db } from "@/db/client";
 import {
   payments,
   paymentReceivables,
-  cardMachines,
   orders,
   orderItems,
   loyaltyCredits,
@@ -13,11 +12,11 @@ import {
   leads,
 } from "@/db/schema";
 import { paymentSchema } from "@/lib/validations";
-import { calcFeeCents, calcNetCents, resolveFeePercent, buildReceivableSchedule } from "@/lib/fees";
+import { resolveFeePercent, buildReceivableSchedule } from "@/lib/fees";
 import { and, desc, eq, gte, isNull, sum } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getLoyaltyConfig, hasEarnedCreditForOrder } from "@/server/queries/loyalty";
-import { getPaymentFeeConfigs } from "@/server/queries/settings";
+import { getPaymentFeeConfigs, getCardMachineById } from "@/server/queries/settings";
 import { computeOrderItemTotal } from "@/server/queries/orders";
 import { sendPurchaseEvent } from "@/lib/meta-capi";
 
@@ -41,6 +40,7 @@ async function resolvePaymentMoney(input: {
   installments: number;
   anticipated: boolean;
   machineId?: string | null;
+  paidAt: Date;
 }) {
   const isCard = input.method === "credit_card" || input.method === "debit_card";
   const canDefer = input.method === "credit_card"; // débito não parcela/antecipa na prática
@@ -48,17 +48,25 @@ async function resolvePaymentMoney(input: {
   const installments = canDefer ? input.installments : 1; // débito e não-cartão nunca parcelam
   const machineId = isCard && input.machineId ? input.machineId : null;
 
-  let machine: typeof cardMachines.$inferSelect | null = null;
-  if (machineId) {
-    const [m] = await db.select().from(cardMachines).where(eq(cardMachines.id, machineId));
-    if (!m) return { error: "Maquininha não encontrada." as const };
-    machine = m;
-  }
+  const machine = machineId ? await getCardMachineById(machineId) : null;
+  if (machineId && !machine) return { error: "Maquininha não encontrada." as const };
 
   const feeConfigs = isCard ? await getPaymentFeeConfigs() : ({} as Record<string, number>);
-  const feePercent = resolveFeePercent(input.method, anticipated, machine, feeConfigs);
-  const feeCents = isCard ? calcFeeCents(input.grossCents, feePercent) : 0;
-  const netCents = isCard ? calcNetCents(input.grossCents, feePercent) : input.grossCents;
+  const feePercent = isCard
+    ? resolveFeePercent(input.method, anticipated, installments, machine, feeConfigs)
+    : 0;
+
+  const schedule = buildReceivableSchedule({
+    grossCents: input.grossCents,
+    feePercent,
+    paidAt: input.paidAt,
+    installments,
+    anticipated,
+    anticipationDays: machine?.anticipationDays ?? 1,
+  });
+
+  const feeCents = schedule.reduce((acc, s) => acc + s.feeCents, 0);
+  const netCents = schedule.reduce((acc, s) => acc + s.netCents, 0);
 
   return {
     anticipated,
@@ -67,8 +75,7 @@ async function resolvePaymentMoney(input: {
     feePercent,
     feeCents,
     netCents,
-    anticipationDays: machine?.anticipationDays ?? 1,
-    installmentIntervalDays: machine?.installmentIntervalDays ?? 30,
+    schedule,
   } as const;
 }
 
@@ -83,7 +90,7 @@ export async function createPayment(orderId: string, data: unknown) {
   const { paidAt, settledAt, ...rest } = parsed.data;
   const isCard = rest.method === "credit_card" || rest.method === "debit_card";
 
-  const resolved = await resolvePaymentMoney(rest);
+  const resolved = await resolvePaymentMoney({ ...rest, paidAt: new Date(paidAt) });
   if ("error" in resolved) return resolved;
 
   // ponytail: 10s window on (orderId,grossCents,method,paidAt) dedupes double-submit
@@ -105,14 +112,7 @@ export async function createPayment(orderId: string, data: unknown) {
 
   if (existing) return { id: existing.id };
 
-  const schedule = buildReceivableSchedule({
-    netCents: resolved.netCents,
-    paidAt: new Date(paidAt),
-    installments: resolved.installments,
-    anticipated: resolved.anticipated,
-    anticipationDays: resolved.anticipationDays,
-    installmentIntervalDays: resolved.installmentIntervalDays,
-  });
+  const schedule = resolved.schedule;
   // Recebimento já liquidado na criação (única parcela) herda a data informada.
   const settledAtDate = settledAt ? new Date(settledAt) : null;
 
@@ -141,6 +141,8 @@ export async function createPayment(orderId: string, data: unknown) {
       schedule.map((s) => ({
         paymentId: payment.id,
         installmentNumber: s.installmentNumber,
+        grossCents: s.grossCents,
+        feeCents: s.feeCents,
         netCents: s.netCents,
         expectedAt: s.expectedAt,
         settledAt: schedule.length === 1 ? settledAtDate : null,

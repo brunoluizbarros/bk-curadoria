@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/Textarea";
 import { Button } from "@/components/ui/Button";
 import { calcFeeCents, calcNetCents, resolveFeePercent } from "@/lib/fees";
 import { formatBRL } from "@/lib/format";
-import type { CardMachine } from "@/db/schema";
+import type { CardMachineWithRates } from "@/server/queries/settings";
 
 const METHODS = [
   { value: "pix", label: "Pix" },
@@ -24,7 +24,7 @@ const BRANDS = ["Visa", "Mastercard", "Elo", "Hipercard", "Amex", "Outro"];
 interface PaymentFormProps {
   defaultValues?: Partial<PaymentInput>;
   feeConfigs?: Record<string, number>;
-  machines?: CardMachine[];
+  machines?: CardMachineWithRates[];
   onSubmit: (data: PaymentInput) => Promise<{ error?: unknown } | undefined>;
   submitLabel?: string;
   onCancel?: () => void;
@@ -84,9 +84,15 @@ export function PaymentForm({ defaultValues, feeConfigs = {}, machines = [], onS
   // Taxa segue a mesma resolução usada no servidor: maquininha (antecipada
   // ou não) > taxa padrão do método. É só preview — o servidor recalcula.
   useEffect(() => {
-    const resolved = resolveFeePercent(method, canDefer ? anticipated : true, selectedMachine, feeConfigs);
+    const resolved = resolveFeePercent(
+      method,
+      canDefer ? anticipated : true,
+      canDefer ? installments : 1,
+      selectedMachine,
+      feeConfigs
+    );
     setValue("feePercent", resolved);
-  }, [method, anticipated, canDefer, selectedMachine, feeConfigs, setValue]);
+  }, [method, anticipated, canDefer, installments, selectedMachine, feeConfigs, setValue]);
 
   useEffect(() => {
     if (grossCents && feePercent !== undefined) {

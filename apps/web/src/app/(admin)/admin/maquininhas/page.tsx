@@ -17,6 +17,8 @@ const inputClass =
   "w-full border border-ink/20 rounded bg-cream px-2 py-1.5 font-body text-sm text-ink focus:outline-none focus:border-ink";
 const labelClass = "block font-body text-[10px] uppercase tracking-widest text-ink-soft mb-1";
 
+const MAX_RATE_INSTALLMENTS = 12;
+
 function num(fd: FormData, key: string): number {
   return parseFloat((fd.get(key) as string) ?? "0") || 0;
 }
@@ -29,6 +31,45 @@ function numOr(fd: FormData, key: string, fallback: number): number {
   if (raw === null || raw === "") return fallback;
   const n = parseFloat(raw as string);
   return Number.isFinite(n) ? n : fallback;
+}
+
+// Lê a grade de taxas por parcela do form (campos rate_1..rate_12);
+// parcelas em branco não geram linha — cai no fallback nonAnticipatedFeePercent.
+function readRates(fd: FormData): { installments: number; feePercent: number }[] {
+  const rates: { installments: number; feePercent: number }[] = [];
+  for (let i = 1; i <= MAX_RATE_INSTALLMENTS; i++) {
+    const raw = fd.get(`rate_${i}`);
+    if (raw === null || raw === "") continue;
+    const n = parseFloat(raw as string);
+    if (Number.isFinite(n)) rates.push({ installments: i, feePercent: n });
+  }
+  return rates;
+}
+
+function RatesGrid({ rates }: { rates?: { installments: number; feePercent: number }[] }) {
+  const byInstallments = new Map((rates ?? []).map((r) => [r.installments, r.feePercent]));
+  return (
+    <div>
+      <label className={labelClass}>Taxa não antecipada por parcela (%)</label>
+      <div className="grid grid-cols-6 gap-2">
+        {Array.from({ length: MAX_RATE_INSTALLMENTS }, (_, i) => i + 1).map((n) => (
+          <div key={n}>
+            <label className="block font-body text-[9px] text-ink-soft text-center mb-0.5">{n}x</label>
+            <input
+              name={`rate_${n}`}
+              type="number"
+              step="0.01"
+              min="0"
+              max="100"
+              placeholder="—"
+              defaultValue={byInstallments.get(n) ?? ""}
+              className={`${inputClass} text-center px-1`}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 export default async function MaquininhasPage() {
@@ -52,8 +93,8 @@ export default async function MaquininhasPage() {
               anticipatedFeePercent: num(fd, "anticipatedFeePercent"),
               nonAnticipatedFeePercent: num(fd, "nonAnticipatedFeePercent"),
               anticipationDays: numOr(fd, "anticipationDays", 1),
-              installmentIntervalDays: numOr(fd, "installmentIntervalDays", 30),
               active: true,
+              rates: readRates(fd),
             });
           }
           redirect("/admin/maquininhas");
@@ -71,18 +112,15 @@ export default async function MaquininhasPage() {
             <input name="anticipatedFeePercent" type="number" step="0.01" min="0" max="100" defaultValue={0} className={inputClass} />
           </div>
           <div>
-            <label className={labelClass}>Taxa não antecipada (%)</label>
+            <label className={labelClass}>Taxa não antecipada padrão (%)</label>
             <input name="nonAnticipatedFeePercent" type="number" step="0.01" min="0" max="100" defaultValue={0} className={inputClass} />
           </div>
           <div>
             <label className={labelClass}>Prazo antecipado (dias)</label>
             <input name="anticipationDays" type="number" step="1" min="0" defaultValue={1} className={inputClass} />
           </div>
-          <div>
-            <label className={labelClass}>Intervalo entre parcelas (dias)</label>
-            <input name="installmentIntervalDays" type="number" step="1" min="1" defaultValue={30} className={inputClass} />
-          </div>
         </div>
+        <RatesGrid />
         <Button type="submit" size="sm">Criar</Button>
       </form>
 
@@ -120,8 +158,8 @@ export default async function MaquininhasPage() {
                         anticipatedFeePercent: m.anticipatedFeePercent,
                         nonAnticipatedFeePercent: m.nonAnticipatedFeePercent,
                         anticipationDays: m.anticipationDays,
-                        installmentIntervalDays: m.installmentIntervalDays,
                         active: !m.active,
+                        rates: m.rates,
                       });
                     }}
                     successMessage={m.active ? "Maquininha desativada" : "Maquininha ativada"}
@@ -152,8 +190,8 @@ export default async function MaquininhasPage() {
                     anticipatedFeePercent: num(fd, "anticipatedFeePercent"),
                     nonAnticipatedFeePercent: num(fd, "nonAnticipatedFeePercent"),
                     anticipationDays: numOr(fd, "anticipationDays", 1),
-                    installmentIntervalDays: numOr(fd, "installmentIntervalDays", 30),
                     active: m.active,
+                    rates: readRates(fd),
                   });
                 }}
                 successMessage="Maquininha atualizada"
@@ -169,18 +207,15 @@ export default async function MaquininhasPage() {
                     <input name="anticipatedFeePercent" type="number" step="0.01" min="0" max="100" defaultValue={m.anticipatedFeePercent} className={inputClass} />
                   </div>
                   <div>
-                    <label className={labelClass}>Taxa não antecipada (%)</label>
+                    <label className={labelClass}>Taxa não antecipada padrão (%)</label>
                     <input name="nonAnticipatedFeePercent" type="number" step="0.01" min="0" max="100" defaultValue={m.nonAnticipatedFeePercent} className={inputClass} />
                   </div>
                   <div>
                     <label className={labelClass}>Prazo antecipado (dias)</label>
                     <input name="anticipationDays" type="number" step="1" min="0" defaultValue={m.anticipationDays} className={inputClass} />
                   </div>
-                  <div>
-                    <label className={labelClass}>Intervalo entre parcelas (dias)</label>
-                    <input name="installmentIntervalDays" type="number" step="1" min="1" defaultValue={m.installmentIntervalDays} className={inputClass} />
-                  </div>
                 </div>
+                <RatesGrid rates={m.rates} />
                 <Button type="submit" variant="ghost" size="sm">Salvar</Button>
               </FormWithToast>
             </div>

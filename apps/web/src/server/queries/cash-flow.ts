@@ -8,6 +8,7 @@ export interface CashFlowMonth {
   month: number;
   inflowRealizedCents: number;
   inflowProjectedCents: number;
+  feeCents: number;
   outflowCents: number;
   balanceCents: number;
   accumulatedRealizedCents: number;
@@ -27,6 +28,7 @@ export async function getCashFlowYearSummary(year: number): Promise<CashFlowMont
   const inflowRows = await db
     .select({
       netCents: paymentReceivables.netCents,
+      feeCents: paymentReceivables.feeCents,
       settledAt: paymentReceivables.settledAt,
       expectedAt: paymentReceivables.expectedAt,
     })
@@ -62,6 +64,7 @@ export async function getCashFlowYearSummary(year: number): Promise<CashFlowMont
     month: i + 1,
     inflowRealizedCents: 0,
     inflowProjectedCents: 0,
+    feeCents: 0,
     outflowCents: 0,
     balanceCents: 0,
     accumulatedRealizedCents: 0,
@@ -73,6 +76,7 @@ export async function getCashFlowYearSummary(year: number): Promise<CashFlowMont
     const m = months[bucketDate.getMonth()];
     if (r.settledAt) m.inflowRealizedCents += r.netCents;
     else m.inflowProjectedCents += r.netCents;
+    m.feeCents += r.feeCents;
   }
 
   for (const e of outflowRows) {

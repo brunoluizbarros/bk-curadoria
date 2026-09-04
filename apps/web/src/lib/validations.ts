@@ -200,8 +200,8 @@ export const cardMachineSchema = z.object({
   anticipatedFeePercent: z.number().min(0).max(100),
   nonAnticipatedFeePercent: z.number().min(0).max(100),
   anticipationDays: z.number().int().min(0),
-  installmentIntervalDays: z.number().int().min(1),
   active: z.boolean(),
+  rates: z.array(z.object({ installments: z.number().int().min(1).max(12), feePercent: z.number().min(0).max(100) })),
 });
 
 export type CardMachineInput = z.infer<typeof cardMachineSchema>;

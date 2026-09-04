@@ -1,6 +1,6 @@
 /**
  * Teste do cronograma de recebíveis (split de centavos, antecipação,
- * resolução de taxa). Sem framework, sem banco.
+ * resolução de taxa por parcela, vencimento mensal). Sem framework, sem banco.
  * Uso: tsx scripts/check-receivables.ts
  */
 import { splitCents, resolveFeePercent, buildReceivableSchedule } from "../src/lib/fees";
@@ -33,55 +33,78 @@ function main() {
     assert(parts.every((p) => p === 0), "splitCents(0,12) tudo zero");
   }
 
-  // resolveFeePercent
+  // resolveFeePercent: tabela por nº de parcelas > fallback padrão da maquininha > fallback por método
   {
-    const machine = { anticipatedFeePercent: 1.5, nonAnticipatedFeePercent: 3.5 };
-    assert(resolveFeePercent("credit_card", true, machine, {}) === 1.5, "cartão+maquininha antecipado usa taxa antecipada");
-    assert(resolveFeePercent("credit_card", false, machine, {}) === 3.5, "cartão+maquininha não antecipado usa taxa não antecipada");
-    assert(resolveFeePercent("credit_card", true, null, { credit_card: 4.5 }) === 4.5, "cartão sem maquininha cai no fallback por método");
-    assert(resolveFeePercent("pix", true, machine, { pix: 99 }) === 0, "pix nunca tem taxa, mesmo com maquininha/fallback");
+    const machine = {
+      anticipatedFeePercent: 1.5,
+      nonAnticipatedFeePercent: 3.5,
+      rates: [
+        { installments: 1, feePercent: 2.0 },
+        { installments: 3, feePercent: 6.2 },
+      ],
+    };
+    assert(resolveFeePercent("credit_card", true, 3, machine, {}) === 1.5, "cartão+maquininha antecipado usa taxa antecipada, ignora a tabela");
+    assert(resolveFeePercent("credit_card", false, 3, machine, {}) === 6.2, "não antecipado 3x usa a linha da tabela (3x)");
+    assert(resolveFeePercent("credit_card", false, 1, machine, {}) === 2.0, "não antecipado 1x usa a linha da tabela (1x)");
+    assert(resolveFeePercent("credit_card", false, 18, machine, {}) === 3.5, "não antecipado sem linha na tabela (18x) cai no padrão da maquininha");
+    assert(resolveFeePercent("credit_card", true, 1, null, { credit_card: 4.5 }) === 4.5, "cartão sem maquininha cai no fallback por método");
+    assert(resolveFeePercent("pix", true, 1, machine, { pix: 99 }) === 0, "pix nunca tem taxa, mesmo com maquininha/fallback");
   }
 
-  // buildReceivableSchedule: antecipado
+  // buildReceivableSchedule: antecipado — taxa única, 1 parcela mesmo com installments>1
   {
     const paidAt = new Date("2026-03-10T15:00:00Z");
     const schedule = buildReceivableSchedule({
-      netCents: 100000,
+      grossCents: 100000,
+      feePercent: 1.5,
       paidAt,
       installments: 3,
       anticipated: true,
       anticipationDays: 1,
-      installmentIntervalDays: 30,
     });
     assert(schedule.length === 1, "antecipado gera 1 parcela mesmo com installments>1");
-    assert(schedule[0].netCents === 100000, "antecipado: valor total de uma vez");
+    assert(schedule[0].grossCents === 100000, "antecipado: bruto de uma vez");
+    assert(schedule[0].feeCents === 1500, "antecipado: taxa única sobre o bruto total (1.5% de 100000)");
+    assert(schedule[0].netCents === 98500, "antecipado: líquido = bruto - taxa");
     const expected = new Date("2026-03-11T12:00:00Z");
     assert(schedule[0].expectedAt.getTime() === expected.getTime(), "antecipado: expectedAt = paidAt + anticipationDays");
   }
 
-  // buildReceivableSchedule: 12x não antecipado
+  // buildReceivableSchedule: 3x não antecipado — bruto/taxa/líquido por parcela, vencimento mensal
   {
     const paidAt = new Date("2026-01-31T09:00:00Z"); // virada de mês proposital
     const schedule = buildReceivableSchedule({
-      netCents: 100000,
+      grossCents: 100000,
+      feePercent: 6.2,
       paidAt,
-      installments: 12,
+      installments: 3,
       anticipated: false,
       anticipationDays: 1,
-      installmentIntervalDays: 30,
     });
-    assert(schedule.length === 12, "12x não antecipado gera 12 parcelas");
+    assert(schedule.length === 3, "3x não antecipado gera 3 parcelas");
     assert(
-      schedule.reduce((a, s) => a + s.netCents, 0) === 100000,
-      "12x: soma das parcelas bate o líquido exato"
+      schedule.reduce((a, s) => a + s.grossCents, 0) === 100000,
+      "3x: soma dos brutos bate o bruto exato"
+    );
+    assert(
+      schedule.every((s) => s.grossCents - s.feeCents === s.netCents),
+      "3x: em toda parcela, bruto - taxa = líquido"
     );
     for (let i = 1; i < schedule.length; i++) {
       assert(schedule[i].expectedAt.getTime() > schedule[i - 1].expectedAt.getTime(), `parcela ${i + 1} depois da ${i}`);
     }
-    // base UTC-noon é 2026-01-31T12:00Z; +30 dias corridos = 2026-03-02
+    // Vencimento mensal com clamp: 31/jan não existe em fevereiro → cai em 28/fev.
     assert(
-      schedule[0].expectedAt.toISOString().slice(0, 10) === "2026-03-02",
-      "virada de mês: 31/jan + 30 dias corridos = 02/mar (sem pular mês/ano)"
+      schedule[0].expectedAt.toISOString().slice(0, 10) === "2026-02-28",
+      "virada de mês: 31/jan + 1 mês = 28/fev (mês-calendário, não +30 dias corridos)"
+    );
+    assert(
+      schedule[1].expectedAt.toISOString().slice(0, 10) === "2026-03-31",
+      "2ª parcela: 31/jan + 2 meses = 31/mar"
+    );
+    assert(
+      schedule[2].expectedAt.toISOString().slice(0, 10) === "2026-04-30",
+      "3ª parcela: 31/jan + 3 meses = 30/abr (abril não tem dia 31)"
     );
   }
 

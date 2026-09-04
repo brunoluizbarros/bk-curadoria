@@ -9,6 +9,7 @@ import {
   timestamp,
   index,
   unique,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 import { orders } from "./orders";
 
@@ -28,13 +29,28 @@ export const cardMachines = pgTable("card_machines", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   anticipatedFeePercent: real("anticipated_fee_percent").default(0).notNull(),
+  // Fallback quando não há linha em card_machine_rates para o nº de parcelas
+  // (ex: acima de 12x, ou maquininha sem tabela cadastrada).
   nonAnticipatedFeePercent: real("non_anticipated_fee_percent").default(0).notNull(),
   anticipationDays: integer("anticipation_days").default(1).notNull(),
-  installmentIntervalDays: integer("installment_interval_days").default(30).notNull(),
   active: boolean("active").default(true).notNull(),
   isDefault: boolean("is_default").default(false).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+// Taxa não antecipada por número de parcelas (ex: 1x=4,98%, 2x=5,6%...) —
+// modelo de tabela por parcela usado por maquininhas tipo Mercado Pago/PagSeguro.
+export const cardMachineRates = pgTable(
+  "card_machine_rates",
+  {
+    machineId: uuid("machine_id")
+      .notNull()
+      .references(() => cardMachines.id, { onDelete: "cascade" }),
+    installments: integer("installments").notNull(),
+    feePercent: real("fee_percent").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.machineId, t.installments] })]
+);
 
 export const payments = pgTable(
   "payments",
@@ -77,6 +93,8 @@ export const paymentReceivables = pgTable(
       .notNull()
       .references(() => payments.id, { onDelete: "cascade" }),
     installmentNumber: integer("installment_number").notNull(),
+    grossCents: integer("gross_cents").default(0).notNull(),
+    feeCents: integer("fee_cents").default(0).notNull(),
     netCents: integer("net_cents").notNull(),
     expectedAt: timestamp("expected_at", { withTimezone: true }).notNull(),
     settledAt: timestamp("settled_at", { withTimezone: true }),
@@ -91,6 +109,8 @@ export const paymentReceivables = pgTable(
 
 export type CardMachine = typeof cardMachines.$inferSelect;
 export type NewCardMachine = typeof cardMachines.$inferInsert;
+export type CardMachineRate = typeof cardMachineRates.$inferSelect;
+export type NewCardMachineRate = typeof cardMachineRates.$inferInsert;
 export type Payment = typeof payments.$inferSelect;
 export type NewPayment = typeof payments.$inferInsert;
 export type PaymentReceivable = typeof paymentReceivables.$inferSelect;

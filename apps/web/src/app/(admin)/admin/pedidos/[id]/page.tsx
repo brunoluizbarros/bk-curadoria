@@ -302,7 +302,11 @@ export default async function PedidoDetailPage({ params }: Props) {
                                 {r.installmentNumber}/{p.installments}
                               </span>
                             )}
-                            <span className="font-body text-[10px] text-ink-soft">{formatBRL(r.netCents)}</span>
+                            <span className="font-body text-[10px] text-ink-soft">
+                              {r.feeCents > 0
+                                ? `${formatBRL(r.grossCents)} − ${formatBRL(r.feeCents)} = ${formatBRL(r.netCents)}`
+                                : formatBRL(r.netCents)}
+                            </span>
                             {r.settledAt ? (
                               <span className="inline-flex items-center gap-1 font-body text-[10px] text-sage-deep">
                                 <IconCircleCheck size={10} />

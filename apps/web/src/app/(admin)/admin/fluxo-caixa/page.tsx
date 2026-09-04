@@ -78,6 +78,7 @@ export default async function FluxoCaixaPage({ searchParams }: Props) {
               <th className="text-left py-2 pr-4 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">Mês</th>
               <th className="text-right py-2 px-3 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">Entradas realizadas</th>
               <th className="text-right py-2 px-3 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">Entradas projetadas</th>
+              <th className="text-right py-2 px-3 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">Taxas</th>
               <th className="text-right py-2 px-3 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">Saídas</th>
               <th className="text-right py-2 px-3 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">Saldo do mês</th>
               <th className="text-right py-2 px-3 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">Acumulado realizado</th>
@@ -93,6 +94,9 @@ export default async function FluxoCaixaPage({ searchParams }: Props) {
                 </td>
                 <td className="text-right px-3 text-gold tabular-nums">
                   {m.inflowProjectedCents > 0 ? formatBRL(m.inflowProjectedCents) : "—"}
+                </td>
+                <td className="text-right px-3 text-ink-soft tabular-nums">
+                  {m.feeCents > 0 ? formatBRL(m.feeCents) : "—"}
                 </td>
                 <td className="text-right px-3 text-ink-soft tabular-nums">
                   {m.outflowCents > 0 ? formatBRL(m.outflowCents) : "—"}
@@ -117,6 +121,9 @@ export default async function FluxoCaixaPage({ searchParams }: Props) {
               </td>
               <td className="text-right px-3 text-gold font-medium tabular-nums">
                 {formatBRL(months.reduce((acc, m) => acc + m.inflowProjectedCents, 0))}
+              </td>
+              <td className="text-right px-3 text-ink-soft font-medium tabular-nums">
+                {formatBRL(months.reduce((acc, m) => acc + m.feeCents, 0))}
               </td>
               <td className="text-right px-3 text-ink font-medium tabular-nums">{formatBRL(yearOutflow)}</td>
               <td className="text-right px-3" />

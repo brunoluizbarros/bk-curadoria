@@ -69,6 +69,9 @@ export default async function RecebimentosPage() {
                 </div>
                 <div className="text-right shrink-0">
                   <p className="font-body text-sm text-terracotta font-medium">{formatBRL(p.netCents)}</p>
+                  {p.feeCents > 0 && (
+                    <p className="font-body text-[10px] text-ink-soft">taxa {formatBRL(p.feeCents)}</p>
+                  )}
                 </div>
                 <form action={async () => { "use server"; await markReceivableSettled(p.id, p.order.id); }}>
                   <Button type="submit" variant="ghost" size="sm">
@@ -118,6 +121,9 @@ export default async function RecebimentosPage() {
                 </div>
                 <div className="text-right">
                   <p className="font-body text-sm text-ink">{formatBRL(p.netCents)}</p>
+                  {p.feeCents > 0 && (
+                    <p className="font-body text-[10px] text-ink-soft">taxa {formatBRL(p.feeCents)}</p>
+                  )}
                 </div>
                 <Link
                   href={`/admin/pedidos/${p.order.id}`}
