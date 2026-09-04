@@ -39,6 +39,10 @@ export function ProductForm({ defaultValues, categories, onSubmit, submitLabel =
   });
 
   const name = watch("name");
+  const priceCents = watch("priceCents");
+  const costCents = watch("costCents");
+  const staticMarginPercent =
+    priceCents && costCents != null ? ((priceCents - costCents) / priceCents) * 100 : null;
 
   function autoSlug() {
     if (!watch("slug")) {
@@ -110,6 +114,38 @@ export function ProductForm({ defaultValues, categories, onSubmit, submitLabel =
             />
           )}
         />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex flex-col gap-1">
+          <Controller
+            control={control}
+            name="costCents"
+            render={({ field }) => (
+              <Input
+                id="costCents"
+                label="Custo (opcional)"
+                placeholder="R$ 0,00"
+                inputMode="numeric"
+                value={
+                  field.value
+                    ? (field.value / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+                    : ""
+                }
+                onChange={(e) => {
+                  const digits = e.target.value.replace(/\D/g, "");
+                  field.onChange(digits === "" ? null : parseInt(digits, 10));
+                }}
+                error={errors.costCents?.message}
+              />
+            )}
+          />
+          {staticMarginPercent !== null && (
+            <p className="text-[10px] text-ink-soft/70 font-body">
+              Margem sem taxa de cartão: {staticMarginPercent.toFixed(1)}%
+            </p>
+          )}
+        </div>
       </div>
 
       <Input

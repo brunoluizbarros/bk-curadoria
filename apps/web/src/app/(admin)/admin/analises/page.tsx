@@ -1,5 +1,10 @@
 import Link from "next/link";
-import { getCustomerPurchaseRanking, type CustomerPurchaseRanking } from "@/server/queries/analytics";
+import {
+  getCustomerPurchaseRanking,
+  getProductMarginRanking,
+  type CustomerPurchaseRanking,
+  type ProductMarginRanking,
+} from "@/server/queries/analytics";
 import { formatBRL } from "@/lib/format";
 import { IconChartBar } from "@/components/ui/icons";
 import type { Metadata } from "next";
@@ -9,10 +14,24 @@ export const metadata: Metadata = { title: { absolute: "Análises · BK Admin" }
 const RANKING_SIZE = 20;
 
 export default async function AnalisesPage() {
-  const ranking = await getCustomerPurchaseRanking(12);
+  const [ranking, marginRanking] = await Promise.all([
+    getCustomerPurchaseRanking(12),
+    getProductMarginRanking(12),
+  ]);
 
   const byValue = [...ranking].sort((a, b) => b.totalCents - a.totalCents).slice(0, RANKING_SIZE);
   const byFrequency = [...ranking].sort((a, b) => b.orderCount - a.orderCount).slice(0, RANKING_SIZE);
+
+  // Produtos com margem calculável primeiro (maior margem), sem custo
+  // cadastrado vão pro fim (ordenados por receita) em vez de quebrar a ordem.
+  const byMargin = [...marginRanking]
+    .sort((a, b) => {
+      if (a.marginCents === null && b.marginCents === null) return b.revenueCents - a.revenueCents;
+      if (a.marginCents === null) return 1;
+      if (b.marginCents === null) return -1;
+      return b.marginCents - a.marginCents;
+    })
+    .slice(0, RANKING_SIZE);
 
   return (
     <div>
@@ -22,7 +41,7 @@ export default async function AnalisesPage() {
         <span className="font-body text-xs text-ink-soft uppercase tracking-widest">Últimos 12 meses</span>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         <RankingTable
           title="Clientes que mais compram (valor)"
           rows={byValue}
@@ -36,6 +55,8 @@ export default async function AnalisesPage() {
           renderValue={(r) => `${r.orderCount}×`}
         />
       </div>
+
+      <ProductMarginTable rows={byMargin} />
     </div>
   );
 }
@@ -83,6 +104,58 @@ function RankingTable({
                   </td>
                   <td className="text-right pl-3 text-terracotta font-medium tabular-nums whitespace-nowrap">
                     {renderValue(r)}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+function ProductMarginTable({ rows }: { rows: ProductMarginRanking[] }) {
+  return (
+    <section>
+      <h2 className="font-body text-xs uppercase tracking-widest text-ink-soft mb-3">
+        Produtos por margem (líquida de taxa de cartão)
+      </h2>
+      <div className="overflow-x-auto">
+        <table className="w-full font-body text-sm">
+          <thead>
+            <tr className="border-b border-ink/10">
+              <th className="text-left py-2 pr-3 text-xs uppercase tracking-widest text-ink-soft font-normal w-8">#</th>
+              <th className="text-left py-2 px-3 text-xs uppercase tracking-widest text-ink-soft font-normal">Produto</th>
+              <th className="text-right py-2 px-3 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">Qtd. vendida</th>
+              <th className="text-right py-2 px-3 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">Receita líquida</th>
+              <th className="text-right py-2 px-3 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">Custo</th>
+              <th className="text-right py-2 px-3 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">Margem</th>
+              <th className="text-right py-2 pl-3 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">Margem %</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="py-4 font-body text-sm text-ink-soft">
+                  Nenhuma venda no período.
+                </td>
+              </tr>
+            ) : (
+              rows.map((r, i) => (
+                <tr key={r.productId} className="border-b border-ink/5 hover:bg-ink/[0.02] transition-colors">
+                  <td className="py-2.5 pr-3 text-ink-soft tabular-nums">{i + 1}</td>
+                  <td className="py-2.5 px-3 text-ink">{r.name}</td>
+                  <td className="text-right px-3 text-ink-soft tabular-nums">{r.quantitySold}</td>
+                  <td className="text-right px-3 text-ink tabular-nums">{formatBRL(r.revenueCents)}</td>
+                  <td className="text-right px-3 text-ink-soft tabular-nums">
+                    {r.costCents !== null ? formatBRL(r.costCents) : "—"}
+                  </td>
+                  <td className={`text-right px-3 font-medium tabular-nums ${r.marginCents === null ? "text-ink-soft" : r.marginCents >= 0 ? "text-sage-deep" : "text-red-600"}`}>
+                    {r.marginCents !== null ? formatBRL(r.marginCents) : "sem custo cadastrado"}
+                  </td>
+                  <td className={`text-right pl-3 font-medium tabular-nums ${r.marginPercent === null ? "text-ink-soft" : r.marginPercent >= 0 ? "text-sage-deep" : "text-red-600"}`}>
+                    {r.marginPercent !== null ? `${r.marginPercent.toFixed(1)}%` : "—"}
                   </td>
                 </tr>
               ))

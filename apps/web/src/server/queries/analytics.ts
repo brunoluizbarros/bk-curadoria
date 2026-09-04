@@ -1,7 +1,8 @@
 import { db } from "@/db/client";
-import { orders, orderItems, customers } from "@/db/schema";
+import { orders, orderItems, customers, products, payments } from "@/db/schema";
 import { and, eq, gte, inArray, isNull, ne } from "drizzle-orm";
 import { computeOrderItemTotal } from "./orders";
+import { calcOrderFeeRate, calcItemNetRevenue, calcMargin } from "@/lib/margin";
 
 export interface CustomerPurchaseRanking {
   customerId: string;
@@ -76,4 +77,114 @@ export async function getCustomerPurchaseRanking(months = 12): Promise<CustomerP
   }
 
   return Array.from(byCustomer.values());
+}
+
+export interface ProductMarginRanking {
+  productId: string;
+  name: string;
+  quantitySold: number;
+  revenueCents: number;
+  costCents: number | null;
+  marginCents: number | null;
+  marginPercent: number | null;
+}
+
+// Ranking de produtos por margem, líquida da taxa de cartão do pedido em que
+// foram vendidos. Regime de competência — mesmo critério do DRE
+// (orders.paidAt), necessário aqui porque a taxa só existe atrelada a
+// payments de pedido efetivamente pago.
+export async function getProductMarginRanking(months = 12): Promise<ProductMarginRanking[]> {
+  const since = new Date();
+  since.setMonth(since.getMonth() - months);
+
+  const paidOrders = await db
+    .select({ id: orders.id })
+    .from(orders)
+    .where(and(gte(orders.paidAt, since), isNull(orders.deletedAt)));
+
+  if (!paidOrders.length) return [];
+  const orderIds = paidOrders.map((o) => o.id);
+
+  const paymentRows = await db
+    .select({ orderId: payments.orderId, grossCents: payments.grossCents, feeCents: payments.feeCents })
+    .from(payments)
+    .where(and(inArray(payments.orderId, orderIds), isNull(payments.deletedAt)));
+
+  const paymentsByOrder = new Map<string, { grossCents: number; feeCents: number }[]>();
+  for (const p of paymentRows) {
+    const list = paymentsByOrder.get(p.orderId) ?? [];
+    list.push(p);
+    paymentsByOrder.set(p.orderId, list);
+  }
+  const feeRateByOrder = new Map<string, number>();
+  for (const [orderId, list] of paymentsByOrder) {
+    feeRateByOrder.set(orderId, calcOrderFeeRate(list));
+  }
+
+  // Sem filtro em products.deletedAt/active — produto descontinuado continua
+  // aparecendo no histórico de margem de vendas passadas.
+  const itemRows = await db
+    .select({
+      productId: orderItems.productId,
+      productName: products.name,
+      costCents: products.costCents,
+      unitPriceCents: orderItems.unitPriceCents,
+      discountCents: orderItems.discountCents,
+      quantity: orderItems.quantity,
+      orderId: orderItems.orderId,
+    })
+    .from(orderItems)
+    .innerJoin(products, eq(orderItems.productId, products.id))
+    .where(
+      and(
+        inArray(orderItems.orderId, orderIds),
+        isNull(orderItems.deletedAt),
+        eq(orderItems.status, "kept")
+      )
+    );
+
+  interface Acc {
+    productId: string;
+    name: string;
+    quantitySold: number;
+    revenueCents: number;
+    costTotalCents: number;
+    hasCost: boolean;
+  }
+  const byProduct = new Map<string, Acc>();
+  for (const item of itemRows) {
+    const feeRate = feeRateByOrder.get(item.orderId) ?? 0;
+    const netRevenue = calcItemNetRevenue(item.unitPriceCents, item.discountCents, item.quantity, feeRate);
+
+    const existing = byProduct.get(item.productId);
+    if (existing) {
+      existing.quantitySold += item.quantity;
+      existing.revenueCents += netRevenue;
+      if (item.costCents === null) existing.hasCost = false;
+      else existing.costTotalCents += item.costCents * item.quantity;
+    } else {
+      byProduct.set(item.productId, {
+        productId: item.productId,
+        name: item.productName,
+        quantitySold: item.quantity,
+        revenueCents: netRevenue,
+        costTotalCents: item.costCents !== null ? item.costCents * item.quantity : 0,
+        hasCost: item.costCents !== null,
+      });
+    }
+  }
+
+  return Array.from(byProduct.values()).map((p) => {
+    const revenueCents = Math.round(p.revenueCents);
+    const { marginCents, marginPercent } = calcMargin(revenueCents, p.hasCost ? p.costTotalCents : null);
+    return {
+      productId: p.productId,
+      name: p.name,
+      quantitySold: p.quantitySold,
+      revenueCents,
+      costCents: p.hasCost ? p.costTotalCents : null,
+      marginCents,
+      marginPercent,
+    };
+  });
 }

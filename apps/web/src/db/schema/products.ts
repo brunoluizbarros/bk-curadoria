@@ -21,6 +21,9 @@ export const products = pgTable(
     name: text("name").notNull(),
     color: text("color").notNull(),
     priceCents: integer("price_cents").notNull(),
+    // Nulo = custo ainda não cadastrado (distinto de custo zero) — produtos
+    // antigos ficam assim até alguém preencher em /admin/products/[id]/edit.
+    costCents: integer("cost_cents"),
     tag: text("tag"),
     description: text("description").notNull(),
     composition: text("composition"),

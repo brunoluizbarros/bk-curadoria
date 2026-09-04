@@ -113,6 +113,13 @@
       "when": 1788485995301,
       "tag": "0015_backfill_receivable_fees",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1788562203843,
+      "tag": "0016_add_product_cost",
+      "breakpoints": true
     }
   ]
 }

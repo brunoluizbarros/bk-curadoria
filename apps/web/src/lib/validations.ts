@@ -21,6 +21,7 @@ export const productSchema = z.object({
   name: z.string().trim().min(1, "Nome obrigatório"),
   color: z.string().trim().min(1, "Cor obrigatória"),
   priceCents: z.number().int().positive("Preço inválido"),
+  costCents: z.number().int().min(0).nullable().optional(),
   tag: z.string().trim().optional(),
   description: z.string().trim().min(1, "Descrição obrigatória"),
   composition: z.string().trim().optional(),
