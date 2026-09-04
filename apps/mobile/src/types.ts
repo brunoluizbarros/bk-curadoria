@@ -101,13 +101,13 @@ export interface DREMonth {
   year: number;
   month: number;
   revenue: {
-    totalNetCents: number;
+    totalGrossCents: number;
     byMethod: Record<string, number>;
   };
+  cardFeesCents: number;
   expenses: {
     totalCents: number;
     byCategory: { name: string; totalCents: number }[];
   };
   resultCents: number;
-  pendingSettlementCents: number;
 }

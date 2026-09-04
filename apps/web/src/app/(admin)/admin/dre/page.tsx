@@ -1,6 +1,6 @@
 import { getDREYearSummary, getDREByMonth } from "@/server/queries/dre";
 import { formatBRL } from "@/lib/format";
-import { IconReportMoney, IconClock } from "@/components/ui/icons";
+import { IconReportMoney } from "@/components/ui/icons";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: { absolute: "DRE · BK Admin" } };
@@ -35,9 +35,10 @@ export default async function DREPage({ searchParams }: Props) {
     getDREByMonth(year, selectedMonth),
   ]);
 
-  const yearRevenue = yearSummary.reduce((acc, m) => acc + m.revenue.totalNetCents, 0);
+  const yearRevenue = yearSummary.reduce((acc, m) => acc + m.revenue.totalGrossCents, 0);
+  const yearCardFees = yearSummary.reduce((acc, m) => acc + m.cardFeesCents, 0);
   const yearExpenses = yearSummary.reduce((acc, m) => acc + m.expenses.totalCents, 0);
-  const yearResult = yearRevenue - yearExpenses;
+  const yearResult = yearRevenue - yearCardFees - yearExpenses;
 
   // Coleta todas as categorias que aparecem no ano, ordenadas pelo total anual desc
   const categoryTotalsMap = new Map<string, number>();
@@ -55,7 +56,7 @@ export default async function DREPage({ searchParams }: Props) {
       <div className="flex items-center gap-3 mb-6">
         <IconReportMoney size={22} className="text-terracotta" />
         <h1 className="font-display font-400 text-3xl text-ink">DRE</h1>
-        <span className="font-body text-xs text-ink-soft uppercase tracking-widest">Regime de caixa</span>
+        <span className="font-body text-xs text-ink-soft uppercase tracking-widest">Regime de competência</span>
       </div>
 
       {/* Seletor de ano */}
@@ -76,10 +77,14 @@ export default async function DREPage({ searchParams }: Props) {
       </form>
 
       {/* Resumo do ano */}
-      <div className="grid grid-cols-3 gap-3 mb-8">
+      <div className="grid grid-cols-4 gap-3 mb-8">
         <div className="bg-cream rounded-card px-4 py-4 border border-ink/10">
-          <p className="font-body text-[10px] uppercase tracking-widest text-ink-soft mb-1">Receita {year}</p>
+          <p className="font-body text-[10px] uppercase tracking-widest text-ink-soft mb-1">Receita bruta {year}</p>
           <p className="font-display text-2xl text-terracotta">{formatBRL(yearRevenue)}</p>
+        </div>
+        <div className="bg-cream rounded-card px-4 py-4 border border-ink/10">
+          <p className="font-body text-[10px] uppercase tracking-widest text-ink-soft mb-1">Taxas de cartão {year}</p>
+          <p className="font-display text-2xl text-ink-soft">{formatBRL(yearCardFees)}</p>
         </div>
         <div className="bg-cream rounded-card px-4 py-4 border border-ink/10">
           <p className="font-body text-[10px] uppercase tracking-widest text-ink-soft mb-1">Despesas {year}</p>
@@ -101,7 +106,8 @@ export default async function DREPage({ searchParams }: Props) {
             <thead>
               <tr className="border-b border-ink/10">
                 <th className="text-left py-2 pr-4 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">Mês</th>
-                <th className="text-right py-2 px-3 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">Receita</th>
+                <th className="text-right py-2 px-3 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">Receita bruta</th>
+                <th className="text-right py-2 px-3 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">Taxas cartão</th>
                 {allCategories.map((cat) => (
                   <th key={cat} className="text-right py-2 px-3 text-xs uppercase tracking-widest text-ink-soft font-normal whitespace-nowrap">
                     {cat}
@@ -113,7 +119,6 @@ export default async function DREPage({ searchParams }: Props) {
             </thead>
             <tbody>
               {yearSummary.map((m) => {
-                const result = m.revenue.totalNetCents - m.expenses.totalCents;
                 const isSelected = m.month === selectedMonth;
                 const catByName = Object.fromEntries(
                   m.expenses.byCategory.map((c) => [c.name, c.totalCents])
@@ -132,7 +137,10 @@ export default async function DREPage({ searchParams }: Props) {
                       </a>
                     </td>
                     <td className="text-right px-3 text-terracotta tabular-nums">
-                      {m.revenue.totalNetCents > 0 ? formatBRL(m.revenue.totalNetCents) : "—"}
+                      {m.revenue.totalGrossCents > 0 ? formatBRL(m.revenue.totalGrossCents) : "—"}
+                    </td>
+                    <td className="text-right px-3 text-ink-soft tabular-nums">
+                      {m.cardFeesCents > 0 ? formatBRL(m.cardFeesCents) : "—"}
                     </td>
                     {allCategories.map((cat) => {
                       const val = catByName[cat] ?? 0;
@@ -145,8 +153,8 @@ export default async function DREPage({ searchParams }: Props) {
                     <td className="text-right px-3 text-ink tabular-nums">
                       {m.expenses.totalCents > 0 ? formatBRL(m.expenses.totalCents) : "—"}
                     </td>
-                    <td className={`text-right pl-3 font-medium tabular-nums ${result > 0 ? "text-sage-deep" : result < 0 ? "text-red-600" : "text-ink-soft"}`}>
-                      {result !== 0 ? formatBRL(result) : "—"}
+                    <td className={`text-right pl-3 font-medium tabular-nums ${m.resultCents > 0 ? "text-sage-deep" : m.resultCents < 0 ? "text-red-600" : "text-ink-soft"}`}>
+                      {m.resultCents !== 0 ? formatBRL(m.resultCents) : "—"}
                     </td>
                   </tr>
                 );
@@ -158,6 +166,9 @@ export default async function DREPage({ searchParams }: Props) {
                 <td className="py-2.5 pr-4 font-body text-xs uppercase tracking-widest text-ink-soft">Total</td>
                 <td className="text-right px-3 text-terracotta font-medium tabular-nums">
                   {formatBRL(yearRevenue)}
+                </td>
+                <td className="text-right px-3 text-ink-soft font-medium tabular-nums">
+                  {formatBRL(yearCardFees)}
                 </td>
                 {allCategories.map((cat) => {
                   const total = categoryTotalsMap.get(cat) ?? 0;
@@ -188,10 +199,10 @@ export default async function DREPage({ searchParams }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Receita */}
           <div>
-            <p className="font-body text-[10px] uppercase tracking-widest text-ink-soft mb-2">Receita líquida</p>
+            <p className="font-body text-[10px] uppercase tracking-widest text-ink-soft mb-2">Receita bruta (vendas do mês)</p>
             <div className="bg-cream rounded-card px-4 py-4 border border-ink/10 space-y-2">
               {Object.entries(monthDetail.revenue.byMethod).length === 0 ? (
-                <p className="font-body text-sm text-ink-soft">Nenhum recebimento liquidado.</p>
+                <p className="font-body text-sm text-ink-soft">Nenhuma venda confirmada no mês.</p>
               ) : (
                 <>
                   {Object.entries(monthDetail.revenue.byMethod).map(([method, amount]) => (
@@ -201,13 +212,13 @@ export default async function DREPage({ searchParams }: Props) {
                     </div>
                   ))}
                   <div className="flex justify-between font-body text-sm font-medium border-t border-ink/10 pt-2">
-                    <span className="text-ink">Total líquido</span>
-                    <span className="text-terracotta">{formatBRL(monthDetail.revenue.totalNetCents)}</span>
+                    <span className="text-ink">Total bruto</span>
+                    <span className="text-terracotta">{formatBRL(monthDetail.revenue.totalGrossCents)}</span>
                   </div>
-                  {monthDetail.pendingSettlementCents > 0 && (
-                    <div className="flex items-center gap-1 font-body text-xs text-gold">
-                      <IconClock size={10} />
-                      + {formatBRL(monthDetail.pendingSettlementCents)} aguardando liquidação
+                  {monthDetail.cardFeesCents > 0 && (
+                    <div className="flex justify-between font-body text-xs text-ink-soft">
+                      <span>(−) Taxas de cartão</span>
+                      <span>{formatBRL(monthDetail.cardFeesCents)}</span>
                     </div>
                   )}
                 </>
@@ -247,11 +258,6 @@ export default async function DREPage({ searchParams }: Props) {
               {formatBRL(monthDetail.resultCents)}
             </span>
           </div>
-          {monthDetail.pendingSettlementCents > 0 && (
-            <p className="font-body text-xs text-ink-soft mt-1">
-              Desconsiderando {formatBRL(monthDetail.pendingSettlementCents)} aguardando liquidação de cartões.
-            </p>
-          )}
         </div>
       </section>
     </div>

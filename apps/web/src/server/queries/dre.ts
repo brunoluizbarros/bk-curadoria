@@ -1,20 +1,20 @@
 import { db } from "@/db/client";
-import { payments, paymentReceivables, expenses, expenseCategories, orders } from "@/db/schema";
-import { and, eq, gte, isNull, lt, sum } from "drizzle-orm";
+import { payments, expenses, expenseCategories, orders } from "@/db/schema";
+import { and, eq, gte, isNull, lt } from "drizzle-orm";
 
 export interface DREMonth {
   year: number;
   month: number;
   revenue: {
-    totalNetCents: number;
+    totalGrossCents: number;
     byMethod: Record<string, number>;
   };
+  cardFeesCents: number;
   expenses: {
     totalCents: number;
     byCategory: { name: string; totalCents: number }[];
   };
   resultCents: number;
-  pendingSettlementCents: number;
 }
 
 export function monthBounds(year: number, month: number): { from: Date; to: Date } {
@@ -26,47 +26,35 @@ export function monthBounds(year: number, month: number): { from: Date; to: Date
 export async function getDREByMonth(year: number, month: number): Promise<DREMonth> {
   const { from, to } = monthBounds(year, month);
 
-  // Receita: recebíveis com settledAt no mês (regime de caixa). Fonte única
-  // com o Fluxo de Caixa — payment_receivables — pedido/pagamento apagado
-  // (soft delete) não deve continuar contando como receita.
-  const settledReceivables = await db
+  // Receita: regime de competência — reconhecida quando o PEDIDO é confirmado
+  // pago (orders.paidAt), pelo valor BRUTO vendido, não quando o recebível
+  // liquida na conta (isso é o Fluxo de Caixa, outra fonte). Um pedido só tem
+  // paidAt setado uma vez, então cada pagamento ligado a ele entra inteiro no
+  // mês da venda, mesmo que a maquininha ainda vá liquidar meses depois.
+  const paymentRows = await db
     .select({
       method: payments.method,
-      netCents: paymentReceivables.netCents,
+      grossCents: payments.grossCents,
+      feeCents: payments.feeCents,
     })
-    .from(paymentReceivables)
-    .innerJoin(payments, eq(paymentReceivables.paymentId, payments.id))
+    .from(payments)
     .innerJoin(orders, eq(payments.orderId, orders.id))
     .where(
       and(
-        gte(paymentReceivables.settledAt, from),
-        lt(paymentReceivables.settledAt, to),
-        isNull(payments.deletedAt),
-        isNull(orders.deletedAt)
-      )
-    );
-
-  // Pendente: recebíveis com expectedAt no mês mas ainda não liquidados
-  const [pendingRow] = await db
-    .select({ total: sum(paymentReceivables.netCents) })
-    .from(paymentReceivables)
-    .innerJoin(payments, eq(paymentReceivables.paymentId, payments.id))
-    .innerJoin(orders, eq(payments.orderId, orders.id))
-    .where(
-      and(
-        gte(paymentReceivables.expectedAt, from),
-        lt(paymentReceivables.expectedAt, to),
-        isNull(paymentReceivables.settledAt),
+        gte(orders.paidAt, from),
+        lt(orders.paidAt, to),
         isNull(payments.deletedAt),
         isNull(orders.deletedAt)
       )
     );
 
   const byMethod: Record<string, number> = {};
-  let totalNetCents = 0;
-  for (const p of settledReceivables) {
-    byMethod[p.method] = (byMethod[p.method] ?? 0) + p.netCents;
-    totalNetCents += p.netCents;
+  let totalGrossCents = 0;
+  let cardFeesCents = 0;
+  for (const p of paymentRows) {
+    byMethod[p.method] = (byMethod[p.method] ?? 0) + p.grossCents;
+    totalGrossCents += p.grossCents;
+    cardFeesCents += p.feeCents;
   }
 
   // Despesas: paidAt no mês (lt no limite superior evita dupla contagem no dia 1)
@@ -97,17 +85,19 @@ export async function getDREByMonth(year: number, month: number): Promise<DREMon
     year,
     month,
     revenue: {
-      totalNetCents,
+      totalGrossCents,
       byMethod,
     },
+    cardFeesCents,
     expenses: {
       totalCents: totalExpCents,
       byCategory: Object.entries(categoryMap)
         .map(([name, totalCents]) => ({ name, totalCents }))
         .sort((a, b) => b.totalCents - a.totalCents),
     },
-    resultCents: totalNetCents - totalExpCents,
-    pendingSettlementCents: Number(pendingRow?.total ?? 0),
+    // Taxa de cartão é despesa financeira (custo da venda), não abatimento de
+    // receita — receita bruta menos taxas menos despesas operacionais.
+    resultCents: totalGrossCents - cardFeesCents - totalExpCents,
   };
 }
 

@@ -62,13 +62,16 @@ export default function DREScreen() {
           refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={() => void refetch()} />}
         >
           <View className="bg-white rounded-lg border border-ink/10 p-4 mb-4">
-            <Text className="text-ink-soft text-xs uppercase mb-2">Receita líquida</Text>
+            <Text className="text-ink-soft text-xs uppercase mb-2">Receita bruta</Text>
             <Text className="text-2xl font-bold text-sage-deep mb-2">
-              {formatBRL(data.revenue.totalNetCents)}
+              {formatBRL(data.revenue.totalGrossCents)}
             </Text>
             {Object.entries(data.revenue.byMethod).map(([method, cents]) => (
               <Row key={method} label={method} value={formatBRL(cents)} />
             ))}
+            {data.cardFeesCents > 0 && (
+              <Row label="(−) Taxas de cartão" value={formatBRL(data.cardFeesCents)} />
+            )}
           </View>
 
           <View className="bg-white rounded-lg border border-ink/10 p-4 mb-4">
@@ -83,7 +86,6 @@ export default function DREScreen() {
 
           <View className="bg-white rounded-lg border border-ink/10 p-4 mb-4">
             <Row label="Resultado" value={formatBRL(data.resultCents)} strong />
-            <Row label="A receber" value={formatBRL(data.pendingSettlementCents)} />
           </View>
         </ScrollView>
       )}
