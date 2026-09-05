@@ -23,6 +23,10 @@ export function monthBounds(year: number, month: number): { from: Date; to: Date
   return { from, to };
 }
 
+export function yearBounds(year: number): { from: Date; to: Date } {
+  return { from: monthBounds(year, 1).from, to: monthBounds(year + 1, 1).from };
+}
+
 export async function getDREByMonth(year: number, month: number): Promise<DREMonth> {
   const { from, to } = monthBounds(year, month);
 

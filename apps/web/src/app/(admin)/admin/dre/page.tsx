@@ -1,6 +1,9 @@
-import { getDREYearSummary, getDREByMonth } from "@/server/queries/dre";
+import { getDREYearSummary, getDREByMonth, monthBounds, yearBounds } from "@/server/queries/dre";
+import { getDRERevenueDetail, getExpenseDetail } from "@/server/queries/report-detail";
+import { ReportDetailOverlay } from "@/components/admin/ReportDetailOverlay";
 import { formatBRL } from "@/lib/format";
 import { IconReportMoney } from "@/components/ui/icons";
+import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: { absolute: "DRE · BK Admin" } };
@@ -18,8 +21,10 @@ const METHOD_LABELS: Record<string, string> = {
   transfer: "Transferência",
 };
 
+type DetalheKind = "receita" | "taxas" | "despesas";
+
 interface Props {
-  searchParams: Promise<{ ano?: string; mes?: string }>;
+  searchParams: Promise<{ ano?: string; mes?: string; detalhe?: string; detalheMes?: string; sub?: string }>;
 }
 
 export default async function DREPage({ searchParams }: Props) {
@@ -51,6 +56,37 @@ export default async function DREPage({ searchParams }: Props) {
     .sort((a, b) => b[1] - a[1])
     .map(([name]) => name);
 
+  // Link de um valor pro drill-down: mantém ano/mes atuais, adiciona
+  // detalhe(+detalheMes/sub) — detalheMes ausente = escopo do ano inteiro.
+  function detalheHref(kind: DetalheKind, detalheMonth?: number, sub?: string): string {
+    const qs = new URLSearchParams({ ano: String(year), mes: String(selectedMonth), detalhe: kind });
+    if (detalheMonth) qs.set("detalheMes", String(detalheMonth));
+    if (sub) qs.set("sub", sub);
+    return `/admin/dre?${qs.toString()}`;
+  }
+  const closeHref = `/admin/dre?ano=${year}&mes=${selectedMonth}`;
+
+  // Resolve o overlay de detalhe, se algum valor foi clicado.
+  let detailOverlay: { title: string; rows: Awaited<ReturnType<typeof getExpenseDetail>> } | null = null;
+  const detalhe = params.detalhe as DetalheKind | undefined;
+  if (detalhe) {
+    const detalheMonth = params.detalheMes ? parseInt(params.detalheMes, 10) : undefined;
+    const { from, to } = detalheMonth ? monthBounds(year, detalheMonth) : yearBounds(year);
+    const scopeLabel = detalheMonth ? `${MONTHS[detalheMonth - 1]} ${year}` : `${year}`;
+    if (detalhe === "receita" || detalhe === "taxas") {
+      const rows = await getDRERevenueDetail(detalhe, from, to, params.sub);
+      const subLabel = params.sub ? ` — ${METHOD_LABELS[params.sub] ?? params.sub}` : "";
+      detailOverlay = {
+        title: `${detalhe === "receita" ? "Receita bruta" : "Taxas de cartão"} — ${scopeLabel}${subLabel}`,
+        rows,
+      };
+    } else if (detalhe === "despesas") {
+      const rows = await getExpenseDetail(from, to, params.sub);
+      const subLabel = params.sub ? ` — ${params.sub}` : "";
+      detailOverlay = { title: `Despesas — ${scopeLabel}${subLabel}`, rows };
+    }
+  }
+
   return (
     <div>
       <div className="flex items-center gap-3 mb-6">
@@ -78,18 +114,18 @@ export default async function DREPage({ searchParams }: Props) {
 
       {/* Resumo do ano */}
       <div className="grid grid-cols-4 gap-3 mb-8">
-        <div className="bg-cream rounded-card px-4 py-4 border border-ink/10">
+        <Link href={detalheHref("receita")} className="bg-cream rounded-card px-4 py-4 border border-ink/10 hover:border-terracotta/40 transition-colors">
           <p className="font-body text-[10px] uppercase tracking-widest text-ink-soft mb-1">Receita bruta {year}</p>
           <p className="font-display text-2xl text-terracotta">{formatBRL(yearRevenue)}</p>
-        </div>
-        <div className="bg-cream rounded-card px-4 py-4 border border-ink/10">
+        </Link>
+        <Link href={detalheHref("taxas")} className="bg-cream rounded-card px-4 py-4 border border-ink/10 hover:border-terracotta/40 transition-colors">
           <p className="font-body text-[10px] uppercase tracking-widest text-ink-soft mb-1">Taxas de cartão {year}</p>
           <p className="font-display text-2xl text-ink-soft">{formatBRL(yearCardFees)}</p>
-        </div>
-        <div className="bg-cream rounded-card px-4 py-4 border border-ink/10">
+        </Link>
+        <Link href={detalheHref("despesas")} className="bg-cream rounded-card px-4 py-4 border border-ink/10 hover:border-terracotta/40 transition-colors">
           <p className="font-body text-[10px] uppercase tracking-widest text-ink-soft mb-1">Despesas {year}</p>
           <p className="font-display text-2xl text-ink">{formatBRL(yearExpenses)}</p>
-        </div>
+        </Link>
         <div className={`rounded-card px-4 py-4 border ${yearResult >= 0 ? "bg-sage/10 border-sage/20" : "bg-red-50 border-red-100"}`}>
           <p className="font-body text-[10px] uppercase tracking-widest text-ink-soft mb-1">Resultado {year}</p>
           <p className={`font-display text-2xl ${yearResult >= 0 ? "text-sage-deep" : "text-red-600"}`}>
@@ -137,21 +173,37 @@ export default async function DREPage({ searchParams }: Props) {
                       </a>
                     </td>
                     <td className="text-right px-3 text-terracotta tabular-nums">
-                      {m.revenue.totalGrossCents > 0 ? formatBRL(m.revenue.totalGrossCents) : "—"}
+                      {m.revenue.totalGrossCents > 0 ? (
+                        <Link href={detalheHref("receita", m.month)} className="hover:underline">
+                          {formatBRL(m.revenue.totalGrossCents)}
+                        </Link>
+                      ) : "—"}
                     </td>
                     <td className="text-right px-3 text-ink-soft tabular-nums">
-                      {m.cardFeesCents > 0 ? formatBRL(m.cardFeesCents) : "—"}
+                      {m.cardFeesCents > 0 ? (
+                        <Link href={detalheHref("taxas", m.month)} className="hover:underline">
+                          {formatBRL(m.cardFeesCents)}
+                        </Link>
+                      ) : "—"}
                     </td>
                     {allCategories.map((cat) => {
                       const val = catByName[cat] ?? 0;
                       return (
                         <td key={cat} className="text-right px-3 text-ink-soft tabular-nums">
-                          {val > 0 ? formatBRL(val) : "—"}
+                          {val > 0 ? (
+                            <Link href={detalheHref("despesas", m.month, cat)} className="hover:underline">
+                              {formatBRL(val)}
+                            </Link>
+                          ) : "—"}
                         </td>
                       );
                     })}
                     <td className="text-right px-3 text-ink tabular-nums">
-                      {m.expenses.totalCents > 0 ? formatBRL(m.expenses.totalCents) : "—"}
+                      {m.expenses.totalCents > 0 ? (
+                        <Link href={detalheHref("despesas", m.month)} className="hover:underline">
+                          {formatBRL(m.expenses.totalCents)}
+                        </Link>
+                      ) : "—"}
                     </td>
                     <td className={`text-right pl-3 font-medium tabular-nums ${m.resultCents > 0 ? "text-sage-deep" : m.resultCents < 0 ? "text-red-600" : "text-ink-soft"}`}>
                       {m.resultCents !== 0 ? formatBRL(m.resultCents) : "—"}
@@ -165,21 +217,31 @@ export default async function DREPage({ searchParams }: Props) {
               <tr className="border-t-2 border-ink/20">
                 <td className="py-2.5 pr-4 font-body text-xs uppercase tracking-widest text-ink-soft">Total</td>
                 <td className="text-right px-3 text-terracotta font-medium tabular-nums">
-                  {formatBRL(yearRevenue)}
+                  <Link href={detalheHref("receita")} className="hover:underline">
+                    {formatBRL(yearRevenue)}
+                  </Link>
                 </td>
                 <td className="text-right px-3 text-ink-soft font-medium tabular-nums">
-                  {formatBRL(yearCardFees)}
+                  <Link href={detalheHref("taxas")} className="hover:underline">
+                    {formatBRL(yearCardFees)}
+                  </Link>
                 </td>
                 {allCategories.map((cat) => {
                   const total = categoryTotalsMap.get(cat) ?? 0;
                   return (
                     <td key={cat} className="text-right px-3 text-ink-soft font-medium tabular-nums">
-                      {total > 0 ? formatBRL(total) : "—"}
+                      {total > 0 ? (
+                        <Link href={detalheHref("despesas", undefined, cat)} className="hover:underline">
+                          {formatBRL(total)}
+                        </Link>
+                      ) : "—"}
                     </td>
                   );
                 })}
                 <td className="text-right px-3 text-ink font-medium tabular-nums">
-                  {formatBRL(yearExpenses)}
+                  <Link href={detalheHref("despesas")} className="hover:underline">
+                    {formatBRL(yearExpenses)}
+                  </Link>
                 </td>
                 <td className={`text-right pl-3 font-medium tabular-nums ${yearResult >= 0 ? "text-sage-deep" : "text-red-600"}`}>
                   {formatBRL(yearResult)}
@@ -206,20 +268,30 @@ export default async function DREPage({ searchParams }: Props) {
               ) : (
                 <>
                   {Object.entries(monthDetail.revenue.byMethod).map(([method, amount]) => (
-                    <div key={method} className="flex justify-between font-body text-sm">
+                    <Link
+                      key={method}
+                      href={detalheHref("receita", selectedMonth, method)}
+                      className="flex justify-between font-body text-sm hover:underline"
+                    >
                       <span className="text-ink-soft">{METHOD_LABELS[method] ?? method}</span>
                       <span className="text-ink">{formatBRL(amount)}</span>
-                    </div>
+                    </Link>
                   ))}
-                  <div className="flex justify-between font-body text-sm font-medium border-t border-ink/10 pt-2">
+                  <Link
+                    href={detalheHref("receita", selectedMonth)}
+                    className="flex justify-between font-body text-sm font-medium border-t border-ink/10 pt-2 hover:underline"
+                  >
                     <span className="text-ink">Total bruto</span>
                     <span className="text-terracotta">{formatBRL(monthDetail.revenue.totalGrossCents)}</span>
-                  </div>
+                  </Link>
                   {monthDetail.cardFeesCents > 0 && (
-                    <div className="flex justify-between font-body text-xs text-ink-soft">
+                    <Link
+                      href={detalheHref("taxas", selectedMonth)}
+                      className="flex justify-between font-body text-xs text-ink-soft hover:underline"
+                    >
                       <span>(−) Taxas de cartão</span>
                       <span>{formatBRL(monthDetail.cardFeesCents)}</span>
-                    </div>
+                    </Link>
                   )}
                 </>
               )}
@@ -235,15 +307,22 @@ export default async function DREPage({ searchParams }: Props) {
               ) : (
                 <>
                   {monthDetail.expenses.byCategory.map(({ name, totalCents }) => (
-                    <div key={name} className="flex justify-between font-body text-sm">
+                    <Link
+                      key={name}
+                      href={detalheHref("despesas", selectedMonth, name)}
+                      className="flex justify-between font-body text-sm hover:underline"
+                    >
                       <span className="text-ink-soft">{name}</span>
                       <span className="text-ink">{formatBRL(totalCents)}</span>
-                    </div>
+                    </Link>
                   ))}
-                  <div className="flex justify-between font-body text-sm font-medium border-t border-ink/10 pt-2">
+                  <Link
+                    href={detalheHref("despesas", selectedMonth)}
+                    className="flex justify-between font-body text-sm font-medium border-t border-ink/10 pt-2 hover:underline"
+                  >
                     <span className="text-ink">Total</span>
                     <span className="text-ink">{formatBRL(monthDetail.expenses.totalCents)}</span>
-                  </div>
+                  </Link>
                 </>
               )}
             </div>
@@ -260,6 +339,10 @@ export default async function DREPage({ searchParams }: Props) {
           </div>
         </div>
       </section>
+
+      {detailOverlay && (
+        <ReportDetailOverlay title={detailOverlay.title} rows={detailOverlay.rows} closeHref={closeHref} />
+      )}
     </div>
   );
 }

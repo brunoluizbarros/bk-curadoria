@@ -1,7 +1,7 @@
 import { db } from "@/db/client";
 import { paymentReceivables, payments, orders, expenses } from "@/db/schema";
 import { and, eq, gte, isNotNull, isNull, lt, or } from "drizzle-orm";
-import { monthBounds } from "./dre";
+import { yearBounds } from "./dre";
 
 export interface CashFlowMonth {
   year: number;
@@ -13,10 +13,6 @@ export interface CashFlowMonth {
   balanceCents: number;
   accumulatedRealizedCents: number;
   accumulatedProjectedCents: number;
-}
-
-function yearBounds(year: number): { from: Date; to: Date } {
-  return { from: monthBounds(year, 1).from, to: monthBounds(year + 1, 1).from };
 }
 
 // Uma linha de payment_receivables conta em exatamente um mês — bucket pela

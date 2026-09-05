@@ -1,6 +1,10 @@
 import { getCashFlowYearSummary } from "@/server/queries/cash-flow";
+import { monthBounds, yearBounds } from "@/server/queries/dre";
+import { getReceivableDetail, getExpenseDetail } from "@/server/queries/report-detail";
+import { ReportDetailOverlay } from "@/components/admin/ReportDetailOverlay";
 import { formatBRL } from "@/lib/format";
 import { IconChartLine } from "@/components/ui/icons";
+import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: { absolute: "Fluxo de Caixa · BK Admin" } };
@@ -10,8 +14,10 @@ const MONTHS = [
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
 ];
 
+type DetalheKind = "entradas-realizadas" | "entradas-projetadas" | "taxas" | "saidas";
+
 interface Props {
-  searchParams: Promise<{ ano?: string }>;
+  searchParams: Promise<{ ano?: string; detalhe?: string; detalheMes?: string }>;
 }
 
 export default async function FluxoCaixaPage({ searchParams }: Props) {
@@ -26,6 +32,34 @@ export default async function FluxoCaixaPage({ searchParams }: Props) {
   const yearOutflow = months.reduce((acc, m) => acc + m.outflowCents, 0);
   const yearBalanceRealized = months[11].accumulatedRealizedCents;
   const yearBalanceProjected = months[11].accumulatedProjectedCents;
+  const yearRealized = months.reduce((acc, m) => acc + m.inflowRealizedCents, 0);
+  const yearProjected = months.reduce((acc, m) => acc + m.inflowProjectedCents, 0);
+  const yearFees = months.reduce((acc, m) => acc + m.feeCents, 0);
+
+  function detalheHref(kind: DetalheKind, detalheMonth?: number): string {
+    const qs = new URLSearchParams({ ano: String(year), detalhe: kind });
+    if (detalheMonth) qs.set("detalheMes", String(detalheMonth));
+    return `/admin/fluxo-caixa?${qs.toString()}`;
+  }
+  const closeHref = `/admin/fluxo-caixa?ano=${year}`;
+
+  const TITLES: Record<DetalheKind, string> = {
+    "entradas-realizadas": "Entradas realizadas",
+    "entradas-projetadas": "Entradas projetadas",
+    taxas: "Taxas de cartão",
+    saidas: "Saídas",
+  };
+
+  let detailOverlay: { title: string; rows: Awaited<ReturnType<typeof getExpenseDetail>> } | null = null;
+  const detalhe = params.detalhe as DetalheKind | undefined;
+  if (detalhe) {
+    const detalheMonth = params.detalheMes ? parseInt(params.detalheMes, 10) : undefined;
+    const { from, to } = detalheMonth ? monthBounds(year, detalheMonth) : yearBounds(year);
+    const scopeLabel = detalheMonth ? `${MONTHS[detalheMonth - 1]} ${year}` : `${year}`;
+    const rows =
+      detalhe === "saidas" ? await getExpenseDetail(from, to) : await getReceivableDetail(detalhe, from, to);
+    detailOverlay = { title: `${TITLES[detalhe]} — ${scopeLabel}`, rows };
+  }
 
   return (
     <div>
@@ -59,7 +93,11 @@ export default async function FluxoCaixaPage({ searchParams }: Props) {
         </div>
         <div className="bg-cream rounded-card px-4 py-4 border border-ink/10">
           <p className="font-body text-[10px] uppercase tracking-widest text-ink-soft mb-1">Saídas {year}</p>
-          <p className="font-display text-2xl text-ink">{formatBRL(yearOutflow)}</p>
+          <p className="font-display text-2xl text-ink">
+            <Link href={detalheHref("saidas")} className="hover:underline">
+              {formatBRL(yearOutflow)}
+            </Link>
+          </p>
         </div>
         <div className={`rounded-card px-4 py-4 border ${yearBalanceProjected >= 0 ? "bg-sage/10 border-sage/20" : "bg-red-50 border-red-100"}`}>
           <p className="font-body text-[10px] uppercase tracking-widest text-ink-soft mb-1">Saldo {year} (c/ projetado)</p>
@@ -90,16 +128,32 @@ export default async function FluxoCaixaPage({ searchParams }: Props) {
               <tr key={m.month} className="border-b border-ink/5 hover:bg-ink/[0.02] transition-colors">
                 <td className="py-2.5 pr-4 text-ink">{MONTHS[m.month - 1]}</td>
                 <td className="text-right px-3 text-terracotta tabular-nums">
-                  {m.inflowRealizedCents > 0 ? formatBRL(m.inflowRealizedCents) : "—"}
+                  {m.inflowRealizedCents > 0 ? (
+                    <Link href={detalheHref("entradas-realizadas", m.month)} className="hover:underline">
+                      {formatBRL(m.inflowRealizedCents)}
+                    </Link>
+                  ) : "—"}
                 </td>
                 <td className="text-right px-3 text-gold tabular-nums">
-                  {m.inflowProjectedCents > 0 ? formatBRL(m.inflowProjectedCents) : "—"}
+                  {m.inflowProjectedCents > 0 ? (
+                    <Link href={detalheHref("entradas-projetadas", m.month)} className="hover:underline">
+                      {formatBRL(m.inflowProjectedCents)}
+                    </Link>
+                  ) : "—"}
                 </td>
                 <td className="text-right px-3 text-ink-soft tabular-nums">
-                  {m.feeCents > 0 ? formatBRL(m.feeCents) : "—"}
+                  {m.feeCents > 0 ? (
+                    <Link href={detalheHref("taxas", m.month)} className="hover:underline">
+                      {formatBRL(m.feeCents)}
+                    </Link>
+                  ) : "—"}
                 </td>
                 <td className="text-right px-3 text-ink-soft tabular-nums">
-                  {m.outflowCents > 0 ? formatBRL(m.outflowCents) : "—"}
+                  {m.outflowCents > 0 ? (
+                    <Link href={detalheHref("saidas", m.month)} className="hover:underline">
+                      {formatBRL(m.outflowCents)}
+                    </Link>
+                  ) : "—"}
                 </td>
                 <td className={`text-right px-3 tabular-nums ${m.balanceCents > 0 ? "text-sage-deep" : m.balanceCents < 0 ? "text-red-600" : "text-ink-soft"}`}>
                   {m.balanceCents !== 0 ? formatBRL(m.balanceCents) : "—"}
@@ -117,15 +171,25 @@ export default async function FluxoCaixaPage({ searchParams }: Props) {
             <tr className="border-t-2 border-ink/20">
               <td className="py-2.5 pr-4 font-body text-xs uppercase tracking-widest text-ink-soft">Total</td>
               <td className="text-right px-3 text-terracotta font-medium tabular-nums">
-                {formatBRL(months.reduce((acc, m) => acc + m.inflowRealizedCents, 0))}
+                <Link href={detalheHref("entradas-realizadas")} className="hover:underline">
+                  {formatBRL(yearRealized)}
+                </Link>
               </td>
               <td className="text-right px-3 text-gold font-medium tabular-nums">
-                {formatBRL(months.reduce((acc, m) => acc + m.inflowProjectedCents, 0))}
+                <Link href={detalheHref("entradas-projetadas")} className="hover:underline">
+                  {formatBRL(yearProjected)}
+                </Link>
               </td>
               <td className="text-right px-3 text-ink-soft font-medium tabular-nums">
-                {formatBRL(months.reduce((acc, m) => acc + m.feeCents, 0))}
+                <Link href={detalheHref("taxas")} className="hover:underline">
+                  {formatBRL(yearFees)}
+                </Link>
               </td>
-              <td className="text-right px-3 text-ink font-medium tabular-nums">{formatBRL(yearOutflow)}</td>
+              <td className="text-right px-3 text-ink font-medium tabular-nums">
+                <Link href={detalheHref("saidas")} className="hover:underline">
+                  {formatBRL(yearOutflow)}
+                </Link>
+              </td>
               <td className="text-right px-3" />
               <td className={`text-right px-3 font-medium tabular-nums ${yearBalanceRealized >= 0 ? "text-sage-deep" : "text-red-600"}`}>
                 {formatBRL(yearBalanceRealized)}
@@ -137,6 +201,10 @@ export default async function FluxoCaixaPage({ searchParams }: Props) {
           </tfoot>
         </table>
       </div>
+
+      {detailOverlay && (
+        <ReportDetailOverlay title={detailOverlay.title} rows={detailOverlay.rows} closeHref={closeHref} />
+      )}
     </div>
   );
 }
