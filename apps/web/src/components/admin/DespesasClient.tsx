@@ -223,19 +223,29 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
   async function handleDeleteSingle(exp: ExpenseRow) {
     if (!confirm(`Excluir "${exp.description}"?`)) return;
     setDeleting(exp.id);
-    await deleteExpense(exp.id);
-    setExpenses((prev) => prev.filter((e) => e.id !== exp.id));
-    setDeleting(null);
-    toast.success("Despesa excluída");
+    try {
+      await deleteExpense(exp.id);
+      setExpenses((prev) => prev.filter((e) => e.id !== exp.id));
+      toast.success("Despesa excluída");
+    } catch {
+      toast.error("Erro ao excluir despesa");
+    } finally {
+      setDeleting(null);
+    }
   }
 
   async function handleDeleteInstallment(inst: ExpenseRow) {
     if (!confirm(`Excluir parcela ${inst.installmentNumber}/${inst.totalInstallments}?`)) return;
     setDeleting(inst.id);
-    await deleteExpense(inst.id);
-    setExpenses((prev) => prev.filter((e) => e.id !== inst.id));
-    setDeleting(null);
-    toast.success("Parcela excluída");
+    try {
+      await deleteExpense(inst.id);
+      setExpenses((prev) => prev.filter((e) => e.id !== inst.id));
+      toast.success("Parcela excluída");
+    } catch {
+      toast.error("Erro ao excluir parcela");
+    } finally {
+      setDeleting(null);
+    }
   }
 
   async function handleDeleteGroup(item: GroupItem) {
@@ -246,10 +256,15 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
     )
       return;
     setDeleting(item.groupId);
-    await deleteExpenseGroup(item.groupId);
-    setExpenses((prev) => prev.filter((e) => e.installmentGroupId !== item.groupId));
-    setDeleting(null);
-    toast.success(`${item.installments.length} parcelas excluídas`);
+    try {
+      await deleteExpenseGroup(item.groupId);
+      setExpenses((prev) => prev.filter((e) => e.installmentGroupId !== item.groupId));
+      toast.success(`${item.installments.length} parcelas excluídas`);
+    } catch {
+      toast.error("Erro ao excluir parcelas");
+    } finally {
+      setDeleting(null);
+    }
   }
 
   function formatMonthLabel(ym: string) {
