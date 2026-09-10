@@ -116,6 +116,22 @@ export async function updateOrder(id: string, data: unknown) {
   return { success: true };
 }
 
+export async function updateOrderSoldAt(id: string, dateStr: string) {
+  await requireAdmin();
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr ?? "");
+  if (!match) return { error: "Data inválida." };
+  const [year, month, day] = match.slice(1).map(Number);
+  // Meio-dia UTC, mesma âncora usada nos recebíveis — evita que o mês exibido
+  // dependa do fuso do servidor.
+  await db
+    .update(orders)
+    .set({ soldAt: new Date(Date.UTC(year, month - 1, day, 12)), updatedAt: new Date() })
+    .where(and(eq(orders.id, id), isNull(orders.deletedAt)));
+  revalidatePath("/admin/pedidos");
+  revalidatePath(`/admin/pedidos/${id}`);
+  return { success: true };
+}
+
 export async function setOrderStatus(
   id: string,
   status: "draft" | "sent" | "returned" | "paid" | "cancelled"
