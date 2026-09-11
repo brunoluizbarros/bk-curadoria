@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
 import { payments, paymentReceivables, orders, customers } from "@/db/schema";
-import { and, asc, desc, eq, gte, isNull, lt } from "drizzle-orm";
+import { and, asc, desc, eq, gte, ilike, isNotNull, isNull, lt, sql } from "drizzle-orm";
 
 export async function getPaymentsByOrder(orderId: string) {
   return db
@@ -21,46 +21,50 @@ export async function getReceivablesByOrder(orderId: string) {
   return rows.map((r) => ({ ...r.receivable, payment: r.payment }));
 }
 
-// ponytail: horizonte de 90 dias — sem ele, uma venda 12x deixa a lista de
-// "a liquidar" com parcelas distantes que não são urgência de fato.
-const PENDING_HORIZON_DAYS = 90;
+export type ReceivableSort = "date_asc" | "date_desc" | "name_asc" | "name_desc" | "value_asc" | "value_desc";
 
-export async function getPendingSettlements() {
-  const horizon = new Date();
-  horizon.setDate(horizon.getDate() + PENDING_HORIZON_DAYS);
-
+// Meses (YYYY-MM) com pelo menos um recebível — usado nas abas de filtro da tela de recebimentos
+export async function getReceivableMonths(): Promise<string[]> {
   const rows = await db
-    .select({
-      receivable: paymentReceivables,
-      payment: payments,
-      order: { id: orders.id },
-      customer: { id: customers.id, name: customers.name },
-    })
+    .selectDistinct({ ym: sql<string>`to_char(${paymentReceivables.expectedAt}, 'YYYY-MM')` })
     .from(paymentReceivables)
     .innerJoin(payments, eq(paymentReceivables.paymentId, payments.id))
-    .innerJoin(orders, eq(payments.orderId, orders.id))
-    .innerJoin(customers, eq(orders.customerId, customers.id))
-    .where(
-      and(
-        isNull(paymentReceivables.settledAt),
-        isNull(payments.deletedAt),
-        isNull(orders.deletedAt),
-        lt(paymentReceivables.expectedAt, horizon)
-      )
-    )
-    .orderBy(asc(paymentReceivables.expectedAt));
+    .where(isNull(payments.deletedAt));
 
-  return rows.map((r) => ({
-    ...r.receivable,
-    payment: r.payment,
-    order: r.order,
-    customer: r.customer,
-  }));
+  const months = new Set(rows.map((r) => r.ym));
+  months.add(new Date().toISOString().slice(0, 7));
+  return Array.from(months).sort((a, b) => b.localeCompare(a));
 }
 
-export async function getRecentSettlements(days = 30) {
-  const since = new Date();
-  since.setDate(since.getDate() - days);
+export type ReceivableStatus = "pending" | "settled";
+
+// Todos os recebíveis (liquidados ou não) de um mês/busca, para a tela de Recebimentos
+export async function getReceivables(
+  filters?: { ym?: string; search?: string; status?: ReceivableStatus },
+  sort: ReceivableSort = "date_asc"
+) {
+  const conditions = [isNull(payments.deletedAt), isNull(orders.deletedAt)];
+  if (filters?.ym) {
+    const [year, month] = filters.ym.split("-").map(Number);
+    conditions.push(gte(paymentReceivables.expectedAt, new Date(year, month - 1, 1)));
+    conditions.push(lt(paymentReceivables.expectedAt, new Date(year, month, 1)));
+  }
+  if (filters?.search) conditions.push(ilike(customers.name, `%${filters.search}%`));
+  if (filters?.status === "pending") conditions.push(isNull(paymentReceivables.settledAt));
+  if (filters?.status === "settled") conditions.push(isNotNull(paymentReceivables.settledAt));
+
+  const orderBy =
+    sort === "date_desc"
+      ? [desc(paymentReceivables.expectedAt)]
+      : sort === "name_asc"
+        ? [asc(customers.name)]
+        : sort === "name_desc"
+          ? [desc(customers.name)]
+          : sort === "value_asc"
+            ? [asc(paymentReceivables.netCents)]
+            : sort === "value_desc"
+              ? [desc(paymentReceivables.netCents)]
+              : [asc(paymentReceivables.expectedAt)];
 
   const rows = await db
     .select({
@@ -73,14 +77,8 @@ export async function getRecentSettlements(days = 30) {
     .innerJoin(payments, eq(paymentReceivables.paymentId, payments.id))
     .innerJoin(orders, eq(payments.orderId, orders.id))
     .innerJoin(customers, eq(orders.customerId, customers.id))
-    .where(
-      and(
-        gte(paymentReceivables.settledAt, since),
-        isNull(payments.deletedAt),
-        isNull(orders.deletedAt)
-      )
-    )
-    .orderBy(desc(paymentReceivables.settledAt));
+    .where(and(...conditions))
+    .orderBy(...orderBy);
 
   return rows.map((r) => ({
     ...r.receivable,
