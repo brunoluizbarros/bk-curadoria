@@ -1,6 +1,7 @@
 import { db } from "@/db/client";
-import { payments, orders, customers, paymentReceivables, expenses, expenseCategories } from "@/db/schema";
-import { and, desc, eq, gt, gte, isNotNull, isNull, lt, or } from "drizzle-orm";
+import { payments, orders, customers, orderItems, paymentReceivables, expenses, expenseCategories } from "@/db/schema";
+import { and, desc, eq, gt, gte, inArray, isNotNull, isNull, lt, ne, or } from "drizzle-orm";
+import { computeOrderItemTotal } from "@/server/queries/orders";
 
 // Uma linha do drill-down: o item individual que soma pro valor agregado
 // exibido no DRE/Fluxo de Caixa (um pagamento, um recebível, uma despesa).
@@ -116,6 +117,67 @@ export async function getReceivableDetail(
       amountCents: kind === "taxas" ? r.feeCents : r.netCents,
       href: `/admin/pedidos/${r.orderId}`,
     }));
+}
+
+const ORDER_STATUS_LABELS: Record<string, string> = {
+  draft: "Rascunho",
+  sent: "Enviado",
+  returned: "Devolvido",
+  paid: "Pago",
+  cancelled: "Cancelado",
+};
+
+// Vendas — pela data do PEDIDO (soldAt), não pagamento. Mesma regra de
+// getSalesYearSummary: cancelados não contam.
+export async function getSalesDetail(from: Date, to: Date): Promise<ReportDetailRow[]> {
+  const rows = await db
+    .select({
+      orderId: orders.id,
+      customerName: customers.name,
+      soldAt: orders.soldAt,
+      status: orders.status,
+      discountCents: orders.discountCents,
+      shippingCents: orders.shippingCents,
+      creditAppliedCents: orders.creditAppliedCents,
+    })
+    .from(orders)
+    .innerJoin(customers, eq(orders.customerId, customers.id))
+    .where(
+      and(
+        isNull(orders.deletedAt),
+        ne(orders.status, "cancelled"),
+        gte(orders.soldAt, from),
+        lt(orders.soldAt, to)
+      )
+    )
+    .orderBy(desc(orders.soldAt));
+
+  if (!rows.length) return [];
+
+  const orderIds = rows.map((r) => r.orderId);
+  const allItems = await db
+    .select({
+      orderId: orderItems.orderId,
+      status: orderItems.status,
+      unitPriceCents: orderItems.unitPriceCents,
+      discountCents: orderItems.discountCents,
+      quantity: orderItems.quantity,
+    })
+    .from(orderItems)
+    .where(and(inArray(orderItems.orderId, orderIds), isNull(orderItems.deletedAt)));
+
+  return rows.map((r) => ({
+    date: r.soldAt,
+    label: r.customerName,
+    sublabel: ORDER_STATUS_LABELS[r.status] ?? r.status,
+    amountCents: computeOrderItemTotal(
+      allItems.filter((i) => i.orderId === r.orderId),
+      r.discountCents,
+      r.shippingCents,
+      r.creditAppliedCents
+    ),
+    href: `/admin/pedidos/${r.orderId}`,
+  }));
 }
 
 // DRE "despesas" e Fluxo de Caixa "saídas" leem a mesma tabela — a única

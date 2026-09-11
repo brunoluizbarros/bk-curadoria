@@ -54,4 +54,5 @@ export {
   IconChartBar,
   IconCreditCard,
   IconChartLine,
+  IconShoppingCart,
 } from "@tabler/icons-react";

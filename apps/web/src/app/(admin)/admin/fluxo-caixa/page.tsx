@@ -63,10 +63,19 @@ export default async function FluxoCaixaPage({ searchParams }: Props) {
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-2">
         <IconChartLine size={22} className="text-terracotta" />
         <h1 className="font-display font-400 text-3xl text-ink">Fluxo de Caixa</h1>
+        <span className="font-body text-xs text-ink-soft uppercase tracking-widest">Regime de caixa</span>
       </div>
+      <p className="font-body text-sm text-ink-soft mb-6 max-w-2xl">
+        Dinheiro que efetivamente entra e sai a cada mês — líquido de taxas, pela data em que cada
+        recebível liquidou (ou pela data prevista, se ainda não liquidou). Para receita por data de
+        pagamento, veja o{" "}
+        <Link href="/admin/dre" className="underline hover:text-ink">DRE</Link>; para vendas pela data
+        do pedido, veja{" "}
+        <Link href="/admin/vendas" className="underline hover:text-ink">Vendas</Link>.
+      </p>
 
       {/* Seletor de ano */}
       <form method="get" className="flex items-center gap-3 mb-6">

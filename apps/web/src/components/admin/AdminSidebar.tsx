@@ -24,6 +24,7 @@ import {
   IconChartBar,
   IconChartLine,
   IconCreditCard,
+  IconShoppingCart,
 } from "@/components/ui/icons";
 
 const navItems = [
@@ -31,6 +32,7 @@ const navItems = [
   { href: "/admin/pedidos", label: "Pedidos", icon: IconReceipt },
   { href: "/admin/clientes", label: "Clientes", icon: IconUsers },
   { href: "/admin/analises", label: "Análises", icon: IconChartBar },
+  { href: "/admin/vendas", label: "Vendas", icon: IconShoppingCart },
   { href: "/admin/recebimentos", label: "Recebimentos", icon: IconCashBanknote },
   { href: "/admin/maquininhas", label: "Maquininhas", icon: IconCreditCard },
   { href: "/admin/despesas", label: "Despesas", icon: IconCoin },

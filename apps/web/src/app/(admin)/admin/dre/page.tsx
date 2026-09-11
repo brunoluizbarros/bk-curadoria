@@ -89,11 +89,18 @@ export default async function DREPage({ searchParams }: Props) {
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-2">
         <IconReportMoney size={22} className="text-terracotta" />
         <h1 className="font-display font-400 text-3xl text-ink">DRE</h1>
         <span className="font-body text-xs text-ink-soft uppercase tracking-widest">Regime de competência</span>
       </div>
+      <p className="font-body text-sm text-ink-soft mb-6 max-w-2xl">
+        Receita reconhecida no mês em que o pedido foi confirmado como pago — não no mês da venda.
+        Valores brutos, antes das taxas de cartão. Para vendas pela data do pedido, veja{" "}
+        <Link href="/admin/vendas" className="underline hover:text-ink">Vendas</Link>; para o dinheiro
+        que efetivamente cai na conta, veja o{" "}
+        <Link href="/admin/fluxo-caixa" className="underline hover:text-ink">Fluxo de Caixa</Link>.
+      </p>
 
       {/* Seletor de ano */}
       <form method="get" className="flex items-center gap-3 mb-6">

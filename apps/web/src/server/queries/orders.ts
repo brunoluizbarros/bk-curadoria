@@ -1,6 +1,7 @@
 import { db } from "@/db/client";
 import { orders, orderItems, customers, addresses, products, productImages, payments } from "@/db/schema";
-import { and, asc, count, desc, eq, gte, ilike, inArray, isNull, lt, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, ilike, inArray, isNull, lt, ne, sql } from "drizzle-orm";
+import { yearBounds } from "./dre";
 
 export type OrderStatus = "draft" | "sent" | "returned" | "paid" | "cancelled";
 
@@ -26,6 +27,73 @@ export function computeOrderItemTotal(
     .filter((i) => i.status === "kept")
     .reduce((acc, i) => acc + (i.unitPriceCents - (i.discountCents ?? 0)) * i.quantity, 0);
   return Math.max(0, keptTotal + shippingCents - discountCents - creditAppliedCents);
+}
+
+export interface SalesMonth {
+  year: number;
+  month: number;
+  totalCents: number;
+  orderCount: number;
+}
+
+// Vendas por mês pela data do PEDIDO (soldAt) — diferente do DRE (paidAt,
+// regime de competência) e do Fluxo de Caixa (settledAt/expectedAt, regime
+// de caixa). Cancelados não contam como venda.
+export async function getSalesYearSummary(year: number): Promise<SalesMonth[]> {
+  const { from, to } = yearBounds(year);
+
+  const months: SalesMonth[] = Array.from({ length: 12 }, (_, i) => ({
+    year,
+    month: i + 1,
+    totalCents: 0,
+    orderCount: 0,
+  }));
+
+  const rows = await db
+    .select({
+      id: orders.id,
+      soldAt: orders.soldAt,
+      discountCents: orders.discountCents,
+      shippingCents: orders.shippingCents,
+      creditAppliedCents: orders.creditAppliedCents,
+    })
+    .from(orders)
+    .where(
+      and(
+        isNull(orders.deletedAt),
+        ne(orders.status, "cancelled"),
+        gte(orders.soldAt, from),
+        lt(orders.soldAt, to)
+      )
+    );
+
+  if (!rows.length) return months;
+
+  const orderIds = rows.map((r) => r.id);
+  const allItems = await db
+    .select({
+      orderId: orderItems.orderId,
+      status: orderItems.status,
+      unitPriceCents: orderItems.unitPriceCents,
+      discountCents: orderItems.discountCents,
+      quantity: orderItems.quantity,
+    })
+    .from(orderItems)
+    .where(and(inArray(orderItems.orderId, orderIds), isNull(orderItems.deletedAt)));
+
+  for (const r of rows) {
+    const total = computeOrderItemTotal(
+      allItems.filter((i) => i.orderId === r.id),
+      r.discountCents,
+      r.shippingCents,
+      r.creditAppliedCents
+    );
+    const m = months[r.soldAt.getMonth()];
+    m.totalCents += total;
+    m.orderCount += 1;
+  }
+
+  return months;
 }
 
 export type OrderSort = "date_asc" | "date_desc" | "name_asc" | "name_desc";
