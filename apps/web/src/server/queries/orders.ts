@@ -1,6 +1,6 @@
 import { db } from "@/db/client";
 import { orders, orderItems, customers, addresses, products, productImages, payments } from "@/db/schema";
-import { and, asc, count, eq, gte, ilike, inArray, isNull, lt, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, ilike, inArray, isNull, lt, sql } from "drizzle-orm";
 
 export type OrderStatus = "draft" | "sent" | "returned" | "paid" | "cancelled";
 
@@ -28,9 +28,12 @@ export function computeOrderItemTotal(
   return Math.max(0, keptTotal + shippingCents - discountCents - creditAppliedCents);
 }
 
+export type OrderSort = "date_asc" | "date_desc" | "name_asc" | "name_desc";
+
 export async function getAllOrders(
   filters?: { status?: OrderStatus; from?: Date; to?: Date; search?: string },
-  pagination?: { page: number; limit: number }
+  pagination?: { page: number; limit: number },
+  sort: OrderSort = "date_asc"
 ) {
   const conditions = [isNull(orders.deletedAt)];
   if (filters?.status) conditions.push(eq(orders.status, filters.status));
@@ -41,6 +44,14 @@ export async function getAllOrders(
   const where = conditions.length ? and(...conditions) : undefined;
   const limit = pagination?.limit ?? 1000;
   const offset = pagination ? (pagination.page - 1) * pagination.limit : 0;
+  const orderBy =
+    sort === "date_desc"
+      ? [desc(orders.soldAt), desc(orders.createdAt)]
+      : sort === "name_asc"
+        ? [asc(customers.name)]
+        : sort === "name_desc"
+          ? [desc(customers.name)]
+          : [asc(orders.soldAt), asc(orders.createdAt)];
 
   const countBase = db.select({ total: count() }).from(orders);
   const countQuery = filters?.search
@@ -57,7 +68,7 @@ export async function getAllOrders(
       .from(orders)
       .innerJoin(customers, eq(orders.customerId, customers.id))
       .where(where)
-      .orderBy(asc(orders.soldAt), asc(orders.createdAt))
+      .orderBy(...orderBy)
       .limit(limit)
       .offset(offset),
   ]);

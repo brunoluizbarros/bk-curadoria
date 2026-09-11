@@ -1,4 +1,4 @@
-import { getAllOrders, getOrderMonths } from "@/server/queries/orders";
+import { getAllOrders, getOrderMonths, type OrderSort } from "@/server/queries/orders";
 import Link from "next/link";
 import { IconReceipt, IconPlus, IconSearch } from "@/components/ui/icons";
 import { formatBRL, formatDate } from "@/lib/format";
@@ -27,9 +27,13 @@ const LIMIT = 20;
 export default async function PedidosPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; page?: string; q?: string; ym?: string }>;
+  searchParams: Promise<{ status?: string; page?: string; q?: string; ym?: string; sort?: string }>;
 }) {
-  const { status, page: pageStr, q, ym: ymParam } = await searchParams;
+  const { status, page: pageStr, q, ym: ymParam, sort: sortParam } = await searchParams;
+  const sort: OrderSort =
+    sortParam === "date_desc" || sortParam === "name_asc" || sortParam === "name_desc"
+      ? sortParam
+      : "date_asc";
   const page = Math.max(1, parseInt(pageStr ?? "1", 10));
   // default = mês atual; ym="" = todos
   const ym = ymParam ?? new Date().toISOString().slice(0, 7);
@@ -44,7 +48,8 @@ export default async function PedidosPage({
   const [{ items: orders, total }, months] = await Promise.all([
     getAllOrders(
       { status: status as OrderStatus | undefined, search: q || undefined, from, to },
-      { page, limit: LIMIT }
+      { page, limit: LIMIT },
+      sort
     ),
     getOrderMonths(),
   ]);
@@ -53,6 +58,23 @@ export default async function PedidosPage({
   if (status) currentParams.status = status;
   if (q) currentParams.q = q;
   currentParams.ym = ym;
+  currentParams.sort = sort;
+
+  function sortHref(field: "date" | "name") {
+    const isActive = sort.startsWith(field);
+    const nextDir = isActive && sort.endsWith("_asc") ? "desc" : "asc";
+    const params = new URLSearchParams();
+    if (status) params.set("status", status);
+    if (q) params.set("q", q);
+    params.set("ym", ym);
+    params.set("sort", `${field}_${nextDir}`);
+    return `/admin/pedidos?${params}`;
+  }
+
+  function sortArrow(field: "date" | "name") {
+    if (!sort.startsWith(field)) return "";
+    return sort.endsWith("_asc") ? " ↑" : " ↓";
+  }
 
   return (
     <div>
@@ -141,6 +163,31 @@ export default async function PedidosPage({
             </Link>
           );
         })}
+      </div>
+
+      {/* Ordenação */}
+      <div className="flex items-center gap-2 mb-4">
+        <span className="font-body text-xs text-ink-soft uppercase tracking-widest">Ordenar por</span>
+        <Link
+          href={sortHref("date")}
+          className={`font-body text-xs px-3 py-1.5 rounded-btn border transition-colors ${
+            sort.startsWith("date")
+              ? "bg-ink text-cream border-ink"
+              : "border-ink/20 text-ink-soft hover:border-ink hover:text-ink"
+          }`}
+        >
+          Data{sortArrow("date")}
+        </Link>
+        <Link
+          href={sortHref("name")}
+          className={`font-body text-xs px-3 py-1.5 rounded-btn border transition-colors ${
+            sort.startsWith("name")
+              ? "bg-ink text-cream border-ink"
+              : "border-ink/20 text-ink-soft hover:border-ink hover:text-ink"
+          }`}
+        >
+          Nome{sortArrow("name")}
+        </Link>
       </div>
 
       {orders.length === 0 ? (
