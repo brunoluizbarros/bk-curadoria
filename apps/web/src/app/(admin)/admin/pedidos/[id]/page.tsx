@@ -18,6 +18,7 @@ import { IconReceipt, IconMapPin, IconCashBanknote, IconCircleCheck, IconClock, 
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { PaymentFormInline } from "@/components/admin/PaymentFormInline";
+import { FormWithToast } from "@/components/admin/FormWithToast";
 import { WaOrderButtons } from "@/components/admin/WaOrderButtons";
 import { LoyaltyCreditPanel } from "@/components/admin/LoyaltyCreditPanel";
 import { OrderItemDiscountForm } from "@/components/admin/OrderItemDiscountForm";
@@ -85,12 +86,13 @@ export default async function PedidoDetailPage({ params }: Props) {
           </Link>
           <h1 className="font-display font-400 text-3xl text-ink">{order.customer.name}</h1>
           <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-            <form
+            <FormWithToast
               action={async (fd: FormData) => {
                 "use server";
                 const dateStr = fd.get("soldAt") as string;
-                await updateOrderSoldAt(id, dateStr);
+                return updateOrderSoldAt(id, dateStr);
               }}
+              successMessage="Data de envio atualizada"
               className="flex items-center gap-1"
             >
               <span className="font-body text-sm text-ink-soft">Envio em</span>
@@ -103,7 +105,7 @@ export default async function PedidoDetailPage({ params }: Props) {
               <button type="submit" className="font-body text-[10px] uppercase tracking-widest text-ink-soft hover:text-ink transition-colors">
                 Salvar
               </button>
-            </form>
+            </FormWithToast>
             <span className="font-body text-sm text-ink-soft">· {formatPhone(order.customer.phone)}</span>
           </div>
         </div>
