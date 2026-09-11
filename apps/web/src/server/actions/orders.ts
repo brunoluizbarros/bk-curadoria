@@ -4,7 +4,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/db/client";
 import { orders, orderItems, products } from "@/db/schema";
 import { orderSchema } from "@/lib/validations";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getOrderById } from "@/server/queries/orders";
 import { getWaApiConfig } from "@/server/queries/settings";
@@ -139,10 +139,19 @@ export async function setOrderStatus(
   await requireAdmin();
   await db
     .update(orders)
-    .set({ status, updatedAt: new Date() })
+    .set({
+      status,
+      updatedAt: new Date(),
+      // Marcação manual de "pago" também precisa setar paidAt — é o campo que
+      // o DRE usa pra reconhecer a receita (regime de competência). Sem isso,
+      // um pedido marcado pago manualmente nunca aparece no DRE.
+      ...(status === "paid" ? { paidAt: sql`coalesce(${orders.paidAt}, now())` } : {}),
+    })
     .where(and(eq(orders.id, id), isNull(orders.deletedAt)));
   revalidatePath("/admin/pedidos");
   revalidatePath(`/admin/pedidos/${id}`);
+  revalidatePath("/admin/dre");
+  revalidatePath("/admin/fluxo-caixa");
 
   // Auto-notify customer on meaningful transitions
   if (status === "sent" || status === "paid") {
