@@ -29,19 +29,23 @@ export function computeOrderItemTotal(
 }
 
 export type OrderSort = "date_asc" | "date_desc" | "name_asc" | "name_desc";
+export type OrderFilters = { status?: OrderStatus; from?: Date; to?: Date; search?: string };
 
-export async function getAllOrders(
-  filters?: { status?: OrderStatus; from?: Date; to?: Date; search?: string },
-  pagination?: { page: number; limit: number },
-  sort: OrderSort = "date_asc"
-) {
+function buildOrderConditions(filters?: OrderFilters) {
   const conditions = [isNull(orders.deletedAt)];
   if (filters?.status) conditions.push(eq(orders.status, filters.status));
   if (filters?.from) conditions.push(gte(orders.soldAt, filters.from));
   if (filters?.to) conditions.push(lt(orders.soldAt, filters.to));
   if (filters?.search) conditions.push(ilike(customers.name, `%${filters.search}%`));
+  return and(...conditions);
+}
 
-  const where = conditions.length ? and(...conditions) : undefined;
+export async function getAllOrders(
+  filters?: OrderFilters,
+  pagination?: { page: number; limit: number },
+  sort: OrderSort = "date_asc"
+) {
+  const where = buildOrderConditions(filters);
   const limit = pagination?.limit ?? 1000;
   const offset = pagination ? (pagination.page - 1) * pagination.limit : 0;
   const orderBy =
@@ -102,6 +106,51 @@ export async function getAllOrders(
     })),
     total: countRow.total,
   };
+}
+
+// Soma o valor vendido (order.total) de TODOS os pedidos que batem no
+// filtro, sem paginação — usado pro total exibido no topo da lista de
+// Pedidos (venda pela data do pedido/soldAt, diferente do DRE que é por
+// data de pagamento).
+export async function getOrdersTotalValue(filters?: OrderFilters): Promise<number> {
+  const where = buildOrderConditions(filters);
+
+  const rows = await db
+    .select({
+      id: orders.id,
+      discountCents: orders.discountCents,
+      shippingCents: orders.shippingCents,
+      creditAppliedCents: orders.creditAppliedCents,
+    })
+    .from(orders)
+    .innerJoin(customers, eq(orders.customerId, customers.id))
+    .where(where);
+
+  if (!rows.length) return 0;
+
+  const orderIds = rows.map((r) => r.id);
+  const allItems = await db
+    .select({
+      orderId: orderItems.orderId,
+      status: orderItems.status,
+      unitPriceCents: orderItems.unitPriceCents,
+      discountCents: orderItems.discountCents,
+      quantity: orderItems.quantity,
+    })
+    .from(orderItems)
+    .where(and(inArray(orderItems.orderId, orderIds), isNull(orderItems.deletedAt)));
+
+  return rows.reduce(
+    (acc, r) =>
+      acc +
+      computeOrderItemTotal(
+        allItems.filter((i) => i.orderId === r.id),
+        r.discountCents,
+        r.shippingCents,
+        r.creditAppliedCents
+      ),
+    0
+  );
 }
 
 export async function getOrderById(id: string) {

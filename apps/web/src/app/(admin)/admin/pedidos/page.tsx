@@ -1,4 +1,4 @@
-import { getAllOrders, getOrderMonths, type OrderSort } from "@/server/queries/orders";
+import { getAllOrders, getOrderMonths, getOrdersTotalValue, type OrderSort } from "@/server/queries/orders";
 import Link from "next/link";
 import { IconReceipt, IconPlus, IconSearch } from "@/components/ui/icons";
 import { formatBRL, formatDate } from "@/lib/format";
@@ -45,13 +45,11 @@ export default async function PedidosPage({
     to = new Date(year, month, 1);
   }
 
-  const [{ items: orders, total }, months] = await Promise.all([
-    getAllOrders(
-      { status: status as OrderStatus | undefined, search: q || undefined, from, to },
-      { page, limit: LIMIT },
-      sort
-    ),
+  const orderFilters = { status: status as OrderStatus | undefined, search: q || undefined, from, to };
+  const [{ items: orders, total }, months, totalValueCents] = await Promise.all([
+    getAllOrders(orderFilters, { page, limit: LIMIT }, sort),
     getOrderMonths(),
+    getOrdersTotalValue(orderFilters),
   ]);
   const totalPages = Math.ceil(total / LIMIT);
   const currentParams: Record<string, string> = {};
@@ -188,6 +186,15 @@ export default async function PedidosPage({
         >
           Nome{sortArrow("name")}
         </Link>
+      </div>
+
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="font-body text-xs uppercase tracking-widest text-ink-soft">
+          {total} {total === 1 ? "pedido" : "pedidos"}
+        </h2>
+        <span className="font-body text-sm text-terracotta font-medium">
+          {formatBRL(totalValueCents)} vendido
+        </span>
       </div>
 
       {orders.length === 0 ? (
