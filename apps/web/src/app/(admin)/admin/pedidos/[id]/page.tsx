@@ -394,7 +394,13 @@ export default async function PedidoDetailPage({ params }: Props) {
         )}
 
         {/* Formulário de novo pagamento */}
-        <PaymentFormInline orderId={id} orderTotal={order.total} feeConfigs={feeConfigs} machines={machines} />
+        <PaymentFormInline
+          orderId={id}
+          orderTotal={order.total}
+          remainingCents={order.total - totalPaid}
+          feeConfigs={feeConfigs}
+          machines={machines}
+        />
       </section>
 
       {/* Notificações WhatsApp */}

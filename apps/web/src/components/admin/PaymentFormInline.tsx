@@ -14,13 +14,16 @@ import type { CardMachineWithRates } from "@/server/queries/settings";
 interface PaymentFormInlineProps {
   orderId: string;
   orderTotal: number;
+  remainingCents?: number;
   feeConfigs?: Record<string, number>;
   machines?: CardMachineWithRates[];
 }
 
-export function PaymentFormInline({ orderId, orderTotal, feeConfigs, machines }: PaymentFormInlineProps) {
+export function PaymentFormInline({ orderId, orderTotal, remainingCents = orderTotal, feeConfigs, machines }: PaymentFormInlineProps) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
+
+  if (remainingCents <= 0 && !open) return null;
 
   async function handleSubmit(data: PaymentInput) {
     const result = await createPayment(orderId, data);
@@ -39,9 +42,9 @@ export function PaymentFormInline({ orderId, orderTotal, feeConfigs, machines }:
       <Button type="button" variant="ghost" size="sm" onClick={() => setOpen(true)}>
         <IconPlus size={12} />
         Registrar pagamento
-        {orderTotal > 0 && (
+        {remainingCents > 0 && (
           <span className="ml-1 font-body text-[10px] text-ink-soft normal-case tracking-normal">
-            ({formatBRL(orderTotal)})
+            ({formatBRL(remainingCents)})
           </span>
         )}
       </Button>
@@ -57,7 +60,7 @@ export function PaymentFormInline({ orderId, orderTotal, feeConfigs, machines }:
         feeConfigs={feeConfigs}
         machines={machines}
         defaultValues={{
-          grossCents: orderTotal,
+          grossCents: remainingCents,
           paidAt: new Date().toISOString().slice(0, 10),
           anticipated: true,
         }}
