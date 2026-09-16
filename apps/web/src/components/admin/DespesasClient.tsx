@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ExpenseForm } from "@/components/admin/ExpenseForm";
 import {
@@ -133,13 +133,16 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
   const router = useRouter();
   const [showForm, setShowForm] = useState(false);
   const [expenses, setExpenses] = useState<ExpenseRow[]>(initialExpenses);
-
   // router.refresh() busca initialExpenses de novo no servidor, mas o
   // useState acima só roda no mount — sem isso, criar/editar despesa fecha
-  // o form e não aparece na lista até um F5 manual.
-  useEffect(() => {
+  // o form e não aparece na lista até um F5 manual. Sincroniza durante o
+  // render (padrão React p/ "ajustar estado quando uma prop muda"), não em
+  // efeito, pra evitar um render extra.
+  const [syncedFrom, setSyncedFrom] = useState(initialExpenses);
+  if (initialExpenses !== syncedFrom) {
+    setSyncedFrom(initialExpenses);
     setExpenses(initialExpenses);
-  }, [initialExpenses]);
+  }
   const [deleting, setDeleting] = useState<string | null>(null);
   const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
   const [editingKey, setEditingKey] = useState<string | null>(null);
@@ -323,8 +326,70 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
         </div>
       )}
 
+      {editingKey && (() => {
+        const editingItem = allItems.find((i) => i.key === editingKey);
+        if (!editingItem) return null;
+        const isGroup = editingItem.type === "group";
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <button
+              aria-label="Fechar"
+              onClick={() => setEditingKey(null)}
+              className="absolute inset-0 bg-ink/40"
+            />
+            <div className="relative bg-cream rounded-card border border-ink/10 shadow-xl w-full max-w-lg max-h-[85vh] overflow-y-auto px-5 py-5">
+              <p className="font-body text-xs uppercase tracking-widest text-ink-soft mb-1">
+                {isGroup ? "Editar grupo de parcelas" : "Editar despesa"}
+              </p>
+              {isGroup && (
+                <p className="font-body text-xs text-ink-soft mb-4">
+                  {editingItem.installments.length} parcelas · alterações aplicadas a todas
+                </p>
+              )}
+              <ExpenseForm
+                categories={categories}
+                defaultValues={
+                  isGroup
+                    ? {
+                        description: editingItem.description,
+                        categoryId: editingItem.category.id,
+                        amountCents: editingItem.totalAmountCents,
+                        paidAt: new Date(editingItem.installments[0].paidAt).toISOString().slice(0, 10),
+                        notes: editingItem.installments[0].notes ?? undefined,
+                        installments: editingItem.installments.length,
+                      }
+                    : {
+                        description: editingItem.expense.description,
+                        categoryId: editingItem.expense.category.id,
+                        amountCents: editingItem.expense.amountCents,
+                        paidAt: new Date(editingItem.expense.paidAt).toISOString().slice(0, 10),
+                        notes: editingItem.expense.notes ?? undefined,
+                        installments: 1,
+                      }
+                }
+                onSubmit={(data) =>
+                  isGroup
+                    ? handleSaveGroup(editingItem.groupId, data)
+                    : handleSaveSingle(editingItem.expense.id, data)
+                }
+                submitLabel="Salvar alterações"
+                onCancel={() => setEditingKey(null)}
+              />
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Abas de mês */}
-      <div className="flex gap-1 overflow-x-auto mb-4 pb-px">
+      <div
+        className="flex gap-1 overflow-x-auto mb-4 pb-px"
+        onWheel={(e) => {
+          // Mouse comum só manda scroll vertical (deltaY) — sem isso, dá pra
+          // rolar essa faixa só com trackpad/shift+scroll.
+          if (e.deltaY !== 0) e.currentTarget.scrollLeft += e.deltaY;
+        }}
+      >
         <button
           onClick={() => { setFilterMonth(""); setPage(1); }}
           className={cn(
@@ -393,28 +458,6 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
             if (item.type === "single") {
               const exp = item.expense;
 
-              if (editingKey === item.key) {
-                return (
-                  <div key={exp.id} className="bg-cream rounded-card border border-terracotta/30 px-4 py-4">
-                    <p className="font-body text-xs uppercase tracking-widest text-ink-soft mb-4">Editar despesa</p>
-                    <ExpenseForm
-                      categories={categories}
-                      defaultValues={{
-                        description: exp.description,
-                        categoryId: exp.category.id,
-                        amountCents: exp.amountCents,
-                        paidAt: new Date(exp.paidAt).toISOString().slice(0, 10),
-                        notes: exp.notes ?? undefined,
-                        installments: 1,
-                      }}
-                      onSubmit={(data) => handleSaveSingle(exp.id, data)}
-                      submitLabel="Salvar alterações"
-                      onCancel={() => setEditingKey(null)}
-                    />
-                  </div>
-                );
-              }
-
               return (
                 <div
                   key={exp.id}
@@ -452,33 +495,6 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
             /* ── GROUP ── */
             const isOpen = openGroups.has(item.groupId);
             const isFilteredByMonth = filterMonth !== "";
-
-            if (editingKey === item.key) {
-              return (
-                <div key={item.groupId} className="bg-cream rounded-card border border-terracotta/30 px-4 py-4">
-                  <p className="font-body text-xs uppercase tracking-widest text-ink-soft mb-1">
-                    Editar grupo de parcelas
-                  </p>
-                  <p className="font-body text-xs text-ink-soft mb-4">
-                    {item.installments.length} parcelas · alterações aplicadas a todas
-                  </p>
-                  <ExpenseForm
-                    categories={categories}
-                    defaultValues={{
-                      description: item.description,
-                      categoryId: item.category.id,
-                      amountCents: item.totalAmountCents,
-                      paidAt: new Date(item.installments[0].paidAt).toISOString().slice(0, 10),
-                      notes: item.installments[0].notes ?? undefined,
-                      installments: item.installments.length,
-                    }}
-                    onSubmit={(data) => handleSaveGroup(item.groupId, data)}
-                    submitLabel="Salvar alterações"
-                    onCancel={() => setEditingKey(null)}
-                  />
-                </div>
-              );
-            }
 
             return (
               <div key={item.groupId} className="bg-cream rounded-card border border-ink/10 overflow-hidden">
