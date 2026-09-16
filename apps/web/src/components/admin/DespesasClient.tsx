@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ExpenseForm } from "@/components/admin/ExpenseForm";
 import {
@@ -277,6 +277,37 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
     }
   }
 
+  const monthDrag = useRef<{ startX: number; startScrollLeft: number; dragged: boolean } | null>(null);
+  // Sobrevive ao mouseup até o click seguinte poder checá-la (ver
+  // suppressClickAfterDrag) — mouseup já limpa monthDrag.
+  const justDraggedMonths = useRef(false);
+
+  function handleMonthTabsMouseDown(e: React.MouseEvent<HTMLDivElement>) {
+    monthDrag.current = { startX: e.clientX, startScrollLeft: e.currentTarget.scrollLeft, dragged: false };
+  }
+
+  function handleMonthTabsMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    if (!monthDrag.current) return;
+    const dx = e.clientX - monthDrag.current.startX;
+    if (Math.abs(dx) > 4) monthDrag.current.dragged = true;
+    e.currentTarget.scrollLeft = monthDrag.current.startScrollLeft - dx;
+  }
+
+  function stopMonthTabsDrag() {
+    if (monthDrag.current?.dragged) justDraggedMonths.current = true;
+    monthDrag.current = null;
+  }
+
+  // Sem isso, soltar o mouse depois de arrastar dispara o onClick do botão
+  // do mês embaixo do cursor, mudando o filtro sem o usuário querer.
+  function suppressClickAfterDrag(e: React.MouseEvent<HTMLDivElement>) {
+    if (justDraggedMonths.current) {
+      justDraggedMonths.current = false;
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  }
+
   function formatMonthLabel(ym: string) {
     const [year, mon] = ym.split("-");
     const date = new Date(Number(year), Number(mon) - 1);
@@ -383,12 +414,21 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
 
       {/* Abas de mês */}
       <div
-        className="flex gap-1 overflow-x-auto mb-4 pb-px"
+        className="flex gap-1 overflow-x-auto mb-4 pb-px cursor-grab active:cursor-grabbing"
         onWheel={(e) => {
           // Mouse comum só manda scroll vertical (deltaY) — sem isso, dá pra
-          // rolar essa faixa só com trackpad/shift+scroll.
-          if (e.deltaY !== 0) e.currentTarget.scrollLeft += e.deltaY;
+          // rolar essa faixa só com trackpad/shift+scroll. preventDefault
+          // evita que a página role ao mesmo tempo.
+          if (e.deltaY !== 0) {
+            e.preventDefault();
+            e.currentTarget.scrollLeft += e.deltaY;
+          }
         }}
+        onMouseDown={handleMonthTabsMouseDown}
+        onMouseMove={handleMonthTabsMouseMove}
+        onMouseUp={stopMonthTabsDrag}
+        onMouseLeave={stopMonthTabsDrag}
+        onClickCapture={suppressClickAfterDrag}
       >
         <button
           onClick={() => { setFilterMonth(""); setPage(1); }}
