@@ -102,9 +102,7 @@ export default async function PedidoDetailPage({ params }: Props) {
                 defaultValue={new Date(order.soldAt).toISOString().slice(0, 10)}
                 className="border border-ink/20 bg-cream px-1.5 py-0.5 rounded font-body text-sm text-ink-soft focus:outline-none focus:border-ink"
               />
-              <button type="submit" className="font-body text-[10px] uppercase tracking-widest text-ink-soft hover:text-ink transition-colors">
-                Salvar
-              </button>
+              <Button type="submit" variant="ghost" size="sm">Salvar</Button>
             </FormWithToast>
             <span className="font-body text-sm text-ink-soft">· {formatPhone(order.customer.phone)}</span>
           </div>
