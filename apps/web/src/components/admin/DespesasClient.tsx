@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ExpenseForm } from "@/components/admin/ExpenseForm";
 import {
@@ -133,6 +133,13 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
   const router = useRouter();
   const [showForm, setShowForm] = useState(false);
   const [expenses, setExpenses] = useState<ExpenseRow[]>(initialExpenses);
+
+  // router.refresh() busca initialExpenses de novo no servidor, mas o
+  // useState acima só roda no mount — sem isso, criar/editar despesa fecha
+  // o form e não aparece na lista até um F5 manual.
+  useEffect(() => {
+    setExpenses(initialExpenses);
+  }, [initialExpenses]);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [openGroups, setOpenGroups] = useState<Set<string>>(new Set());
   const [editingKey, setEditingKey] = useState<string | null>(null);
@@ -289,23 +296,30 @@ export function DespesasClient({ categories, initialExpenses }: Props) {
       </div>
 
       {showForm && (
-        <div className="mb-6 bg-cream rounded-card px-4 py-4 border border-ink/10">
-          <p className="font-body text-xs uppercase tracking-widest text-ink-soft mb-4">Nova despesa</p>
-          {categories.length === 0 ? (
-            <p className="font-body text-sm text-ink-soft">
-              Crie ao menos uma{" "}
-              <Link href="/admin/despesas/categorias" className="underline">
-                categoria
-              </Link>{" "}
-              antes de registrar despesas.
-            </p>
-          ) : (
-            <ExpenseForm
-              categories={categories}
-              onSubmit={handleSubmit}
-              onCancel={() => setShowForm(false)}
-            />
-          )}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <button
+            aria-label="Fechar"
+            onClick={() => setShowForm(false)}
+            className="absolute inset-0 bg-ink/40"
+          />
+          <div className="relative bg-cream rounded-card border border-ink/10 shadow-xl w-full max-w-lg max-h-[85vh] overflow-y-auto px-5 py-5">
+            <p className="font-body text-xs uppercase tracking-widest text-ink-soft mb-4">Nova despesa</p>
+            {categories.length === 0 ? (
+              <p className="font-body text-sm text-ink-soft">
+                Crie ao menos uma{" "}
+                <Link href="/admin/despesas/categorias" className="underline">
+                  categoria
+                </Link>{" "}
+                antes de registrar despesas.
+              </p>
+            ) : (
+              <ExpenseForm
+                categories={categories}
+                onSubmit={handleSubmit}
+                onCancel={() => setShowForm(false)}
+              />
+            )}
+          </div>
         </div>
       )}
 
